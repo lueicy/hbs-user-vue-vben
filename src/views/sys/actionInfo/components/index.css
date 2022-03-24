@@ -1,0 +1,50 @@
+.SearBar-nav {
+  height: 81px;
+  width: 100%;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 82px 0 66px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+.SearBar-nav-Row {
+  flex-grow: 1;
+}
+.SearBar-nav-Row .ant-select {
+  border-radius: 4px;
+}
+.SearBar-nav .AddBtm {
+  border-radius: 4px;
+  border: 1px solid #ffc400;
+  font-family: PingFangSC-Semibold, PingFang SC;
+  font-weight: 600;
+  color: #ffc400;
+}
+.SearBar-nav .restBtm {
+  border-radius: 4px;
+  border: 1px solid #00b9dc;
+  font-family: PingFangSC-Semibold, PingFang SC;
+  font-weight: 600;
+  color: #00b9dc;
+}
+.SearBar-nav .subBtm {
+  border-radius: 4px;
+  font-family: PingFangSC-Semibold, PingFang SC;
+  font-weight: 600;
+  background-color: #00b9dc;
+  border: 0;
+}
+.SearBar-nav .Title {
+  margin: 0 16px 0 25px;
+  font-size: 16px;
+  font-family: PingFangSC-Semibold, PingFang SC;
+  font-weight: 600;
+  color: #666666;
+}
+.SearBar-nav .Class_select {
+  background: pink;
+  display: inline-block;
+  width: 100%;
+}
