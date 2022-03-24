@@ -4,6 +4,7 @@
     v-bind="$attrs"
     :active-tab-key="activeKey"
     @tab-change="onTabChange"
+    :head-style="headStyle"
   >
     <p v-if="activeKey === 'tab1'">
       <DeviceManageList />
@@ -33,6 +34,10 @@
       tab: '778899',
     },
   ];
+  const headStyle = {
+    background: '#F6F7FB',
+    borderRadius: '10px 10px 0px 0px',
+  };
 
   export default defineComponent({
     components: {
@@ -51,7 +56,7 @@
       onMounted(() => {
         console.log('activeKey', activeKey.value);
       });
-      return { ...toRefs(state), tabListTitle, onTabChange };
+      return { ...toRefs(state), tabListTitle, onTabChange, headStyle };
     },
   });
 </script>
@@ -83,5 +88,10 @@
   .card-container > .ant-tabs-card > .ant-tabs-bar .ant-tabs-tab-active {
     border-color: #fff;
     background: #fff;
+  }
+  /deep/.ant-tabs-nav .ant-tabs-tab-active {
+    color: #00b9d7;
+    background: #fff;
+    font-weight: 500;
   }
 </style>

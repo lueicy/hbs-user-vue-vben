@@ -39,6 +39,7 @@
                   :class="`${prefixCls}__card`"
                   @click="handleView(item)"
                 >
+                  <!-- <a slot="extra" href="#">more</a> -->
                   <div :class="`${prefixCls}__card-title-name`" class="flex justify-center">
                     <span class="name">厦门呼博士的名称</span>
                   </div>
@@ -114,11 +115,40 @@
                     </div>
                   </div>
                   <div :class="`${prefixCls}__card-title`">
-                    <div class="autoTag fl">智能</div>
-                    <div class="windTag fl">高速风</div>
+                    <div class="fl">滤网维护周期</div>
+                    <!-- <div class="windTag fl">高速风</div> -->
                     <div class="mainTag fr">
-                      <span class="dib iconify-inline" data-icon="wpf:maintenance"></span>
-                      <span> 维护周期剩余2个月 </span>
+                      <span> 2个月 </span>
+                    </div>
+                  </div>
+                  <div :class="`${prefixCls}__card-title`" class="flex justify-between w-full">
+                    <div style="width: 90px; height: 20px">
+                      <div class="fl">模式</div>
+                      <div class="online fr">
+                        <span
+                          :style="{ color: i % 3 == 0 ? '' : '#A6AAB8' }"
+                          class="dib iconify"
+                          :data-icon="i % 3 == 0 ? 'ic:baseline-wifi' : 'mdi:wifi-cancel'"
+                        ></span>
+
+                        <span :style="{ color: i % 3 == 0 ? '' : '#A6AAB8' }">
+                          {{ i % 3 == 0 ? '新风' : '循环' }}
+                        </span>
+                      </div>
+                    </div>
+                    <div style="width: 80px; height: 20px">
+                      <div class="fl">风速</div>
+                      <div class="online fr">
+                        <span
+                          :style="{ color: i % 3 == 0 ? '' : '#A6AAB8' }"
+                          class="dib iconify"
+                          :data-icon="i % 3 == 0 ? 'ic:baseline-wifi' : 'mdi:wifi-cancel'"
+                        ></span>
+
+                        <span :style="{ color: i % 3 == 0 ? '' : '#A6AAB8' }">
+                          {{ i % 3 == 0 ? '强' : '弱' }}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
@@ -328,11 +358,10 @@
 </script>
 <style lang="less" scoped>
   .group-name {
-    // width: 60px;
     height: 16px;
     font-size: 12px;
     font-family: Microsoft YaHei;
-    font-weight: 400;
+    font-weight: 600;
     line-height: 24px;
     color: #999999;
     opacity: 1;
@@ -408,6 +437,11 @@
       /deep/.ant-card-body {
         padding: 0px 10px 10px 10px !important;
       }
+      &-footer {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+      }
 
       &-title {
         height: 20px;
@@ -427,7 +461,7 @@
             width: 18px;
             height: 18px;
             margin-bottom: 4px;
-            margin-right: 2px;
+            // margin-right: 2px;
           }
         }
         .autoTag,
