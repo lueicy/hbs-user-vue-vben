@@ -1,17 +1,25 @@
 <template>
-  <div :class="`${prefixCls}__content`">
+  <div :class="`${prefixCls}__content`" class="flex flex-col">
     <div class="title_Contr">
-      <div class="title_Contr_name fl"> 设备概况 </div>
+      <div class="title_Contr_name fl"> {{ groupId }} </div>
+      <a-button
+        class="title_Contr_btm fr"
+        style="background-color: #00b9d7; color: #ffffff"
+        @click="chegnSelect"
+      >
+        全开
+      </a-button>
+      <a-button
+        class="title_Contr_btm fr"
+        style="background-color: #00b9d7; color: #ffffff"
+        @click="chegnSelect"
+      >
+        全关
+      </a-button>
+      <a-button class="title_Contr_btm fr"> 添加设备 </a-button>
       <template v-if="valueList.length">
         <SlideXReverseTransition v-for="(item, index) in selectTitle" :key="index">
-          <a-button
-            :style="{
-              backgroundColor: item.num == 4 ? '#00B9D7' : '',
-              color: item.num == 4 ? '#ffffff' : '',
-            }"
-            class="title_Contr_btm fr"
-            @click="selectAll(item.num)"
-          >
+          <a-button class="title_Contr_btm fr" @click="selectAll(item.num)">
             {{ item.name }}
           </a-button>
         </SlideXReverseTransition>
@@ -19,11 +27,9 @@
       <template v-else>
         <SlideXReverseTransition>
           <a-button class="title_Contr_btm fr" @click="chegnSelect" v-if="!actionSelect">
-            选择
+            编辑
           </a-button>
-          <a-button v-else class="title_Contr_btm changeClass fr" @click="chegnSelect">
-            取消
-          </a-button>
+          <a-button v-else class="title_Contr_btm fr" @click="chegnSelect"> 取消 </a-button>
         </SlideXReverseTransition>
       </template>
     </div>
@@ -39,22 +45,10 @@
                   :class="`${prefixCls}__card`"
                   @click="handleView(item)"
                 >
-                  <!-- <a slot="extra" href="#">more</a> -->
                   <div :class="`${prefixCls}__card-title-name`" class="flex justify-center">
-                    <span class="name">厦门呼博士的名称</span>
+                    <span class="name">{{ groupId }} 厦门呼博士的名称</span>
                   </div>
                   <div :class="`${prefixCls}__card-title`">
-                    <!-- <div
-                      class="status fl"
-                      :style="{
-                        backgroundColor: [i % 2 == 0 ? '#00b9d7' : '#838A9D'],
-                        marginRight: '8px',
-                      }"
-                      >{{ i % 2 == 0 ? '开机' : '关机' }}</div
-                    >
-                    <div class="air fl" :style="{ backgroundColor: airQuity(i).color }">
-                      {{ airQuity(i).name }}
-                    </div> -->
                     <div class="fl group-name"> 群组位置：{{ airQuity(i).name }} </div>
                     <div class="online fr">
                       <span
@@ -69,8 +63,6 @@
                     </div>
                   </div>
                   <div :class="`${prefixCls}__card-detail`">
-                    <!-- 基于Vue Next, TypeScript, Ant Design Vue实现的一套完整的企业级后台管理系统 -->
-                    <!-- <img :src="item.url" alt="" /> -->
                     <div
                       class="flex flex-col items-center justify-center"
                       :style="{
@@ -154,7 +146,7 @@
 
                   <template v-if="actionSelect">
                     <!-- 遮罩层 -->
-                    <div :class="`${prefixCls}__card-bgColor`"></div>
+                    <!-- <div :class="`${prefixCls}__card-bgColor`"></div> -->
                     <!-- 多选框 -->
                     <a-checkbox :value="item.id" />
                   </template>
@@ -169,41 +161,42 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, reactive, toRefs, computed } from 'vue';
-  import { Card, Row, Col, List, Progress } from 'ant-design-vue';
+  import { defineComponent, reactive, toRefs, computed, onMounted } from 'vue';
+  import { Card, Row, Col, List, Progress, CheckboxGroup, Checkbox } from 'ant-design-vue';
   import { airQuity } from '/@/utils/other/data';
   import { useDrawer } from '/@/components/Drawer';
   import { cardList } from '../data';
+  import { SlideXReverseTransition } from '/@/components/Transition'; //动画
   import deviceImg_green from '/@/assets/images/device/device/green.png';
   import deviceImg_good from '/@/assets/images/device/device/good.png';
   import deviceImg_bad from '/@/assets/images/device/device/bad.png';
   import deviceImg_off from '/@/assets/images/device/device/off.png';
   const modeTyleList: any[] = [
-    { name: 'EH-Z-7G650', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
-    { name: 'EH-Z-7G400A', url: deviceImg_good, aqi: '2', pmValue: 40, coValue: 50 },
-    { name: 'EH-Z-7B200F', url: deviceImg_off, aqi: '4', pmValue: 0, coValue: 0 },
-    { name: 'XS-D250A', url: deviceImg_bad, aqi: '3', pmValue: 50, coValue: 60 },
-    { name: 'XS-D150A', url: deviceImg_off, aqi: '4', pmValue: 0, coValue: 0 },
-    { name: 'EH-Z-7G650', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
-    { name: 'EH-Z-7G400A', url: deviceImg_good, aqi: '2', pmValue: 40, coValue: 50 },
-    { name: 'EH-Z-7B200F', url: deviceImg_bad, aqi: '3', pmValue: 50, coValue: 60 },
-    { name: 'XS-D250A', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
-    { name: 'XS-D150A', url: deviceImg_off, aqi: '4', pmValue: 0, coValue: 0 },
-    { name: 'EH-Z-7G650', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
-    { name: 'EH-Z-7G400A', url: deviceImg_good, aqi: '2', pmValue: 40, coValue: 50 },
-    { name: 'EH-Z-7B200F', url: deviceImg_bad, aqi: '3', pmValue: 50, coValue: 60 },
-    { name: 'XS-D250A', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
-    { name: 'XS-D150A', url: deviceImg_off, aqi: '4', pmValue: 0, coValue: 0 },
-    { name: 'EH-Z-7G650', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
-    { name: 'EH-Z-7G400A', url: deviceImg_good, aqi: '2', pmValue: 40, coValue: 50 },
-    { name: 'EH-Z-7B200F', url: deviceImg_bad, aqi: '3', pmValue: 50, coValue: 60 },
-    { name: 'XS-D250A', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
-    { name: 'XS-D150A', url: deviceImg_off, aqi: '4', pmValue: 0, coValue: 0 },
-    { name: 'EH-Z-7G650', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
-    { name: 'EH-Z-7G400A', url: deviceImg_good, aqi: '2', pmValue: 40, coValue: 50 },
-    { name: 'EH-Z-7B200F', url: deviceImg_bad, aqi: '3', pmValue: 50, coValue: 60 },
-    { name: 'XS-D250A', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
-    { name: 'XS-D150A', url: deviceImg_off, aqi: '4', pmValue: 0, coValue: 0 },
+    { id: 1, name: 'EH-Z-7G650', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
+    { id: 2, name: 'EH-Z-7G400A', url: deviceImg_good, aqi: '2', pmValue: 40, coValue: 50 },
+    { id: 3, name: 'EH-Z-7B200F', url: deviceImg_off, aqi: '4', pmValue: 0, coValue: 0 },
+    { id: 4, name: 'XS-D250A', url: deviceImg_bad, aqi: '3', pmValue: 50, coValue: 60 },
+    { id: 5, name: 'XS-D150A', url: deviceImg_off, aqi: '4', pmValue: 0, coValue: 0 },
+    { id: 6, name: 'EH-Z-7G650', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
+    { id: 7, name: 'EH-Z-7G400A', url: deviceImg_good, aqi: '2', pmValue: 40, coValue: 50 },
+    { id: 8, name: 'EH-Z-7B200F', url: deviceImg_bad, aqi: '3', pmValue: 50, coValue: 60 },
+    { id: 9, name: 'XS-D250A', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
+    { id: 10, name: 'XS-D150A', url: deviceImg_off, aqi: '4', pmValue: 0, coValue: 0 },
+    { id: 11, name: 'EH-Z-7G650', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
+    { id: 12, name: 'EH-Z-7G400A', url: deviceImg_good, aqi: '2', pmValue: 40, coValue: 50 },
+    { id: 13, name: 'EH-Z-7B200F', url: deviceImg_bad, aqi: '3', pmValue: 50, coValue: 60 },
+    { id: 14, name: 'XS-D250A', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
+    { id: 15, name: 'XS-D150A', url: deviceImg_off, aqi: '4', pmValue: 0, coValue: 0 },
+    { id: 16, name: 'EH-Z-7G650', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
+    { id: 17, name: 'EH-Z-7G400A', url: deviceImg_good, aqi: '2', pmValue: 40, coValue: 50 },
+    { id: 18, name: 'EH-Z-7B200F', url: deviceImg_bad, aqi: '3', pmValue: 50, coValue: 60 },
+    { id: 19, name: 'XS-D250A', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
+    { id: 20, name: 'XS-D150A', url: deviceImg_off, aqi: '4', pmValue: 0, coValue: 0 },
+    { id: 21, name: 'EH-Z-7G650', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
+    { id: 22, name: 'EH-Z-7G400A', url: deviceImg_good, aqi: '2', pmValue: 40, coValue: 50 },
+    { id: 23, name: 'EH-Z-7B200F', url: deviceImg_bad, aqi: '3', pmValue: 50, coValue: 60 },
+    { id: 24, name: 'XS-D250A', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
+    { id: 25, name: 'XS-D150A', url: deviceImg_off, aqi: '4', pmValue: 0, coValue: 0 },
   ];
   import RippleDirective from '/@/directives/ripple';
 
@@ -215,40 +208,40 @@
 
   const selectTitle: selectTitleType[] = [
     {
-      name: '更多',
+      name: '全选',
       num: 0,
     },
     {
-      name: '全关',
+      name: '取消',
       num: 1,
     },
     {
-      name: '全开',
+      name: '移动',
       num: 2,
-    },
-    {
-      name: '取消',
-      num: 3,
-    },
-    {
-      name: '全选',
-      num: 4,
     },
   ];
 
   export default defineComponent({
     components: {
+      SlideXReverseTransition,
       [Card.name]: Card,
       [List.name]: List,
       [List.Item.name]: List.Item,
       [Row.name]: Row,
       [Col.name]: Col,
       [Progress.name]: Progress,
+      [CheckboxGroup.name]: CheckboxGroup,
+      [Checkbox.name]: Checkbox,
     },
     directives: {
       Ripple: RippleDirective,
     },
-
+    props: {
+      groupId: {
+        type: String,
+        default: '',
+      },
+    },
     setup() {
       // 判断空气质量，根据结果显示样式
       // color: #52c41a; //清新  color: #A9A9AF; //离线 color: #FFC400; //良好 color: #FF4D4F; //污浊
@@ -285,11 +278,11 @@
         indeterminate: true,
         actionSelect: false, //是否开启选择
         checkedList: [],
-        // valueList: [],
-      });
-      const lisState = reactive<selectTitleType>({
         valueList: [],
       });
+      // const lisState = reactive<selectTitleType>({
+      //   valueList: [],
+      // });
 
       function handleView(item) {
         if (state.actionSelect) return; //判断选择按钮是否开启
@@ -300,6 +293,9 @@
         }, 1000);
       }
       // onMounted(() => handleView());
+      onMounted(() => {
+        console.log('valueList', state.valueList, state.valueList.length);
+      });
       const onCheckAllChangeList = (e: any) => {
         console.log('e===', e);
         Object.assign(state, {
@@ -311,23 +307,29 @@
 
       const getAllCheck = () => {
         console.log('执行。');
-        Object.assign(lisState, {
+        Object.assign(state, {
           valueList: getSelectList(),
         });
       };
       const getAllCancel = () => {
-        Object.assign(lisState, {
+        Object.assign(state, {
           valueList: [],
         });
+      };
+      const removeDevive = () => {
+        console.log('移动设备', JSON.parse(JSON.stringify(state.valueList)));
       };
       const selectAll = (id) => {
         console.log('id---', id);
         switch (id) {
-          case 4:
+          case 0:
             getAllCheck();
             break;
-          case 3:
+          case 1:
             getAllCancel();
+            break;
+          case 2:
+            removeDevive();
             break;
 
           default:
@@ -335,7 +337,7 @@
         }
       };
       const chegnSelect = () => (
-        (state.actionSelect = !state.actionSelect), (lisState.valueList = [])
+        (state.actionSelect = !state.actionSelect), (state.valueList = [])
       );
       return {
         prefixCls: 'list-card',
@@ -343,7 +345,7 @@
         selectTitle,
         airQuity,
         handleView,
-        ...toRefs(lisState),
+        // ...toRefs(lisState),
         ...toRefs(state),
         register5,
         selectAll,
@@ -494,6 +496,9 @@
             line-height: 24px;
             color: #3e4159;
             opacity: 1;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
           }
         }
       }
@@ -557,15 +562,15 @@
       // 多选框---未选中
       /deep/.ant-checkbox {
         position: absolute;
-        top: 11px;
-        right: 18px;
+        top: 6px;
+        right: 10px;
 
         .ant-checkbox-inner {
           width: 20px;
           height: 20px;
           background-color: rgba(255, 255, 255, 0.6);
           border-radius: 4px;
-          border-color: #ffffff;
+          border-color: rgba(0, 0, 0, 0.15);
         }
       }
       // 多选框---选中

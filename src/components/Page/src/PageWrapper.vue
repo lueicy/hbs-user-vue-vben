@@ -172,14 +172,15 @@ export default defineComponent({
 
 .@{prefix-cls} {
   position: relative;
-
+  background-color: rgba(246, 247, 251, 1);
   .@{prefix-cls}-content {
-    margin: 16px;
+    margin: 0px 32px 32px 32px;
+    border-radius: 10px 10px 0 0;
   }
 
   .ant-page-header {
     // background-color:#f5f6f8;
-    background-color:#ffffff;
+    background-color:rgba(246, 247, 251, 1);
 
     &:empty {
       padding: 0;
@@ -187,7 +188,8 @@ export default defineComponent({
   }
 
   &-content-bg {
-    background-color: @component-background;
+    // background-color: @component-background;
+    background-color:#ffffff;
   }
 
   &--dense {

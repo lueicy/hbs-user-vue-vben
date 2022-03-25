@@ -6,11 +6,11 @@
     @tab-change="onTabChange"
     :head-style="headStyle"
   >
-    <p v-if="activeKey === 'tab1'">
-      <DeviceManageList />
-    </p>
+    <!-- <p v-if="activeKey === 'tab1'"> -->
+    <DeviceManageList :groupId="activeKey" />
+    <!-- </p>
     <p v-if="activeKey === 'tab2'"> 222 </p>
-    <p v-if="activeKey === 'tab3'"> 333 </p>
+    <p v-if="activeKey === 'tab3'"> 333 </p> -->
   </Card>
 </template>
 <script lang="ts">
@@ -18,7 +18,7 @@
   import { Card } from 'ant-design-vue';
   import { defineComponent, reactive, toRefs } from 'vue';
   import DeviceManageList from './DeviceManageList.vue';
-  const activeKey = ref('tab1');
+  let activeKey = ref('tab1');
 
   const tabListTitle = [
     {
@@ -31,11 +31,13 @@
     },
     {
       key: 'tab3',
-      tab: '778899',
+      tab: '778899999999999999',
     },
   ];
   const headStyle = {
     background: '#F6F7FB',
+    padding: '0px',
+    hight: '40px',
     borderRadius: '10px 10px 0px 0px',
   };
 
@@ -92,6 +94,14 @@
   /deep/.ant-tabs-nav .ant-tabs-tab-active {
     color: #00b9d7;
     background: #fff;
-    font-weight: 500;
+    font-weight: 600;
+  }
+  /deep/ .ant-tabs-ink-bar {
+    visibility: hidden;
+  }
+  /deep/ .ant-tabs-tab {
+    padding: 9px 20px;
+    margin: 0px;
+    border-radius: 10px 10px 0 0;
   }
 </style>
