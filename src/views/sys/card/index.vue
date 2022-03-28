@@ -1,25 +1,28 @@
 <template>
   <PageWrapper :class="prefixCls" title="">
-    <template #headerContent>
+    <template v-if="isDetail" #headerContent>
       <WorkbenchHeader />
+      <DeviceManage class="rounded-t enter-y" />
     </template>
-    <DeviceManage class="rounded-t enter-y" />
-
-    <Drawer @register="register5" />
+    <template v-if="!isDetail">
+      <a-button @click="isDetail = !isDetail">返回</a-button>
+      <DeviceDetail :deviceData="deviceData" />
+    </template>
   </PageWrapper>
 </template>
 <script lang="ts">
-  import { defineComponent } from 'vue';
+  import { reactive, toRefs, defineComponent, onBeforeUnmount } from 'vue';
   import { PageWrapper } from '/@/components/Page';
   import WorkbenchHeader from './components/WorkbenchHeader.vue';
   import DeviceManage from './components/DeviceManage.vue';
   import RippleDirective from '/@/directives/ripple';
-  import { useDrawer } from '/@/components/Drawer';
-  import Drawer from './components/Drawer.vue';
+  // import { useDrawer } from '/@/components/Drawer';
+  import DeviceDetail from '../deviceDetail/index.vue';
+  import bus from '/@/utils/bus';
 
   export default defineComponent({
     components: {
-      Drawer,
+      DeviceDetail,
       WorkbenchHeader,
       DeviceManage,
       PageWrapper,
@@ -29,10 +32,24 @@
     },
 
     setup() {
-      const [register5] = useDrawer();
+      const state = reactive({
+        isDetail: true, //是否开启选择
+        deviceData: {},
+      });
+      const catchShow = (event) => {
+        state.isDetail = event.id ? false : true;
+        state.deviceData = event;
+        console.log('showDetail 我拿到数据了', event);
+      };
+
+      bus.on('showDetail222', catchShow);
+      onBeforeUnmount(() => {
+        bus.off('showDetail222', catchShow);
+      });
 
       return {
-        register5,
+        catchShow,
+        ...toRefs(state),
       };
     },
   });

@@ -6,32 +6,35 @@ import { t } from '/@/hooks/web/useI18n';
 
 // const ExceptionPage = () => import('/@/views/sys/exception/Exception.vue');
 
-const page: AppRouteModule = {
-  path: '/home',
-  name: 'Home',
+const groupManag: AppRouteModule = {
+  path: '/groupManag',
+  name: 'GroupManag',
   component: LAYOUT,
-  redirect: '/home/index',
+  redirect: '/groupManag/index',
   meta: {
-    orderNo: 2,
+    orderNo: 3,
     icon: 'ion:aperture-outline',
     // title: t('routes.demo.page.page'),
-    title: '设备管理',
+    title: '群组管理',
     hideChildrenInMenu: true,
   },
   children: [
     // =============================list start=============================
     {
       path: 'index',
-      name: 'CardPages',
+      name: 'GroupManag',
       // component: getParentLayout('ListPage'),
-      component: () => import('/@/views/sys/card/index.vue'),
+      component: () => import('/@/views/sys/groupManagment/index.vue'),
       meta: {
         // title: t('routes.demo.page.list'),
-        title: '设备管理',
+        title: '群组管理',
+        hideMenu: true,
+        dynamicLevel: 3,
+        realPath: '/groupManag',
       },
     },
     // =============================list end=============================
   ],
 };
 
-export default page;
+export default groupManag;

@@ -16,21 +16,21 @@
       >
         全关
       </a-button>
-      <a-button class="title_Contr_btm fr"> 添加设备 </a-button>
+      <a-button class="title_Contr_btm fr" @click="addDevice"> 添加设备 </a-button>
       <template v-if="valueList.length">
-        <SlideXReverseTransition v-for="(item, index) in selectTitle" :key="index">
+        <div v-for="(item, index) in selectTitle" :key="index">
           <a-button class="title_Contr_btm fr" @click="selectAll(item.num)">
             {{ item.name }}
           </a-button>
-        </SlideXReverseTransition>
+        </div>
       </template>
       <template v-else>
-        <SlideXReverseTransition>
+        <div>
           <a-button class="title_Contr_btm fr" @click="chegnSelect" v-if="!actionSelect">
             编辑
           </a-button>
           <a-button v-else class="title_Contr_btm fr" @click="chegnSelect"> 取消 </a-button>
-        </SlideXReverseTransition>
+        </div>
       </template>
     </div>
     <a-list>
@@ -146,7 +146,7 @@
 
                   <template v-if="actionSelect">
                     <!-- 遮罩层 -->
-                    <!-- <div :class="`${prefixCls}__card-bgColor`"></div> -->
+                    <div :class="`${prefixCls}__card-bgColor`"></div>
                     <!-- 多选框 -->
                     <a-checkbox :value="item.id" />
                   </template>
@@ -157,20 +157,41 @@
         </a-row>
       </a-checkbox-group>
     </a-list>
+
+    <component :is="currentModal" v-model:visible="modalVisible" :userData="userData" />
+    <RemoveModel @register="register1" :minHeight="100" />
+    <AddModel @register="register4" :minHeight="100" />
+
+    <Drawer @register="register5" />
   </div>
 </template>
 
 <script lang="ts">
-  import { defineComponent, reactive, toRefs, computed, onMounted } from 'vue';
+  import {
+    defineComponent,
+    reactive,
+    toRefs,
+    computed,
+    onMounted,
+    shallowRef,
+    ComponentOptions,
+    ref,
+    nextTick,
+  } from 'vue';
   import { Card, Row, Col, List, Progress, CheckboxGroup, Checkbox } from 'ant-design-vue';
   import { airQuity } from '/@/utils/other/data';
   import { useDrawer } from '/@/components/Drawer';
+  import Drawer from './Drawer.vue';
   import { cardList } from '../data';
-  import { SlideXReverseTransition } from '/@/components/Transition'; //动画
+  import RemoveModel from './RemoveModel.vue';
+  import AddModel from './AddModel.vue';
+  import { useModal } from '/@/components/Modal';
+  // import { SlideXReverseTransition } from '/@/components/Transition'; //动画
   import deviceImg_green from '/@/assets/images/device/device/green.png';
   import deviceImg_good from '/@/assets/images/device/device/good.png';
   import deviceImg_bad from '/@/assets/images/device/device/bad.png';
   import deviceImg_off from '/@/assets/images/device/device/off.png';
+  import bus from '/@/utils/bus';
   const modeTyleList: any[] = [
     { id: 1, name: 'EH-Z-7G650', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
     { id: 2, name: 'EH-Z-7G400A', url: deviceImg_good, aqi: '2', pmValue: 40, coValue: 50 },
@@ -212,7 +233,7 @@
       num: 0,
     },
     {
-      name: '取消',
+      name: '取消选中',
       num: 1,
     },
     {
@@ -223,7 +244,10 @@
 
   export default defineComponent({
     components: {
-      SlideXReverseTransition,
+      Drawer,
+      RemoveModel, // 移动弹窗
+      AddModel, // 添加设备弹窗
+      // SlideXReverseTransition,
       [Card.name]: Card,
       [List.name]: List,
       [List.Item.name]: List.Item,
@@ -243,6 +267,11 @@
       },
     },
     setup() {
+      const currentModal = shallowRef<Nullable<ComponentOptions>>(null);
+      const [register1, { openModal: openModal1 }] = useModal();
+      const [register4, { openModal: openModal4 }] = useModal();
+      const modalVisible = ref<Boolean>(false);
+      const userData = ref<any>(null);
       // 判断空气质量，根据结果显示样式
       // color: #52c41a; //清新  color: #A9A9AF; //离线 color: #FFC400; //良好 color: #FF4D4F; //污浊
       const dealAqires = computed(() => {
@@ -284,13 +313,46 @@
       //   valueList: [],
       // });
 
+      function openModalLoading() {
+        openModal1(true);
+        // setModalProps({ loading: true });
+        // setTimeout(() => {
+        //   setModalProps({ loading: false });
+        // }, 2000);
+      }
+      function send() {
+        openModal4(true, {
+          data: 'content',
+          info: 'Info',
+        });
+      }
+      function openTargetModal(index) {
+        switch (index) {
+          case 1:
+            currentModal.value = RemoveModel;
+            break;
+          case 2:
+            currentModal.value = AddModel;
+            break;
+        }
+        nextTick(() => {
+          // `useModal` not working with dynamic component
+          // passing data through `userData` prop
+          userData.value = { data: Math.random(), info: 'Info222' };
+          // open the target modal
+          modalVisible.value = true;
+        });
+      }
+
       function handleView(item) {
-        if (state.actionSelect) return; //判断选择按钮是否开启
-        openDrawer5(true, { record: item });
-        setDrawerProps({ loading: true });
-        setTimeout(() => {
-          setDrawerProps({ loading: false });
-        }, 1000);
+        bus.emit('showDetail222', item);
+        console.log('点击查看详情', item);
+        // if (state.actionSelect) return; //判断选择按钮是否开启
+        // openDrawer5(true, { record: item });
+        // setDrawerProps({ loading: true });
+        // setTimeout(() => {
+        //   setDrawerProps({ loading: false });
+        // }, 1000);
       }
       // onMounted(() => handleView());
       onMounted(() => {
@@ -316,8 +378,13 @@
           valueList: [],
         });
       };
+      const addDevice = () => {
+        console.log('添加设备');
+        openTargetModal(2);
+      };
       const removeDevive = () => {
         console.log('移动设备', JSON.parse(JSON.stringify(state.valueList)));
+        openTargetModal(1);
       };
       const selectAll = (id) => {
         console.log('id---', id);
@@ -340,6 +407,16 @@
         (state.actionSelect = !state.actionSelect), (state.valueList = [])
       );
       return {
+        register1,
+        openModal1,
+        register4,
+        openModal4,
+        modalVisible,
+        userData,
+        openTargetModal,
+        send,
+        currentModal,
+        openModalLoading,
         prefixCls: 'list-card',
         list: cardList,
         selectTitle,
@@ -352,6 +429,7 @@
         getAllCheck,
         onCheckAllChangeList,
         chegnSelect,
+        addDevice,
         modeTyleList,
         dealAqires,
       };
@@ -406,8 +484,8 @@
       .btmClass();
       line-height: 24px;
       border-radius: 6px;
-      border: 2px solid @colorThem;
-      color: @colorThem;
+      border: 1px solid rgba(217, 217, 217, 1);
+      color: rgba(102, 102, 102, 1);
       margin-left: 12px;
     }
     .changeClass {

@@ -80,11 +80,11 @@ export default defineComponent({
   },
 });
 </script>
-<style lang="less">
+<style lang="less" scoped>
 .scroll-container {
   width: 100%;
   height: 100%;
-  border-top: 15px solid  #00B9D7;
+  // border-top: 15px solid  #00B9D7;
   .scrollbar__wrap {
     margin-bottom: 18px !important;
     overflow-x: hidden;
