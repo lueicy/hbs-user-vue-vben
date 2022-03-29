@@ -5,7 +5,10 @@
       <DeviceManage class="rounded-t enter-y" />
     </template>
     <template v-if="!isDetail">
-      <a-button @click="isDetail = !isDetail">返回</a-button>
+      <a-button @click="isDetail = !isDetail" class="back-btn">
+        <Icon icon="ant-design:arrow-left-outlined" style="font-size: 21px" />
+        返回
+      </a-button>
       <DeviceDetail :deviceData="deviceData" />
     </template>
   </PageWrapper>
@@ -19,6 +22,7 @@
   // import { useDrawer } from '/@/components/Drawer';
   import DeviceDetail from '../deviceDetail/index.vue';
   import bus from '/@/utils/bus';
+  import { Icon } from '/@/components/Icon';
 
   export default defineComponent({
     components: {
@@ -26,6 +30,7 @@
       WorkbenchHeader,
       DeviceManage,
       PageWrapper,
+      Icon,
     },
     directives: {
       Ripple: RippleDirective,
@@ -54,3 +59,14 @@
     },
   });
 </script>
+<style lang="less" scoped>
+  .back-btn {
+    border: none;
+    font-size: 18px;
+    font-weight: 550;
+    box-shadow: none;
+    background: none;
+    margin: 8px 0px;
+    padding-left: 0px;
+  }
+</style>

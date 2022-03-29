@@ -162,7 +162,7 @@
     <RemoveModel @register="register1" :minHeight="100" />
     <AddModel @register="register4" :minHeight="100" />
 
-    <Drawer @register="register5" />
+    <!-- <Drawer @register="register5" /> -->
   </div>
 </template>
 
@@ -180,7 +180,7 @@
   } from 'vue';
   import { Card, Row, Col, List, Progress, CheckboxGroup, Checkbox } from 'ant-design-vue';
   import { airQuity } from '/@/utils/other/data';
-  import { useDrawer } from '/@/components/Drawer';
+  // import { useDrawer } from '/@/components/Drawer';
   import Drawer from './Drawer.vue';
   import { cardList } from '../data';
   import RemoveModel from './RemoveModel.vue';
@@ -302,7 +302,7 @@
           return type === 'style' ? colStyle : aqiText;
         };
       });
-      const [register5, { openDrawer: openDrawer5, setDrawerProps }] = useDrawer();
+      // const [register5, { openDrawer: openDrawer5, setDrawerProps }] = useDrawer();
       const state = reactive({
         indeterminate: true,
         actionSelect: false, //是否开启选择
@@ -424,7 +424,7 @@
         handleView,
         // ...toRefs(lisState),
         ...toRefs(state),
-        register5,
+        // register5,
         selectAll,
         getAllCheck,
         onCheckAllChangeList,

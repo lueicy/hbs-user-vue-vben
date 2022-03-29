@@ -1,10 +1,21 @@
 <template>
-  <div>我是设备详情页面{{ deviceData.name }}</div>
+  <div class="page-container">
+    <div class="flex">
+      <div class="datav-top-l">
+        <DeviceStatus />
+      </div>
+      <div class="datav-top-r"> 我是基本信息网络信息分享人信息 </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
   import { defineComponent } from 'vue';
+  import DeviceStatus from './components/DeviceStatus.vue';
   export default defineComponent({
+    components: {
+      DeviceStatus,
+    },
     props: {
       deviceData: {
         type: Object,
@@ -14,4 +25,21 @@
   });
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+  .page-container {
+    min-height: 800px;
+    .datav-top-l {
+      width: 800px;
+      height: 594px;
+      background: rgba(255, 255, 255, 0.39);
+      box-shadow: 0px 3px 6px #e8e8e8;
+      opacity: 1;
+      border-radius: 10px;
+    }
+    .datav-top-r {
+      width: 800px;
+      height: 594px;
+      background: rgba(0, 185, 215, 0.39);
+    }
+  }
+</style>
