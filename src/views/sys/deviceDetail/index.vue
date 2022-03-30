@@ -4,17 +4,27 @@
       <div class="datav-top-l">
         <DeviceStatus />
       </div>
-      <div class="datav-top-r"> 我是基本信息网络信息分享人信息 </div>
+      <div class="datav-top-r">
+        <InformationAgg />
+        <SharerInfo />
+      </div>
     </div>
+    <HistoryInfo />
   </div>
 </template>
 
 <script lang="ts">
   import { defineComponent } from 'vue';
   import DeviceStatus from './components/DeviceStatus.vue';
+  import InformationAgg from './components/InformationAgg.vue';
+  import SharerInfo from './components/SharerInfo.vue';
+  import HistoryInfo from './components/HistoryInfo.vue';
   export default defineComponent({
     components: {
       DeviceStatus,
+      InformationAgg,
+      SharerInfo,
+      HistoryInfo,
     },
     props: {
       deviceData: {
@@ -39,7 +49,8 @@
     .datav-top-r {
       width: 800px;
       height: 594px;
-      background: rgba(0, 185, 215, 0.39);
+      margin-left: 31px;
+      // background: rgba(0, 185, 215, 0.39);
     }
   }
 </style>

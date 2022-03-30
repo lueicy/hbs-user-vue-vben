@@ -62,13 +62,14 @@
                 :percent="30"
                 :show-info="false"
                 :strokeColor="dealAqires('style', aqi)"
+                class="progress-border"
               />
-              <Icon icon="ant-design:edit-filled" style="font-size: 22px; padding-left: 8px" />优
+              <Icon icon="ant-design:edit-filled" class="icon-g" />优
             </div>
           </div>
           <div style="width: 300px">
             <div class="flex justify-between">
-              <span class="sta-footer-l-name">PM2.5</span>
+              <span class="sta-footer-l-name">CO2</span>
               <div class="sta-footer-l-name">
                 <span>1000</span>
                 <span class="sta-footer-l-name-u">ppm</span>
@@ -80,16 +81,36 @@
                 :show-info="false"
                 :strokeColor="dealAqires('style', aqi)"
               />
-              <Icon icon="ant-design:edit-filled" style="font-size: 22px; padding-left: 8px" />优
+              <Icon icon="ant-design:edit-filled" class="icon-g" />
+              <span>优</span>
             </div>
           </div>
         </div>
         <div class="flex flex-col sta-footer-r">
-          <span>模式1：开启</span>
-          <span>模式2：开启</span>
-          <span>模式3：开启</span>
-          <span>模式4：开启</span>
-          <span>模式5：开启</span>
+          <div>
+            <span class="sta-footer-r-mod-t">模式：</span>
+            <span style="color: #999999"
+              ><Icon icon="ant-design:edit-filled" class="icon-g" />智能</span
+            >
+          </div>
+          <div>
+            <span class="sta-footer-r-mod-t">风速：</span>
+            <span style="color: #999999"
+              ><Icon icon="ant-design:edit-filled" class="icon-g" />弱</span
+            >
+          </div>
+          <div>
+            <span class="sta-footer-r-mod-t">童锁：</span>
+            <span class="sta-footer-r-mod-d">开启</span>
+          </div>
+          <div>
+            <span class="sta-footer-r-mod-t">滤网维护：</span>
+            <span class="sta-footer-r-mod-d">4个月</span>
+          </div>
+          <div>
+            <span class="sta-footer-r-mod-t">定时模式：</span>
+            <span class="sta-footer-r-mod-d" style="color: rgba(0, 185, 215, 0.5)">已设置定时</span>
+          </div>
         </div>
       </div>
     </div>
@@ -274,6 +295,31 @@
           }
         }
       }
+      .sta-footer-r {
+        .sta-footer-r-mod-t {
+          display: inline-block;
+          text-align: right;
+          width: 70px;
+          height: 19px;
+          font-size: 14px;
+          font-family: Microsoft YaHei;
+          font-weight: 400;
+          line-height: 19px;
+          color: #3e4159;
+          opacity: 1;
+        }
+        .sta-footer-r-mod-d {
+          padding-left: 10px;
+          width: 28px;
+          height: 19px;
+          font-size: 14px;
+          font-family: Microsoft YaHei;
+          font-weight: 400;
+          line-height: 19px;
+          color: #999999;
+          opacity: 1;
+        }
+      }
     }
 
     .datav-top-l {
@@ -289,6 +335,11 @@
       height: 594px;
       background: rgba(0, 185, 215, 0.39);
     }
+  }
+  .icon-g {
+    font-size: 22px !important;
+    padding-left: 8px;
+    color: #52c41a;
   }
 
   /deep/ .ant-select-selection-item,
