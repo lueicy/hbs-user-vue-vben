@@ -2,29 +2,68 @@
   <div class="flex flex-col air-container">
     <div class="flex flex-col air-con-overview">
       <div class="over-title">空气质量</div>
-      <div class="over-date">日期插件</div>
-      <div class="over-content">
-        <span>开机次数</span>
-        <span>10次</span>
+      <div class="flex air-index">
+        <template v-for="(item, i) in airTitle" :key="i">
+          <a-button @click="choseEchart = !choseEchart" class="air-item">{{ item.name }}</a-button>
+        </template>
       </div>
-      <div class="over-content">
-        <span>使用时间</span>
-        <span>30分钟</span>
+      <div class="flex justify-between over-content">
+        <span>单位：μg/m³</span>
+        <span style="border: 1px solid rgba(9, 185, 215, 1)">
+          <a-button type="default" class="time-btn">24小时</a-button>
+          <a-button type="primary" class="time-btn">30天</a-button>
+        </span>
       </div>
-      <div class="over-content">
-        <span>新的风量</span>
-        <span>182733m</span>
+      <div v-if="choseEchart" class="over-content">
+        <CoChart />
+      </div>
+      <div v-else class="over-content">
+        <PmChart />
       </div>
     </div>
   </div>
 </template>
 
-<script>
-  import { defineComponent } from 'vue';
+<script lang="ts">
+  import { defineComponent, reactive, toRefs } from 'vue';
+  import CoChart from './CoChart.vue';
+  import PmChart from './PmChart.vue';
   // import { Icon } from '/@/components/Icon';
+  interface airType {
+    name?: string;
+    id?: Number;
+    icon?: string;
+  }
   export default defineComponent({
     components: {
       // Icon,
+      CoChart,
+      PmChart,
+    },
+    setup() {
+      const state = reactive({
+        choseEchart: true, //是否开启选择
+      });
+      let airTitle: airType[] = [
+        {
+          name: 'CO2',
+          id: 84563,
+          icon: 'ant-design:plus-outlined',
+        },
+        {
+          name: 'PM2.5',
+          id: 84563,
+          icon: 'ant-design:plus-outlined',
+        },
+      ];
+      function selectAir(event) {
+        console.log('选择空气指标', event);
+      }
+      return {
+        selectAir,
+        airTitle,
+        ...toRefs(state),
+      };
     },
   });
 </script>
@@ -49,14 +88,42 @@
         border-bottom: 2px solid rgba(233, 233, 233, 1);
         opacity: 1;
       }
-      .over-date {
-        text-align: end;
-        margin: 10px 0px;
+      .air-index {
+        margin: 25px 0px;
+        .air-item {
+          padding: 0px;
+          margin-right: 30px;
+          width: 92px;
+          height: 36px;
+          text-align: center;
+          line-height: 36px;
+          font-size: 14px;
+          color: #333333;
+          // border: 1px solid rgba(112, 112, 112, 1);
+        }
+        .air-title:hover {
+          border: 1px solid rgba(9, 185, 215, 1) !important;
+        }
       }
       .over-content {
         margin-bottom: 24px;
+        .time-btn {
+          padding: 0px;
+          width: 51px;
+          border-radius: 2px;
+          box-sizing: content-box;
+        }
+        .time-btn:active {
+          background: rgba(9, 185, 215, 0.39);
+          color: #fff;
+          border: 1px solid rgba(9, 185, 215, 1);
+        }
       }
     }
+  }
+  /deep/ .ant-btn-primary {
+    background: rgba(9, 185, 220, 1);
+    border-color: rgba(9, 185, 220, 1);
   }
   .icon-add {
     font-size: 22px !important;

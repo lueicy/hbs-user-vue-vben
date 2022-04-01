@@ -67,6 +67,7 @@ export function useFormRules(formData?: Recordable) {
     const passwordFormRule = unref(getPasswordFormRule);
     const smsFormRule = unref(getSmsFormRule);
     const mobileFormRule = unref(getMobileFormRule);
+    console.log('77777', validateConfirmPassword('787878787'));
 
     const mobileRule = {
       sms: smsFormRule,
@@ -76,13 +77,69 @@ export function useFormRules(formData?: Recordable) {
       // register form rules
       case LoginStateEnum.REGISTER:
         return {
-          account: accountFormRule,
-          password: passwordFormRule,
-          confirmPassword: [
-            { validator: validateConfirmPassword(formData?.password), trigger: 'change' },
+          address: [
+            {
+              required: true,
+              message: '请输入联系地址',
+              trigger: 'change',
+            },
           ],
-          policy: [{ validator: validatePolicy, trigger: 'change' }],
-          ...mobileRule,
+          admList: [
+            {
+              required: true,
+              message: '请选择所在地区',
+              trigger: 'change',
+            },
+          ],
+          enterpriseCode: [
+            {
+              required: true,
+              message: '请输入统一社会信用编码',
+              trigger: 'change',
+            },
+          ],
+          businessLicenseUrl: [
+            {
+              required: true,
+              message: '请上传证件照',
+              trigger: 'change',
+            },
+          ],
+          enterpriseName: [
+            {
+              required: true,
+              message: '请输入企业名称',
+              trigger: 'change',
+            },
+          ],
+          legalIdCardBackUrl: [
+            {
+              required: true,
+              message: '请上传证件反面',
+              trigger: 'change',
+            },
+          ],
+          legalIdCardFrontUrl: [
+            {
+              required: true,
+              message: '请上传证件正面',
+              trigger: 'change',
+            },
+          ],
+          smsCode: [
+            {
+              required: true,
+              message: '请输入验证码',
+              trigger: 'change',
+            },
+          ],
+          tel: [
+            {
+              required: true,
+              message: '请输入手机号码',
+              trigger: 'change',
+            },
+          ],
         };
 
       // reset password form rules

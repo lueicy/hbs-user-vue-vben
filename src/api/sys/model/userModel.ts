@@ -2,13 +2,31 @@
  * @description: Login interface parameters
  */
 export interface LoginParams {
-  // username: string;
-  staffNo: string;
+  // userName: string;
   // password: string;
   passwd: string;
+  staffNo: string;
 }
+
 export interface LoginParamsGetRole {
   key: string;
+}
+
+export interface RegisterParams {
+  address: string;
+  adm1: string;
+  adm2: string;
+  adm3: string;
+  businessLicenseUrl: string;
+  enterpriseCode: string;
+  enterpriseName: string;
+  legalIdCardBackUrl: string;
+  legalIdCardFrontUrl: string;
+  smsCode: string;
+  tel: string;
+}
+export interface GetSms {
+  tel: string;
 }
 
 export interface RoleInfo {

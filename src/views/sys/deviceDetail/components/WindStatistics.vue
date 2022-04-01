@@ -18,20 +18,21 @@
           </a-steps>
         </div>
 
-        <div>
+        <div class="data-con">
           <template v-for="(item, i) in modelList" :key="i">
-            <div class="model-item">{{ item.name + i }}</div>
+            <div class="flex justify-between data-cov">
+              <div class="flex flex-col justify-around date-item">
+                <div class="item-use">
+                  <span class="use-title">使用时长：</span>
+                  <span class="use-time">396分钟57秒</span>
+                </div>
+                <div class="use-date">2022-02-23</div>
+              </div>
+              <div class="wind-item">风量： {{ item.name + i }} m³ </div>
+            </div>
           </template>
         </div>
       </div>
-      <!-- <div class="over-content">
-        <span>使用时间</span>
-        <span>30分钟</span>
-      </div>
-      <div class="over-content">
-        <span>新的风量</span>
-        <span>182733m</span>
-      </div> -->
     </div>
   </div>
 </template>
@@ -130,6 +131,14 @@
         .step-side {
           width: 50px;
         }
+        .data-con {
+          min-width: 666px;
+          .data-cov {
+            min-height: 50px;
+            border-bottom: 1px solid #e9e9e9;
+            margin-bottom: 15px;
+          }
+        }
       }
       .model-li {
         margin: 25px 0px;
@@ -138,7 +147,6 @@
           height: 67px;
           background: rgba(255, 255, 255, 0.39);
           box-shadow: 0px 3px 6px rgba(219, 219, 219, 0.5);
-          opacity: 1;
         }
         .model-item:hover {
           border: 1px solid #09b9d7;
@@ -146,6 +154,27 @@
       }
     }
   }
+  .date-item {
+    .item-use {
+      height: 19px;
+      line-height: 19px;
+      font-size: 14px;
+      font-weight: 400;
+      .use-title {
+        color: rgba(62, 65, 89, 1);
+      }
+      .use-time {
+        color: rgba(255, 193, 94, 1);
+      }
+    }
+    .use-date {
+      height: 16px;
+      line-height: 16px;
+      font-size: 16px;
+      color: #999999;
+    }
+  }
+
   /deep/ .ant-steps-item-title {
     display: none;
   }

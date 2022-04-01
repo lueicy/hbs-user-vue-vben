@@ -2,6 +2,8 @@ import { defHttp } from '/@/utils/http/axios';
 import {
   LoginParams,
   LoginResultModel,
+  RegisterParams,
+  GetSms,
   // GetUserInfoModel,
   // getUserNumByTimeParams,
 } from './model/userModel';
@@ -14,12 +16,15 @@ import { GetStatisticsDataType } from './model/menuModel';
 import { ErrorMessageMode } from '/#/axios';
 
 enum Api {
-  Login = '/admin/login',
-  Logout = '/admin/logout',
+  Login = 'manage/admin/login',
+  // Login = 'enterprise/user/login',
+  Logout = 'manage/admin/logout',
   // GetUserInfo = '/getUserInfo',
-  GetUserInfo = '/admin/listAdminByPage',
-  GetPermCode = '/getPermCode',
-  listAllDeviceTypeByPage_List = '/deviceType/listAllDeviceTypeByPage',
+  GetUserInfo = 'manage/admin/listAdminByPage',
+  GetPermCode = 'manage/getPermCode',
+  listAllDeviceTypeByPage_List = 'manage/deviceType/listAllDeviceTypeByPage',
+  RegisterApi = 'enterprise/user/register',
+  GetSmsApi = '/enterprise/user/sendSms',
 }
 
 /**
@@ -29,6 +34,36 @@ export function loginApi(params: LoginParams, mode: ErrorMessageMode = 'modal') 
   return defHttp.post<LoginResultModel>(
     {
       url: Api.Login,
+      params,
+    },
+    {
+      errorMessageMode: mode,
+    }
+  );
+}
+
+/**
+ * @description: user register api
+ */
+export function RegisterApi(params: RegisterParams, mode: ErrorMessageMode = 'modal') {
+  return defHttp.post<LoginResultModel>(
+    {
+      url: Api.RegisterApi,
+      params,
+    },
+    {
+      errorMessageMode: mode,
+    }
+  );
+}
+
+/**
+ * @description: user register api
+ */
+export function GetSmsApi(params: GetSms, mode: ErrorMessageMode = 'modal') {
+  return defHttp.get<LoginResultModel>(
+    {
+      url: Api.GetSmsApi,
       params,
     },
     {

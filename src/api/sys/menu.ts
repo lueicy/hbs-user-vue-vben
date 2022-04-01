@@ -17,24 +17,24 @@ import {
 } from './model/menuModel';
 
 enum Api {
-  GetMenuList = '/getMenuList',
-  GetUserNumByTime = '/dashboard/listActiveUserCount', //获取用户活跃情况
-  GetDeviceAddNum = '/dashboard/getDeviceCountByDateAndStatisticsType', //获取设备增量情况
-  GetUserAddNum = '/dashboard/getUserCountByDateAndStatisticsType', //获取用户增量情况
-  GetDeviceTypeStatisticsData = '/dashboard/listDeviceTypeStatisticsData', //获取设备类型分布数据
-  GetStatisticsData = '/dashboard/getStatisticsData',
-  listAllDeviceTypeByPage_List = '/deviceType/listAllDeviceTypeByPage',
-  AddActivityInfo = '/activity/addActivityInfo', //添加活动信息
-  EditActivityInfo = '/activity/updateActivityInfo', //编辑活动信息
-  AddUpgradeInfo = '/upgrade/addUpgradeInfo', //添加升级信息
-  EditUpgradeInfo = '/upgrade/updateUpgradeInfo', //修改升级信息
-  GetAllRoles = '/role/getAllRoles', //获取角色列表
-  AddAdminRoles = '/admin/addAdmin', //添加管理员
-  DeleteAdminRoles = '/admin/deleteAdmin', //删除管理员
-  UpdateAdminRoles = '/admin/updateAdmin', //更新管理员
-  GetSendSms = '/admin/sendSms', //获取手机验证码
-  ResetPassword = '/admin/resetPassword', //重置密码
-  FileUpload = '/v1/file/upload', //文件上传
+  GetMenuList = 'manage/getMenuList',
+  GetUserNumByTime = 'manage/dashboard/listActiveUserCount', //获取用户活跃情况
+  GetDeviceAddNum = 'manage/dashboard/getDeviceCountByDateAndStatisticsType', //获取设备增量情况
+  GetUserAddNum = 'manage/dashboard/getUserCountByDateAndStatisticsType', //获取用户增量情况
+  GetDeviceTypeStatisticsData = 'manage/dashboard/listDeviceTypeStatisticsData', //获取设备类型分布数据
+  GetStatisticsData = 'manage/dashboard/getStatisticsData',
+  listAllDeviceTypeByPage_List = 'manage/deviceType/listAllDeviceTypeByPage',
+  AddActivityInfo = 'manage/activity/addActivityInfo', //添加活动信息
+  EditActivityInfo = 'manage/activity/updateActivityInfo', //编辑活动信息
+  AddUpgradeInfo = 'manage/upgrade/addUpgradeInfo', //添加升级信息
+  EditUpgradeInfo = 'manage/upgrade/updateUpgradeInfo', //修改升级信息
+  GetAllRoles = 'manage/role/getAllRoles', //获取角色列表
+  AddAdminRoles = 'manage/admin/addAdmin', //添加管理员
+  DeleteAdminRoles = 'manage/admin/deleteAdmin', //删除管理员
+  UpdateAdminRoles = 'manage/admin/updateAdmin', //更新管理员
+  GetSendSms = 'manage/admin/sendSms', //获取手机验证码
+  ResetPassword = 'manage/admin/resetPassword', //重置密码
+  FileUpload = 'manage/v1/file/upload', //文件上传
 }
 
 /**
@@ -151,13 +151,13 @@ export const DeleteAdminRoles = (params) =>
     params,
   });
 // 获取短信验证码
-export const GetSmsCode = (params:SmsCode) =>
+export const GetSmsCode = (params: SmsCode) =>
   defHttp.get({
     url: Api.GetSendSms,
     params,
   });
 // 重置用户密码
-export const ResetPwd = (params:SmsCode) =>
+export const ResetPwd = (params: SmsCode) =>
   defHttp.get({
     url: Api.ResetPassword,
     params,
