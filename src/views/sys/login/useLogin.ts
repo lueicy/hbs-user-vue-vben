@@ -67,7 +67,6 @@ export function useFormRules(formData?: Recordable) {
     const passwordFormRule = unref(getPasswordFormRule);
     const smsFormRule = unref(getSmsFormRule);
     const mobileFormRule = unref(getMobileFormRule);
-    console.log('77777', validateConfirmPassword('787878787'));
 
     const mobileRule = {
       sms: smsFormRule,

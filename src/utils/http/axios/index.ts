@@ -56,11 +56,11 @@ const transform: AxiosTransform = {
 
     // 这里逻辑可以根据项目进行修改
     const hasSuccess = data && Reflect.has(data, 'code') && Number(code) === ResultEnum.SUCCESS;
+    console.log('res---hasSuccess-', hasSuccess);
     if (hasSuccess) {
       // return getToken() ? res.data : res;
-      // return data.data;
-      return data.data;
-      // return res;
+      // data有返回数据就直接返回数据，没有就直接返回请求结果
+      return data.data ? data.data : data;
     }
 
     // 在此处根据自己项目的实际情况对不同的code执行不同的操作

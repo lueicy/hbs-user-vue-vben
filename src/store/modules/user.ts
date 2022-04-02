@@ -6,8 +6,14 @@ import { RoleEnum } from '/@/enums/roleEnum';
 import { PageEnum } from '/@/enums/pageEnum';
 import { ROLES_KEY, TOKEN_KEY, USER_INFO_KEY, ROUTER_KEY } from '/@/enums/cacheEnum';
 import { getAuthCache, getToken, setAuthCache } from '/@/utils/auth';
-import { GetUserInfoModel, LoginParams } from '/@/api/sys/model/userModel';
-import { doLogout, getUserInfo, loginApi, listAllDeviceTypeByPage } from '/@/api/sys/user';
+import { GetUserInfoModel, LoginParams, RegisterParams } from '/@/api/sys/model/userModel';
+import {
+  doLogout,
+  getUserInfo,
+  loginApi,
+  listAllDeviceTypeByPage,
+  RegisterApi,
+} from '/@/api/sys/user';
 // import { listAllDeviceTypeByPage } from '/@/api/demo/table';
 import { useI18n } from '/@/hooks/web/useI18n';
 import { useMessage } from '/@/hooks/web/useMessage';
@@ -19,6 +25,7 @@ interface UserState {
   roleList: RoleEnum[];
   sessionTimeout?: boolean;
   smsCode?: string;
+  registerCode?: string;
   smsCodeLogin?: string;
   routerName?: string;
   routerNameList?: string[];
@@ -36,6 +43,7 @@ export const useUserStore = defineStore({
     // Whether the login expired
     sessionTimeout: false,
     smsCode: '',
+    registerCode: '',
     smsCodeLogin: '',
     // 路由参数名
     routerName: '',
@@ -68,6 +76,9 @@ export const useUserStore = defineStore({
     },
     setSmsCode(code) {
       this.smsCode = code;
+    },
+    setRegisterCode(code) {
+      this.registerCode = code;
     },
     setToken(info: string | undefined) {
       this.token = info;
@@ -102,6 +113,7 @@ export const useUserStore = defineStore({
       try {
         const { goHome = true, mode, ...loginParams } = params;
         const RESdATA: any = await loginApi(loginParams, mode);
+        console.log('longinRESdATA', RESdATA);
         // get user info
         const userRequets = {
           pageIndex: 1, //第几页
@@ -119,6 +131,19 @@ export const useUserStore = defineStore({
           (await router.replace(userInfo.homePath || PageEnum.BASE_HOME));
 
         return userInfo;
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
+    /**
+     * @description: register
+     * params: RegisterParams
+     */
+    async register(params: RegisterParams): Promise<RegisterParams | any> {
+      try {
+        const regData: any = await RegisterApi(params);
+        console.log('RESdATA', regData);
+        return regData;
       } catch (error) {
         return Promise.reject(error);
       }

@@ -32,7 +32,8 @@ enum Api {
   AddAdminRoles = 'manage/admin/addAdmin', //添加管理员
   DeleteAdminRoles = 'manage/admin/deleteAdmin', //删除管理员
   UpdateAdminRoles = 'manage/admin/updateAdmin', //更新管理员
-  GetSendSms = 'manage/admin/sendSms', //获取手机验证码
+  // GetSendSms = 'manage/admin/sendSms', //app获取手机验证码
+  GetSendSms = 'enterprise/user/sendSms', //用户后台获取手机验证码
   ResetPassword = 'manage/admin/resetPassword', //重置密码
   FileUpload = 'manage/v1/file/upload', //文件上传
 }

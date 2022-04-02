@@ -16,8 +16,8 @@ import { GetStatisticsDataType } from './model/menuModel';
 import { ErrorMessageMode } from '/#/axios';
 
 enum Api {
-  Login = 'manage/admin/login',
-  // Login = 'enterprise/user/login',
+  // Login = 'manage/admin/login',
+  Login = 'enterprise/user/login',
   Logout = 'manage/admin/logout',
   // GetUserInfo = '/getUserInfo',
   GetUserInfo = 'manage/admin/listAdminByPage',
@@ -45,16 +45,11 @@ export function loginApi(params: LoginParams, mode: ErrorMessageMode = 'modal') 
 /**
  * @description: user register api
  */
-export function RegisterApi(params: RegisterParams, mode: ErrorMessageMode = 'modal') {
-  return defHttp.post<LoginResultModel>(
-    {
-      url: Api.RegisterApi,
-      params,
-    },
-    {
-      errorMessageMode: mode,
-    }
-  );
+export function RegisterApi(params: RegisterParams) {
+  return defHttp.post({
+    url: Api.RegisterApi,
+    params,
+  });
 }
 
 /**
