@@ -15,16 +15,16 @@
     </template>
     <template v-if="!loading">
       <a-list>
-        <a-radio-group v-model:value="groupList" @change="onCheckAllChangeList">
+        <RadioGroup v-model:value="groupList" @change="onCheckAllChangeList">
           <a-row>
             <template v-for="(item, i) in groupTmpList" :key="item.id">
               <a-col class="group-item">
                 <a-list-item class="w-full">{{ item.name }} + {{ i }} </a-list-item>
-                <a-radio :value="item.id" />
+                <Radio :value="item.id" />
               </a-col>
             </template>
           </a-row>
-        </a-radio-group>
+        </RadioGroup>
       </a-list>
     </template>
   </BasicModal>
@@ -32,7 +32,7 @@
 <script lang="ts">
   import { defineComponent, ref, watch, reactive, toRefs } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
-  import { Row, Col, List, RadioGroup, Radio } from 'ant-design-vue';
+  import { Row, Col, List, Radio } from 'ant-design-vue';
   const groupTmpList: any[] = [
     { id: 1, name: 'EH-Z-7G650', aqi: '1', pmValue: 30, coValue: 20 },
     { id: 2, name: 'EH-Z-7G400A', aqi: '2', pmValue: 40, coValue: 50 },
@@ -56,8 +56,8 @@
   export default defineComponent({
     components: {
       BasicModal,
-      [RadioGroup.name]: RadioGroup,
-      [Radio.name]: Radio,
+      RadioGroup: Radio.Group,
+      Radio: Radio,
       [List.name]: List,
       [List.Item.name]: List.Item,
       [Row.name]: Row,

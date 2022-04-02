@@ -186,8 +186,10 @@
           const userInfo = await userStore.login(
             toRaw({
               // password: data.password,
-              passwd: data.password,
-              staffNo: data.account,
+              // passwd: data.password,
+              // staffNo: data.account,
+              password: data.password,
+              userName: data.account,
               mode: 'none', //不要默认的错误提示
             })
           );

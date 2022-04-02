@@ -2,10 +2,10 @@
  * @description: Login interface parameters
  */
 export interface LoginParams {
-  // userName: string;
-  // password: string;
-  passwd: string;
-  staffNo: string;
+  userName: string;
+  password: string;
+  // passwd: string;
+  // staffNo: string;
 }
 
 export interface LoginParamsGetRole {

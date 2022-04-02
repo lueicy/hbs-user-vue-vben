@@ -56,7 +56,7 @@
         >
           <!-- <Input size="large" v-model:value="formData.admList" placeholder="所在地区" /> -->
           <a-cascader
-            :options="options"
+            :options="cityOptions"
             change-on-select
             @change="handleChange"
             placeholder="请选择地区"
@@ -136,6 +136,7 @@
   import { useUserStore } from '/@/store/modules/user';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { uploadApi } from '/@/api/sys/upload';
+  import cityList from '/@/assets/json/city.json';
 
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useLoginState, useFormRules, useFormValid, LoginStateEnum } from './useLogin';
@@ -154,40 +155,7 @@
       BasicUpload,
     },
     setup() {
-      const options = [
-        {
-          value: 'zhejiang',
-          label: 'Zhejiang',
-          children: [
-            {
-              value: 'hangzhou',
-              label: 'Hangzhou',
-              children: [
-                {
-                  value: 'xihu',
-                  label: 'West Lake',
-                },
-              ],
-            },
-          ],
-        },
-        {
-          value: 'jiangsu',
-          label: 'Jiangsu',
-          children: [
-            {
-              value: 'nanjing',
-              label: 'Nanjing',
-              children: [
-                {
-                  value: 'zhonghuamen',
-                  label: 'Zhong Hua Men',
-                },
-              ],
-            },
-          ],
-        },
-      ];
+      const cityOptions = cityList;
       const { t } = useI18n();
       const { handleBackLogin, getLoginState } = useLoginState();
 
@@ -244,6 +212,7 @@
 
           if (res && res.code == 200) {
             console.log('提交成功', res);
+            handleBackLogin();
             createMessage.success('提交成功，审核结果将通过短信发送至您的手机号，请多留意。');
             // notification.success({
             //   message: '提交成功，审核结果将通过短信发送至您的手机号，请多留意。',
@@ -271,11 +240,17 @@
           formData.adm3 = '';
           formData.admList = '';
           console.log('admList', formData.admList);
+        } else {
+          if (value && value.length === 2) {
+            [formData.adm1, formData.adm2] = value;
+            formData.adm3 = value[1];
+            console.log('defaultChange', value, formData.adm1, formData.adm2, formData.adm3);
+          }
+          if (value && value.length === 3) {
+            formData.adm3 = value[2];
+          }
+          formData.admList = value.join('/');
         }
-        if (value && value.length < 3) return;
-        formData.admList = value.join('/');
-        [formData.adm1, formData.adm2, formData.adm3] = value;
-        console.log('defaultChange', value, formData.adm1);
         // emitData.value = keys;
         // emit('defaultChange', keys, args);
       }
@@ -317,7 +292,7 @@
         handleBackLogin,
         handleChange,
         getShow,
-        options,
+        cityOptions,
         admLists,
         businessChange,
         cardBackChange,

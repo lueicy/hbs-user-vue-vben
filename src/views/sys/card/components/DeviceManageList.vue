@@ -254,7 +254,7 @@
       [Row.name]: Row,
       [Col.name]: Col,
       [Progress.name]: Progress,
-      [CheckboxGroup.name]: CheckboxGroup,
+      CheckboxGroup: Checkbox.Group,
       [Checkbox.name]: Checkbox,
     },
     directives: {
