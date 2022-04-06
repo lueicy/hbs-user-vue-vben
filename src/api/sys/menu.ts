@@ -22,7 +22,8 @@ enum Api {
   GetDeviceAddNum = 'manage/dashboard/getDeviceCountByDateAndStatisticsType', //获取设备增量情况
   GetUserAddNum = 'manage/dashboard/getUserCountByDateAndStatisticsType', //获取用户增量情况
   GetDeviceTypeStatisticsData = 'manage/dashboard/listDeviceTypeStatisticsData', //获取设备类型分布数据
-  GetStatisticsData = 'manage/dashboard/getStatisticsData',
+  // GetStatisticsData = 'manage/dashboard/getStatisticsData',
+
   listAllDeviceTypeByPage_List = 'manage/deviceType/listAllDeviceTypeByPage',
   AddActivityInfo = 'manage/activity/addActivityInfo', //添加活动信息
   EditActivityInfo = 'manage/activity/updateActivityInfo', //编辑活动信息
@@ -33,9 +34,11 @@ enum Api {
   DeleteAdminRoles = 'manage/admin/deleteAdmin', //删除管理员
   UpdateAdminRoles = 'manage/admin/updateAdmin', //更新管理员
   // GetSendSms = 'manage/admin/sendSms', //app获取手机验证码
-  GetSendSms = 'enterprise/user/sendSms', //用户后台获取手机验证码
+
   ResetPassword = 'manage/admin/resetPassword', //重置密码
   FileUpload = 'manage/v1/file/upload', //文件上传
+  GetStatisticsData = '/enterprise/dashboard/statistics',
+  GetSendSms = 'enterprise/user/sendSms', //用户后台获取手机验证码
 }
 
 /**

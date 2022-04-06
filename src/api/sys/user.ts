@@ -6,6 +6,7 @@ import {
   GetSms,
   // GetUserInfoModel,
   // getUserNumByTimeParams,
+  listUserGroup,
 } from './model/userModel';
 import {
   listAllDeviceTypeByPageParams,
@@ -19,8 +20,8 @@ enum Api {
   // Login = 'manage/admin/login',
   Login = 'enterprise/user/login',
   Logout = 'manage/admin/logout',
-  // GetUserInfo = '/getUserInfo',
-  GetUserInfo = 'manage/admin/listAdminByPage',
+  GetUserInfo = 'user/getUserById',
+  // GetUserInfo = 'manage/admin/listAdminByPage',
   GetPermCode = 'manage/getPermCode',
   listAllDeviceTypeByPage_List = 'manage/deviceType/listAllDeviceTypeByPage',
   RegisterApi = 'enterprise/user/register',

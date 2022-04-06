@@ -3,7 +3,7 @@
  * @Description: logo component
 -->
 <template>
-  <div class="anticon truncate md:opacity-100"  :class="getAppLogoClass" @click="goHome">
+  <div class="truncate anticon md:opacity-100" :class="getAppLogoClass" @click="goHome">
     <img src="../../../assets/images/logo.png" />
     <!-- <div class="ml-2 truncate md:opacity-100" :class="getTitleClass" v-show="showTitle">
       {{ title }}
@@ -58,6 +58,7 @@
       ]);
 
       function goHome() {
+        console.log('homePath2222', userStore.getUserInfo.homePath);
         go(userStore.getUserInfo.homePath || PageEnum.BASE_HOME);
       }
 

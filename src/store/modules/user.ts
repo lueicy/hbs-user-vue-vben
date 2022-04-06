@@ -51,6 +51,7 @@ export const useUserStore = defineStore({
   }),
   getters: {
     getUserInfo(): UserInfo {
+      console.log('homePath', this.userInfo);
       return this.userInfo || getAuthCache<UserInfo>(USER_INFO_KEY) || {};
     },
     getToken(): string {
@@ -113,7 +114,6 @@ export const useUserStore = defineStore({
       try {
         const { goHome = true, mode, ...loginParams } = params;
         const RESdATA: any = await loginApi(loginParams, mode);
-        console.log('longinRESdATA', RESdATA);
         // get user info
         const userRequets = {
           pageIndex: 1, //第几页
@@ -142,7 +142,6 @@ export const useUserStore = defineStore({
     async register(params: RegisterParams): Promise<RegisterParams | any> {
       try {
         const regData: any = await RegisterApi(params);
-        console.log('RESdATA', regData);
         return regData;
       } catch (error) {
         return Promise.reject(error);
@@ -157,21 +156,23 @@ export const useUserStore = defineStore({
     // },
     async getUserInfoAction(data): Promise<UserInfo> {
       //promise返回值
-      const { list } = await getUserInfo(data);
-      list[0].token = getToken();
-      list[0].userId = list[0].id;
-      list[0].desc = 'manager';
-      list[0].homePath = '/home/index';
-      list[0].avatar = 'https://q1.qlogo.cn/g?b=qq&nk=190848757&s=640';
-      const { roleList } = list[0];
+      const list = await getUserInfo(data);
+
+      console.log('list', list);
+      list.token = getToken();
+      list.userId = list.id;
+      list.desc = 'manager';
+      list.homePath = '/home/index';
+      list.avatar = 'https://q1.qlogo.cn/g?b=qq&nk=190848757&s=640';
+      // const { roleList } = list[0];
       // roleList[0].value = 'super';
-      console.log('roleList----', roleList);
-      const roleLi = roleList.map((item) => item.roleCode) as RoleEnum[];
-      console.log('roleLi----', roleLi);
+      // console.log('roleList----', roleList);
+      // const roleLi = roleList.map((item) => item.roleCode) as RoleEnum[];
+      // console.log('roleLi----', roleLi);
       this.setUserInfo(list);
-      this.setRoleList(roleLi);
-      this.getListTypeAction();
-      return list[0];
+      // this.setRoleList(roleLi);
+      // this.getListTypeAction();
+      return list;
     },
     // listAllDeviceTypeByPage
     async getListTypeAction() {

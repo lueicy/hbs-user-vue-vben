@@ -2,7 +2,7 @@
   <div class="justify-between max-w-full lg:flex">
     <div class="flex-col mt-2 md:flex md:w-8/10">
       <div class="w-auto md:flex">
-        <template v-for="item in cardLists" :key="item.title">
+        <!-- <template v-for="item in cardLists" :key="item.title">
           <div
             class="flex flex-col h-40 px-4 py-4 mx-2"
             :style="{
@@ -17,7 +17,55 @@
             </div>
             <div class="py-5 text-xl text-white"> {{ item.value }} 台 </div>
           </div>
-        </template>
+        </template> -->
+        <div
+          class="flex flex-col h-40 px-4 py-4 mx-2"
+          :style="{
+            backgroundImage: 'url(' + './src/assets/images/homePage/zongshu.png' + ')',
+            backgroundSize: '100% 100%',
+            backgroundRepeat: 'no-repeat',
+            width: '305px',
+          }"
+        >
+          <div class="py-5 text-lg text-white"> 设备总数 </div>
+          <div class="py-5 text-xl text-white"> {{ statisticsData.totalNum }} 台 </div>
+        </div>
+        <div
+          class="flex flex-col h-40 px-4 py-4 mx-2"
+          :style="{
+            backgroundImage: 'url(' + '/src/assets/images/homePage/zaixian.png' + ')',
+            backgroundSize: '100% 100%',
+            backgroundRepeat: 'no-repeat',
+            width: '305px',
+          }"
+        >
+          <div class="py-5 text-lg text-white"> 开机设备 </div>
+          <div class="py-5 text-xl text-white"> {{ statisticsData.openNum }} 台 </div>
+        </div>
+        <div
+          class="flex flex-col h-40 px-4 py-4 mx-2"
+          :style="{
+            backgroundImage: 'url(' + '/src/assets/images/homePage/lixian.png' + ')',
+            backgroundSize: '100% 100%',
+            backgroundRepeat: 'no-repeat',
+            width: '305px',
+          }"
+        >
+          <div class="py-5 text-lg text-white"> 离线设备 </div>
+          <div class="py-5 text-xl text-white"> {{ statisticsData.onlineNum }} 台 </div>
+        </div>
+        <div
+          class="flex flex-col h-40 px-4 py-4 mx-2"
+          :style="{
+            backgroundImage: 'url(' + '/src/assets/images/homePage/yichang.png' + ')',
+            backgroundSize: '100% 100%',
+            backgroundRepeat: 'no-repeat',
+            width: '305px',
+          }"
+        >
+          <div class="py-5 text-lg text-white"> 异常设备 </div>
+          <div class="py-5 text-xl text-white"> {{ statisticsData.errorNum }} 台 </div>
+        </div>
       </div>
       <div class="px-2 py-4">
         <a-input-search placeholder="搜索设备PID" style="width: 400px" />
@@ -43,17 +91,20 @@
   </div>
 </template>
 <script lang="ts">
-  import { computed, defineComponent, reactive, toRefs, onMounted } from 'vue';
-
-  import { useUserStore } from '/@/store/modules/user';
+  import { defineComponent, reactive, toRefs, onMounted } from 'vue';
 
   import headerImg from '/@/assets/images/header.jpg';
   import { growCardList } from './data';
   import moment from 'moment';
+  // import { StatisticsData } from '/@/api/sys/model/homePage';
   export default defineComponent({
+    props: {
+      statisticsData: {
+        type: Object,
+        default: null,
+      },
+    },
     setup() {
-      const userStore = useUserStore();
-      const userinfo = computed(() => userStore.getUserInfo);
       const state = reactive({
         timeHalo: '',
         dateYear: '',
@@ -96,7 +147,7 @@
       }
 
       onMounted(() => Politenes());
-      return { ...toRefs(state), userinfo, headerImg, cardLists: growCardList };
+      return { ...toRefs(state), headerImg, cardLists: growCardList };
     },
   });
 </script>

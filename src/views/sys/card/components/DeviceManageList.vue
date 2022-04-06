@@ -1,7 +1,7 @@
 <template>
   <div :class="`${prefixCls}__content`" class="flex flex-col">
     <div class="title_Contr">
-      <div class="title_Contr_name fl"> {{ groupId }} </div>
+      <div class="title_Contr_name fl"> {{ groupId == 'total' ? '设备概况' : groupName }} </div>
       <a-button
         class="title_Contr_btm fr"
         style="background-color: #00b9d7; color: #ffffff"
@@ -33,8 +33,14 @@
         </div>
       </template>
     </div>
-    <a-list>
-      <a-checkbox-group v-model:value="valueList" @change="onCheckAllChangeList">
+    <!-- <div
+      v-infinite-scroll="handleInfiniteOnLoad"
+      class="demo-infinite-container"
+      :infinite-scroll-disabled="busy"
+      :infinite-scroll-distance="10"
+    > -->
+    <a-list :pagination="paginationProp">
+      <CheckboxGroup v-model:value="valueList" @change="onCheckAllChangeList">
         <a-row :gutter="16">
           <template v-for="(item, i) in modeTyleList" :key="item.title">
             <a-col :span="4">
@@ -46,7 +52,7 @@
                   @click="handleView(item)"
                 >
                   <div :class="`${prefixCls}__card-title-name`" class="flex justify-center">
-                    <span class="name">{{ groupId }} 厦门呼博士的名称</span>
+                    <span class="name">{{ groupName }} 厦门呼博士的名称</span>
                   </div>
                   <div :class="`${prefixCls}__card-title`">
                     <div class="fl group-name"> 群组位置：{{ airQuity(i).name }} </div>
@@ -148,22 +154,23 @@
                     <!-- 遮罩层 -->
                     <div :class="`${prefixCls}__card-bgColor`"></div>
                     <!-- 多选框 -->
-                    <a-checkbox :value="item.id" />
+                    <Checkbox :value="item.id" />
                   </template>
                 </a-card>
               </a-list-item>
             </a-col>
           </template>
         </a-row>
-      </a-checkbox-group>
+      </CheckboxGroup>
     </a-list>
-
-    <component :is="currentModal" v-model:visible="modalVisible" :userData="userData" />
-    <RemoveModel @register="register1" :minHeight="100" />
-    <AddModel @register="register4" :minHeight="100" />
-
-    <!-- <Drawer @register="register5" /> -->
   </div>
+
+  <component :is="currentModal" v-model:visible="modalVisible" :userData="userData" />
+  <RemoveModel @register="register1" :minHeight="100" />
+  <AddModel @register="register4" :minHeight="100" />
+
+  <!-- <Drawer @register="register5" /> -->
+  <!-- </div> -->
 </template>
 
 <script lang="ts">
@@ -178,7 +185,7 @@
     ref,
     nextTick,
   } from 'vue';
-  import { Card, Row, Col, List, Progress, CheckboxGroup, Checkbox } from 'ant-design-vue';
+  import { Card, Row, Col, List, Progress, Checkbox } from 'ant-design-vue';
   import { airQuity } from '/@/utils/other/data';
   // import { useDrawer } from '/@/components/Drawer';
   import Drawer from './Drawer.vue';
@@ -192,6 +199,7 @@
   import deviceImg_bad from '/@/assets/images/device/device/bad.png';
   import deviceImg_off from '/@/assets/images/device/device/off.png';
   import bus from '/@/utils/bus';
+  import { GetAllDeviceApi, GetDeviceByGroupIdApi } from '/@/api/sys/groupAndDevice';
   const modeTyleList: any[] = [
     { id: 1, name: 'EH-Z-7G650', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
     { id: 2, name: 'EH-Z-7G400A', url: deviceImg_good, aqi: '2', pmValue: 40, coValue: 50 },
@@ -220,6 +228,7 @@
     { id: 25, name: 'XS-D150A', url: deviceImg_off, aqi: '4', pmValue: 0, coValue: 0 },
   ];
   import RippleDirective from '/@/directives/ripple';
+  // import infiniteScroll from 'vue-infinite-scroll';
 
   interface selectTitleType {
     name?: string;
@@ -256,17 +265,23 @@
       [Progress.name]: Progress,
       CheckboxGroup: Checkbox.Group,
       [Checkbox.name]: Checkbox,
+      // infiniteScroll,
     },
     directives: {
       Ripple: RippleDirective,
+      // infiniteScroll: infiniteScroll,
     },
     props: {
       groupId: {
         type: String,
         default: '',
       },
+      groupName: {
+        type: String,
+        default: '',
+      },
     },
-    setup() {
+    setup(props) {
       const currentModal = shallowRef<Nullable<ComponentOptions>>(null);
       const [register1, { openModal: openModal1 }] = useModal();
       const [register4, { openModal: openModal4 }] = useModal();
@@ -308,10 +323,9 @@
         actionSelect: false, //是否开启选择
         checkedList: [],
         valueList: [],
+        loading: false,
+        busy: false,
       });
-      // const lisState = reactive<selectTitleType>({
-      //   valueList: [],
-      // });
 
       function openModalLoading() {
         openModal1(true);
@@ -354,10 +368,6 @@
         //   setDrawerProps({ loading: false });
         // }, 1000);
       }
-      // onMounted(() => handleView());
-      onMounted(() => {
-        console.log('valueList', state.valueList, state.valueList.length);
-      });
       const onCheckAllChangeList = (e: any) => {
         console.log('e===', e);
         Object.assign(state, {
@@ -406,6 +416,74 @@
       const chegnSelect = () => (
         (state.actionSelect = !state.actionSelect), (state.valueList = [])
       );
+
+      // 获取分页数据
+      // async function fetch(p = {}) {
+      //   const { api, params } = props;
+      //   if (api && isFunction(api)) {
+      //     const res = await api({ ...params, page: page.value, pageSize: pageSize.value, ...p });
+      //     data.value = res.items;
+      //     total.value = res.total;
+      //   }
+      // }
+      async function fetch(groupId) {
+        if (groupId == 'total') {
+          // 获取所有的设备信息
+          let res = await GetAllDeviceApi({ pageIndex: 1, pageSize: 20 });
+          console.log('获取所有的设备信息', res);
+        } else {
+          // 获取群组下的设备信息
+          let res = await GetDeviceByGroupIdApi({ pageIndex: 1, pageSize: 20, groupId: groupId });
+          console.log('获取群组设备信息', res);
+        }
+      }
+
+      // function handleInfiniteOnLoad() {
+      //   const data = modeTyleList;
+      //   state.loading = true;
+      //   console.log('dadddd', data);
+      //   if (data.length > 14) {
+      //     // this.$message.warning('Infinite List loaded all');
+      //     state.busy = true;
+      //     state.loading = false;
+      //     return;
+      //   }
+      //   this.fetchData(res => {
+      //     state.valueList = data.concat(res.results);
+      //     state.loading = false;
+      //   });
+      // }
+
+      //分页相关
+      const page = ref(1);
+      const pageSize = ref(36);
+      const total = ref(0);
+      const paginationProp = ref({
+        showSizeChanger: true,
+        showQuickJumper: true,
+        pageSize,
+        current: page,
+        total,
+        showTotal: (total) => `总 ${total} 条`,
+        onChange: pageChange,
+        onShowSizeChange: pageSizeChange,
+      });
+
+      function pageChange(p, pz) {
+        page.value = p;
+        pageSize.value = pz;
+        // fetch();
+      }
+      function pageSizeChange(_current, size) {
+        pageSize.value = size;
+        fetch(props.groupId);
+      }
+
+      // onMounted(() => handleView());
+      onMounted(() => {
+        console.log('props.groupList', props.groupList);
+        fetch(props.groupId);
+      });
       return {
         register1,
         openModal1,
@@ -432,6 +510,13 @@
         addDevice,
         modeTyleList,
         dealAqires,
+
+        // handleInfiniteOnLoad,
+        fetch,
+        page,
+        pageSize,
+        total,
+        paginationProp,
       };
     },
   });

@@ -7,33 +7,18 @@
     :head-style="headStyle"
   >
     <!-- <p v-if="activeKey === 'tab1'"> -->
-    <DeviceManageList :groupId="activeKey" />
+    <DeviceManageList ref="manageList" :groupId="activeKey" :groupName="titleName" />
     <!-- </p>
     <p v-if="activeKey === 'tab2'"> 222 </p>
     <p v-if="activeKey === 'tab3'"> 333 </p> -->
   </Card>
 </template>
 <script lang="ts">
-  import { ref, onMounted } from 'vue';
   import { Card } from 'ant-design-vue';
-  import { defineComponent, reactive, toRefs } from 'vue';
+  import { defineComponent, reactive, ref, onMounted, toRefs } from 'vue';
   import DeviceManageList from './DeviceManageList.vue';
-  let activeKey = ref('tab1');
-
-  const tabListTitle = [
-    {
-      key: 'tab1',
-      tab: '流量趋势',
-    },
-    {
-      key: 'tab2',
-      tab: '访问量',
-    },
-    {
-      key: 'tab3',
-      tab: '778899999999999999',
-    },
-  ];
+  import { GetlistUserGroupApi } from '/@/api/sys/groupAndDevice';
+  let activeKey = ref('total');
   const headStyle = {
     background: '#F6F7FB',
     padding: '0px',
@@ -49,16 +34,40 @@
     setup() {
       const state = reactive({
         activeKey,
+        titleName: '',
+        tabListTitle: [],
       });
+      const manageList = ref();
+      // 数组列表（tabs）
+      async function getListData(index, size) {
+        let resData = await GetlistUserGroupApi({ pageIndex: index, pageSize: size });
+        resData.list.unshift({
+          groupId: 'total',
+          groupName: '所有设备',
+        });
+        let tmp = resData.list.map((res) => {
+          return {
+            key: res.groupId,
+            tab: res.groupName,
+          };
+        });
+        state.tabListTitle = tmp;
+      }
 
       function onTabChange(key) {
         activeKey.value = key;
-        console.log('onTabChange', activeKey.value);
+        state.tabListTitle.forEach((res) => {
+          if (res.key == key) {
+            state.titleName = res.tab;
+          }
+        });
+        manageList.value.fetch(key);
+        console.log('onTabChange', state.titleName);
       }
       onMounted(() => {
-        console.log('activeKey', activeKey.value);
+        getListData(1, 20);
       });
-      return { ...toRefs(state), tabListTitle, onTabChange, headStyle };
+      return { ...toRefs(state), onTabChange, headStyle, getListData, manageList };
     },
   });
 </script>

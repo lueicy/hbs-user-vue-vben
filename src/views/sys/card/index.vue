@@ -1,7 +1,7 @@
 <template>
   <PageWrapper :class="prefixCls" title="">
     <template v-if="isDetail" #headerContent>
-      <WorkbenchHeader />
+      <WorkbenchHeader :statisticsData="statisticsRes" />
       <DeviceManage class="rounded-t enter-y" />
     </template>
     <template v-if="!isDetail">
@@ -14,15 +14,15 @@
   </PageWrapper>
 </template>
 <script lang="ts">
-  import { reactive, toRefs, defineComponent, onBeforeUnmount } from 'vue';
+  import { reactive, toRefs, defineComponent, onBeforeUnmount, onMounted } from 'vue';
   import { PageWrapper } from '/@/components/Page';
   import WorkbenchHeader from './components/WorkbenchHeader.vue';
   import DeviceManage from './components/DeviceManage.vue';
   import RippleDirective from '/@/directives/ripple';
-  // import { useDrawer } from '/@/components/Drawer';
   import DeviceDetail from '../deviceDetail/index.vue';
   import bus from '/@/utils/bus';
   import { Icon } from '/@/components/Icon';
+  import { getStatisticsData } from '/@/api/sys/menu';
 
   export default defineComponent({
     components: {
@@ -39,21 +39,30 @@
     setup() {
       const state = reactive({
         isDetail: true, //是否开启选择
+        statisticsRes: {},
         deviceData: {},
       });
       const catchShow = (event) => {
         state.isDetail = event.id ? false : true;
         state.deviceData = event;
-        console.log('showDetail 我拿到数据了', event);
       };
+      // 统计数据
+      async function getStatistics() {
+        state.statisticsRes = await getStatisticsData();
+      }
 
       bus.on('showDetail222', catchShow);
+      onMounted(() => {
+        getStatistics();
+      });
+
       onBeforeUnmount(() => {
         bus.off('showDetail222', catchShow);
       });
 
       return {
         catchShow,
+        getStatistics,
         ...toRefs(state),
       };
     },
