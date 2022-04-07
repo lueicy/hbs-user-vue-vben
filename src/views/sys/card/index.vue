@@ -43,7 +43,7 @@
         deviceData: {},
       });
       const catchShow = (event) => {
-        state.isDetail = event.id ? false : true;
+        state.isDetail = event.deviceId ? false : true;
         state.deviceData = event;
       };
       // 统计数据
@@ -53,6 +53,7 @@
 
       bus.on('showDetail222', catchShow);
       onMounted(() => {
+        console.log('state.isDetail', state.isDetail);
         getStatistics();
       });
 
@@ -63,6 +64,7 @@
       return {
         catchShow,
         getStatistics,
+        prefixCls: 'home-page',
         ...toRefs(state),
       };
     },

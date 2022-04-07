@@ -42,7 +42,7 @@
     <a-list :pagination="paginationProp">
       <CheckboxGroup v-model:value="valueList" @change="onCheckAllChangeList">
         <a-row :gutter="16">
-          <template v-for="(item, i) in modeTyleList" :key="item.title">
+          <template v-for="(item, i) in devicesList" :key="item.deviceId">
             <a-col :span="4">
               <a-list-item>
                 <a-card
@@ -52,27 +52,28 @@
                   @click="handleView(item)"
                 >
                   <div :class="`${prefixCls}__card-title-name`" class="flex justify-center">
-                    <span class="name">{{ groupName }} 厦门呼博士的名称</span>
+                    <span class="name">{{ item.deviceName }}</span>
                   </div>
                   <div :class="`${prefixCls}__card-title`">
-                    <div class="fl group-name"> 群组位置：{{ airQuity(i).name }} </div>
+                    <div class="fl group-name"> 群组位置：{{ item.groupList[0] }} </div>
                     <div class="online fr">
                       <span
-                        :style="{ color: i % 3 == 0 ? '' : '#A6AAB8' }"
+                        :style="{ color: item.online == '10' ? '' : '#A6AAB8' }"
                         class="dib iconify"
-                        :data-icon="i % 3 == 0 ? 'ic:baseline-wifi' : 'mdi:wifi-cancel'"
+                        :data-icon="item.online == '10' ? 'ic:baseline-wifi' : 'mdi:wifi-cancel'"
                       ></span>
 
-                      <span :style="{ color: i % 3 == 0 ? '' : '#A6AAB8' }">
-                        {{ i % 3 == 0 ? '在线' : '离线' }}
+                      <span :style="{ color: item.online == '10' ? '' : '#A6AAB8' }">
+                        {{ item.online == '10' ? '在线' : '离线' }}
                       </span>
                     </div>
                   </div>
                   <div :class="`${prefixCls}__card-detail`">
                     <div
+                      v-if="item.online == '10'"
                       class="flex flex-col items-center justify-center"
                       :style="{
-                        backgroundImage: 'url(' + item.url + ')',
+                        backgroundImage: 'url(' + dealAqires('url', item.airQuality) + ')',
                         backgroundSize: '100% 100%',
                         backgroundRepeat: 'no-repeat',
                         width: '147px',
@@ -80,43 +81,62 @@
                       }"
                     >
                       <span class="mb-6 aqi-title">AQI</span>
-                      <span class="air-status" :style="{ color: dealAqires('style', item.aqi) }">{{
-                        dealAqires('text', item.aqi)
-                      }}</span>
-                      <!-- <span class="dib iconify-inline" data-icon="lucide:edit-3"></span> -->
+                      <span
+                        class="air-status"
+                        :style="{ color: dealAqires('style', item.airQuality) }"
+                        >{{ dealAqires('text', item.airQuality) }}</span
+                      >
+                    </div>
+                    <div
+                      v-else
+                      class="flex flex-col items-center justify-center"
+                      :style="{
+                        backgroundImage: 'url(' + dealAqires('url', '04') + ')',
+                        backgroundSize: '100% 100%',
+                        backgroundRepeat: 'no-repeat',
+                        width: '147px',
+                        height: '135px',
+                      }"
+                    >
+                      <span class="mb-6 aqi-title">AQI</span>
+                      <span class="air-status" :style="{ color: dealAqires('style', '04') }">
+                        {{ item.open == '00' ? '关机' : '离线' }}
+                      </span>
                     </div>
 
                     <br />
                   </div>
                   <div :class="`${prefixCls}__card-title`" style="height: 60px">
                     <div class="flex justify-between">
-                      <span>PM2.5</span>
+                      <span style="width: 40px">PM2.5</span>
                       <span style="width: 92px">
                         <a-progress
-                          :percent="item.pmValue"
+                          :percent="item.pm25Real"
                           :show-info="false"
-                          :strokeColor="dealAqires('style', item.aqi)"
+                          :strokeColor="dealAqires('style', item.airQuality)"
                         />
                       </span>
-                      <span> 10ug/m³</span>
+                      <span style="width: 77px; text-align: end"> {{ item.pm25Real }}ug/m³</span>
                     </div>
                     <div class="flex justify-between">
-                      <span style="width: 45px">CO2</span>
+                      <span style="width: 40px">CO2</span>
                       <span style="width: 92px">
                         <a-progress
-                          :percent="item.coValue"
+                          :percent="dealAirQuality(item.co2Real)"
                           :show-info="false"
-                          :strokeColor="dealAqires('style', item.aqi)"
+                          :strokeColor="dealAqires('style', item.airQuality)"
                         />
                       </span>
-                      <span style="width: 60px">1000pppm</span>
+                      <span style="width: 77px; text-align: end">{{ item.co2Real }}ppm</span>
                     </div>
                   </div>
                   <div :class="`${prefixCls}__card-title`">
                     <div class="fl">滤网维护周期</div>
                     <!-- <div class="windTag fl">高速风</div> -->
                     <div class="mainTag fr">
-                      <span> 2个月 </span>
+                      <span :style="{ color: item.meshCycle < 43200 ? '#FF5F59' : '' }">
+                        {{ dealFixTime(item.meshCycle) }}个月
+                      </span>
                     </div>
                   </div>
                   <div :class="`${prefixCls}__card-title`" class="flex justify-between w-full">
@@ -124,13 +144,22 @@
                       <div class="fl">模式</div>
                       <div class="online fr">
                         <span
-                          :style="{ color: i % 3 == 0 ? '' : '#A6AAB8' }"
+                          :style="{ color: item.online == '10' ? '' : '#A6AAB8' }"
                           class="dib iconify"
-                          :data-icon="i % 3 == 0 ? 'ic:baseline-wifi' : 'mdi:wifi-cancel'"
+                          :data-icon="
+                            item.online == '10'
+                              ? 'ic:outline-font-download'
+                              : 'ic:outline-font-download-off'
+                          "
                         ></span>
 
-                        <span :style="{ color: i % 3 == 0 ? '' : '#A6AAB8' }">
-                          {{ i % 3 == 0 ? '新风' : '循环' }}
+                        <span
+                          :style="{
+                            color: item.online == '10' ? '' : '#A6AAB8',
+                            marginLeft: '5px',
+                          }"
+                        >
+                          {{ dealPattern(item.pattern) }}
                         </span>
                       </div>
                     </div>
@@ -138,13 +167,20 @@
                       <div class="fl">风速</div>
                       <div class="online fr">
                         <span
-                          :style="{ color: i % 3 == 0 ? '' : '#A6AAB8' }"
+                          :style="{ color: item.online == '10' ? '' : '#A6AAB8' }"
                           class="dib iconify"
-                          :data-icon="i % 3 == 0 ? 'ic:baseline-wifi' : 'mdi:wifi-cancel'"
+                          :data-icon="
+                            item.wind == '01' ? 'ic:sharp-wind-power' : 'ic:outline-wind-power'
+                          "
                         ></span>
 
-                        <span :style="{ color: i % 3 == 0 ? '' : '#A6AAB8' }">
-                          {{ i % 3 == 0 ? '强' : '弱' }}
+                        <span
+                          :style="{
+                            color: item.online == '10' ? '' : '#A6AAB8',
+                            marginLeft: '5px',
+                          }"
+                        >
+                          {{ dealWind(item.wind) }}
                         </span>
                       </div>
                     </div>
@@ -200,33 +236,6 @@
   import deviceImg_off from '/@/assets/images/device/device/off.png';
   import bus from '/@/utils/bus';
   import { GetAllDeviceApi, GetDeviceByGroupIdApi } from '/@/api/sys/groupAndDevice';
-  const modeTyleList: any[] = [
-    { id: 1, name: 'EH-Z-7G650', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
-    { id: 2, name: 'EH-Z-7G400A', url: deviceImg_good, aqi: '2', pmValue: 40, coValue: 50 },
-    { id: 3, name: 'EH-Z-7B200F', url: deviceImg_off, aqi: '4', pmValue: 0, coValue: 0 },
-    { id: 4, name: 'XS-D250A', url: deviceImg_bad, aqi: '3', pmValue: 50, coValue: 60 },
-    { id: 5, name: 'XS-D150A', url: deviceImg_off, aqi: '4', pmValue: 0, coValue: 0 },
-    { id: 6, name: 'EH-Z-7G650', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
-    { id: 7, name: 'EH-Z-7G400A', url: deviceImg_good, aqi: '2', pmValue: 40, coValue: 50 },
-    { id: 8, name: 'EH-Z-7B200F', url: deviceImg_bad, aqi: '3', pmValue: 50, coValue: 60 },
-    { id: 9, name: 'XS-D250A', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
-    { id: 10, name: 'XS-D150A', url: deviceImg_off, aqi: '4', pmValue: 0, coValue: 0 },
-    { id: 11, name: 'EH-Z-7G650', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
-    { id: 12, name: 'EH-Z-7G400A', url: deviceImg_good, aqi: '2', pmValue: 40, coValue: 50 },
-    { id: 13, name: 'EH-Z-7B200F', url: deviceImg_bad, aqi: '3', pmValue: 50, coValue: 60 },
-    { id: 14, name: 'XS-D250A', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
-    { id: 15, name: 'XS-D150A', url: deviceImg_off, aqi: '4', pmValue: 0, coValue: 0 },
-    { id: 16, name: 'EH-Z-7G650', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
-    { id: 17, name: 'EH-Z-7G400A', url: deviceImg_good, aqi: '2', pmValue: 40, coValue: 50 },
-    { id: 18, name: 'EH-Z-7B200F', url: deviceImg_bad, aqi: '3', pmValue: 50, coValue: 60 },
-    { id: 19, name: 'XS-D250A', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
-    { id: 20, name: 'XS-D150A', url: deviceImg_off, aqi: '4', pmValue: 0, coValue: 0 },
-    { id: 21, name: 'EH-Z-7G650', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
-    { id: 22, name: 'EH-Z-7G400A', url: deviceImg_good, aqi: '2', pmValue: 40, coValue: 50 },
-    { id: 23, name: 'EH-Z-7B200F', url: deviceImg_bad, aqi: '3', pmValue: 50, coValue: 60 },
-    { id: 24, name: 'XS-D250A', url: deviceImg_green, aqi: '1', pmValue: 30, coValue: 20 },
-    { id: 25, name: 'XS-D150A', url: deviceImg_off, aqi: '4', pmValue: 0, coValue: 0 },
-  ];
   import RippleDirective from '/@/directives/ripple';
   // import infiniteScroll from 'vue-infinite-scroll';
 
@@ -282,6 +291,16 @@
       },
     },
     setup(props) {
+      const state = reactive({
+        indeterminate: true,
+        actionSelect: false, //是否开启选择
+        devicesList: [],
+        checkedList: [],
+        valueList: [],
+        loading: false,
+        busy: false,
+      });
+
       const currentModal = shallowRef<Nullable<ComponentOptions>>(null);
       const [register1, { openModal: openModal1 }] = useModal();
       const [register4, { openModal: openModal4 }] = useModal();
@@ -293,39 +312,125 @@
         return function (type, event) {
           let colStyle = '';
           let aqiText = '';
+          let imageUrl = '';
           switch (event) {
-            case '1':
+            case '01':
               colStyle = '#52c41a';
               aqiText = '清新';
+              imageUrl = deviceImg_green;
               break;
-            case '2':
+            case '02':
               colStyle = '#FFC400';
               aqiText = '良好';
+              imageUrl = deviceImg_good;
               break;
-            case '3':
+            case '03':
               colStyle = '#FF4D4F';
               aqiText = '污浊';
+              imageUrl = deviceImg_bad;
               break;
-            case '4':
+            case '04':
               colStyle = '#A9A9AF';
               aqiText = '离线';
+              imageUrl = deviceImg_off;
               break;
             default:
               colStyle = '#A9A9AF';
               aqiText = '离线';
+              imageUrl = deviceImg_off;
           }
-          return type === 'style' ? colStyle : aqiText;
+          return type === 'style' ? colStyle : type === 'text' ? aqiText : imageUrl;
+        };
+      });
+      // 计算co2含量的空气质量
+      const dealAirQuality = computed(() => {
+        return function (event) {
+          let resNum = 0;
+          if (event == 0) resNum = 0;
+          if (event > 0 && event < 350) resNum = 10;
+          if (event > 350 && event <= 1000) resNum = 20;
+          if (event > 1000 && event <= 2000) resNum = 50;
+          if (event > 2000 && event <= 5000) resNum = 80;
+          if (event > 5000) resNum = 90;
+          return resNum;
+        };
+      });
+      // 计算维护周期
+      const dealFixTime = computed(() => {
+        return function (event) {
+          let resNum = 0;
+          if (event < 43200) resNum = 0;
+          if (event > 43200) resNum = parseInt(event / 43200);
+          return resNum;
+        };
+      });
+      // 计算风速强弱
+      const dealWind = computed(() => {
+        return function (event) {
+          let wind = '';
+          switch (event) {
+            case '01':
+              wind = '弱';
+              break;
+            case '02':
+              wind = '中';
+              break;
+            case '03':
+              wind = '强';
+              break;
+          }
+          return wind;
+        };
+      });
+      // 计算运行模式
+      // 模式 01:智能模式 02新风模式 03:净化模式 04:送风模式 05:排风模式 06:除味模式 07:节能模式 08:除湿模式 09:新风+除湿模式 8~:除霜模式（自动）4~:辅热模式（自动）2~:除湿模式（自动）
+      const dealPattern = computed(() => {
+        return function (event) {
+          let patternText = '';
+          switch (event) {
+            case '01':
+              patternText = '智能';
+              break;
+            case '02':
+              patternText = '新风';
+              break;
+            case '03':
+              patternText = '净化';
+              break;
+            case '04':
+              patternText = '送风';
+              break;
+            case '05':
+              patternText = '排风';
+              break;
+            case '06':
+              patternText = '除味';
+              break;
+            case '07':
+              patternText = '节能';
+              break;
+            case '08':
+              patternText = '除湿';
+              break;
+            case '09':
+              patternText = '新风+除湿';
+              break;
+            case '8~':
+              patternText = '除霜(自动)';
+              break;
+            case '4~':
+              patternText = '辅热(自动)';
+              break;
+            case '8~':
+              patternText = '除湿(自动)';
+              break;
+            default:
+              patternText = '智能';
+          }
+          return patternText;
         };
       });
       // const [register5, { openDrawer: openDrawer5, setDrawerProps }] = useDrawer();
-      const state = reactive({
-        indeterminate: true,
-        actionSelect: false, //是否开启选择
-        checkedList: [],
-        valueList: [],
-        loading: false,
-        busy: false,
-      });
 
       function openModalLoading() {
         openModal1(true);
@@ -430,16 +535,17 @@
         if (groupId == 'total') {
           // 获取所有的设备信息
           let res = await GetAllDeviceApi({ pageIndex: 1, pageSize: 20 });
-          console.log('获取所有的设备信息', res);
+          state.devicesList = res.list;
+          console.log('获取所有的设备信息', state.devicesList);
         } else {
           // 获取群组下的设备信息
           let res = await GetDeviceByGroupIdApi({ pageIndex: 1, pageSize: 20, groupId: groupId });
-          console.log('获取群组设备信息', res);
+          state.devicesList = res.list;
+          console.log('获取群组设备信息', state.devicesList);
         }
       }
 
       // function handleInfiniteOnLoad() {
-      //   const data = modeTyleList;
       //   state.loading = true;
       //   console.log('dadddd', data);
       //   if (data.length > 14) {
@@ -508,8 +614,11 @@
         onCheckAllChangeList,
         chegnSelect,
         addDevice,
-        modeTyleList,
         dealAqires,
+        dealAirQuality,
+        dealFixTime,
+        dealPattern,
+        dealWind,
 
         // handleInfiniteOnLoad,
         fetch,
@@ -662,6 +771,7 @@
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
+            text-align: center;
           }
         }
       }
