@@ -5,14 +5,14 @@
       <a-button
         class="title_Contr_btm fr"
         style="background-color: #00b9d7; color: #ffffff"
-        @click="chegnSelect"
+        @click="switchBtn('1')"
       >
         全开
       </a-button>
       <a-button
         class="title_Contr_btm fr"
         style="background-color: #00b9d7; color: #ffffff"
-        @click="chegnSelect"
+        @click="switchBtn('0')"
       >
         全关
       </a-button>
@@ -190,7 +190,7 @@
                     <!-- 遮罩层 -->
                     <div :class="`${prefixCls}__card-bgColor`"></div>
                     <!-- 多选框 -->
-                    <Checkbox :value="item.id" />
+                    <Checkbox :value="item.deviceId" />
                   </template>
                 </a-card>
               </a-list-item>
@@ -230,13 +230,19 @@
   import RemoveModel from './RemoveModel.vue';
   import AddModel from './AddModel.vue';
   import { useModal } from '/@/components/Modal';
-  // import { SlideXReverseTransition } from '/@/components/Transition'; //动画
+  import { useMessage } from '/@/hooks/web/useMessage';
+
+  import { useI18n } from '/@/hooks/web/useI18n';
   import deviceImg_green from '/@/assets/images/device/device/green.png';
   import deviceImg_good from '/@/assets/images/device/device/good.png';
   import deviceImg_bad from '/@/assets/images/device/device/bad.png';
   import deviceImg_off from '/@/assets/images/device/device/off.png';
   import bus from '/@/utils/bus';
-  import { GetAllDeviceApi, GetDeviceByGroupIdApi } from '/@/api/sys/groupAndDevice';
+  import {
+    GetAllDeviceApi,
+    GetDeviceByGroupIdApi,
+    OnOffSwitchApi,
+  } from '/@/api/sys/groupAndDevice';
   import RippleDirective from '/@/directives/ripple';
   // import infiniteScroll from 'vue-infinite-scroll';
 
@@ -274,7 +280,7 @@
       [Col.name]: Col,
       [Progress.name]: Progress,
       CheckboxGroup: Checkbox.Group,
-      [Checkbox.name]: Checkbox,
+      Checkbox,
     },
     directives: {
       Ripple: RippleDirective,
@@ -300,6 +306,8 @@
         loading: false,
         busy: false,
       });
+      const { t } = useI18n();
+      const { createMessage, createErrorModal } = useMessage();
 
       const currentModal = shallowRef<Nullable<ComponentOptions>>(null);
       const [register1, { openModal: openModal1 }] = useModal();
@@ -464,14 +472,9 @@
       }
 
       function handleView(item) {
+        console.log('点击查看详情', state.actionSelect);
+        if (state.actionSelect) return; //判断选择按钮是否开启
         bus.emit('showDetail222', item);
-        console.log('点击查看详情', item);
-        // if (state.actionSelect) return; //判断选择按钮是否开启
-        // openDrawer5(true, { record: item });
-        // setDrawerProps({ loading: true });
-        // setTimeout(() => {
-        //   setDrawerProps({ loading: false });
-        // }, 1000);
       }
       const onCheckAllChangeList = (e: any) => {
         console.log('e===', e);
@@ -481,6 +484,24 @@
         });
       };
       const getSelectList = () => cardList.map((item) => item.id);
+      async function switchBtn(event) {
+        let switchRes = await OnOffSwitchApi({ status: event });
+
+        try {
+          if (switchRes && switchRes.code == 200) {
+            createMessage.success('操作成功');
+            fetch(props.groupId, page.value, pageSize.value);
+          }
+        } catch (error: any) {
+          createErrorModal({
+            title: t('sys.api.errorTip'),
+            content: error.msg || t('sys.api.networkExceptionMsg'),
+            // getContainer: () => document.body.querySelector(`.${prefixCls}`) || document.body,
+          });
+        } finally {
+          console.log('switchRes', switchRes);
+        }
+      }
 
       const getAllCheck = () => {
         console.log('执行。');
@@ -614,6 +635,7 @@
         getAllCheck,
         onCheckAllChangeList,
         chegnSelect,
+        switchBtn,
         addDevice,
         dealAqires,
         dealAirQuality,

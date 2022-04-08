@@ -21,3 +21,6 @@ export interface UpdateGroupParams {
 export interface RemoveGroupParams {
   userGroupId: string; // 用户群组主键
 }
+export interface OnOffSwitchParams {
+  status: string; // 1-开/0-关
+}

@@ -5,6 +5,7 @@ import {
   listUserGroupParams,
   UpdateGroupParams,
   RemoveGroupParams,
+  OnOffSwitchParams,
 } from './model/groupModel';
 
 enum Api {
@@ -14,6 +15,7 @@ enum Api {
   RemovelistUserGroup = '/userGroup/removeGroup', // 删除数组
   GetAllDevice = 'enterprise/dashboard/listUserDevice', // 获取所有设备
   GetDeviceByGroupId = 'groupDevice/listGroupDevices', // 获取所有设备
+  OnOffSwitch = 'device/switchAll/', //开关群组所有设备
 }
 
 /**
@@ -55,5 +57,13 @@ export function GetDeviceByGroupIdApi(params) {
   return defHttp.get({
     url: Api.GetDeviceByGroupId,
     params,
+  });
+}
+/**
+ * @description: 开关群组所有设备- status-1-开/0-关
+ */
+export function OnOffSwitchApi(params: OnOffSwitchParams) {
+  return defHttp.get({
+    url: Api.OnOffSwitch + params.status,
   });
 }
