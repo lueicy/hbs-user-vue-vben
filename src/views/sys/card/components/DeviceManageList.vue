@@ -34,10 +34,10 @@
       </template>
     </div>
     <!-- <div
-      v-infinite-scroll="handleInfiniteOnLoad"
+      v-scroll="handleInfiniteOnLoad"
       class="demo-infinite-container"
       :infinite-scroll-disabled="busy"
-      :infinite-scroll-distance="10"
+      :infinite-scroll-distance="50"
     > -->
     <a-list :pagination="paginationProp">
       <CheckboxGroup v-model:value="valueList" @change="onCheckAllChangeList">
@@ -199,6 +199,7 @@
         </a-row>
       </CheckboxGroup>
     </a-list>
+    <!-- </div> -->
   </div>
 
   <component :is="currentModal" v-model:visible="modalVisible" :userData="userData" />
@@ -274,11 +275,10 @@
       [Progress.name]: Progress,
       CheckboxGroup: Checkbox.Group,
       [Checkbox.name]: Checkbox,
-      // infiniteScroll,
     },
     directives: {
       Ripple: RippleDirective,
-      // infiniteScroll: infiniteScroll,
+      // Scroll: infiniteScroll,
     },
     props: {
       groupId: {
@@ -523,46 +523,47 @@
       );
 
       // 获取分页数据
-      // async function fetch(p = {}) {
-      //   const { api, params } = props;
-      //   if (api && isFunction(api)) {
-      //     const res = await api({ ...params, page: page.value, pageSize: pageSize.value, ...p });
-      //     data.value = res.items;
-      //     total.value = res.total;
-      //   }
-      // }
-      async function fetch(groupId) {
+      async function fetch(groupId, index, size) {
         if (groupId == 'total') {
           // 获取所有的设备信息
-          let res = await GetAllDeviceApi({ pageIndex: 1, pageSize: 20 });
+          let res = await GetAllDeviceApi({ pageIndex: index, pageSize: size });
           state.devicesList = res.list;
-          console.log('获取所有的设备信息', state.devicesList);
+          total.value = res.total;
+          console.log('获取所有的设备信息', state.devicesList, total.value);
         } else {
           // 获取群组下的设备信息
-          let res = await GetDeviceByGroupIdApi({ pageIndex: 1, pageSize: 20, groupId: groupId });
+          let res = await GetDeviceByGroupIdApi({
+            pageIndex: index,
+            pageSize: size,
+            groupId: groupId,
+          });
           state.devicesList = res.list;
+          total.value = res.total;
           console.log('获取群组设备信息', state.devicesList);
         }
       }
 
+      // 滚动加载
       // function handleInfiniteOnLoad() {
-      //   state.loading = true;
-      //   console.log('dadddd', data);
-      //   if (data.length > 14) {
-      //     // this.$message.warning('Infinite List loaded all');
-      //     state.busy = true;
-      //     state.loading = false;
-      //     return;
-      //   }
-      //   this.fetchData(res => {
-      //     state.valueList = data.concat(res.results);
-      //     state.loading = false;
-      //   });
+      // state.loading = true;
+      // console.log('dadddd');
+      // state.busy = true;
+      // fetch(props.groupId, 1, 18);
+      // if (data.length > 14) {
+      //   // this.$message.warning('Infinite List loaded all');
+      //   state.busy = true;
+      //   state.loading = false;
+      //   return;
+      // }
+      // this.fetchData(res => {
+      //   state.valueList = data.concat(res.results);
+      //   state.loading = false;
+      // });
       // }
 
       //分页相关
       const page = ref(1);
-      const pageSize = ref(36);
+      const pageSize = ref(18);
       const total = ref(0);
       const paginationProp = ref({
         showSizeChanger: true,
@@ -578,17 +579,17 @@
       function pageChange(p, pz) {
         page.value = p;
         pageSize.value = pz;
-        // fetch();
+        fetch(props.groupId, p, pz);
       }
       function pageSizeChange(_current, size) {
         pageSize.value = size;
-        fetch(props.groupId);
+        fetch(props.groupId, 1, size);
       }
 
       // onMounted(() => handleView());
       onMounted(() => {
-        console.log('props.groupList', props.groupList);
-        fetch(props.groupId);
+        console.log('props.groupList', props.groupName);
+        fetch(props.groupId, 1, 18);
       });
       return {
         register1,

@@ -1,5 +1,5 @@
 <template>
-  <PageWrapper :class="prefixCls" title="">
+  <PageWrapper title="">
     <div class="page-header">群组管理</div>
     <div class="page-content">
       <div class="flex w-full btn-m-r">
@@ -13,9 +13,9 @@
         </BasicTable>
       </div>
     </div>
+    <component :is="currentModal" v-model:visible="modalVisible" @close="onClose" />
+    <AddGroupModel @register="groupInfo" :minHeight="100" />
   </PageWrapper>
-  <component :is="currentModal" v-model:visible="modalVisible" @close="onClose" />
-  <AddGroupModel @register="groupInfo" :minHeight="100" />
 </template>
 <script lang="ts">
   import {
@@ -26,7 +26,6 @@
     nextTick,
     reactive,
     toRefs,
-    toRaw,
     onMounted,
   } from 'vue';
   import { PageWrapper } from '/@/components/Page';
@@ -42,7 +41,11 @@
   import { useMessage } from '/@/hooks/web/useMessage';
   import { useModal } from '/@/components/Modal';
   import AddGroupModel from './components/AddGroupModel.vue';
-  import { GetlistUserGroupApi, UpdatelistUserGroupApi } from '/@/api/sys/groupAndDevice';
+  import {
+    GetlistUserGroupApi,
+    UpdatelistUserGroupApi,
+    RemovelistUserGroupApi,
+  } from '/@/api/sys/groupAndDevice';
   const tableColums: BasicColumn[] = [
     {
       title: '设备名称',
@@ -126,7 +129,7 @@
             // ...
             // 保存之后提交编辑状态
             let params = {
-              groupName: data.groupName,
+              groupName: record.groupName,
               id: record.groupId, // 用户群组主键
               sort: record.sort,
             };
@@ -186,8 +189,12 @@
         currentEditKeyRef.value = '';
         record.onEdit?.(false, false);
       }
-      function handleDelete(record: EditRecordRow) {
+      async function handleDelete(record: EditRecordRow) {
+        const res = await RemovelistUserGroupApi({
+          userGroupId: record.groupId,
+        });
         console.log('点击了删除', record);
+        console.log('点击了删除222', res);
       }
       function onEditChange({ column, value, record }) {
         // 本例
