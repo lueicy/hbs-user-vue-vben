@@ -6,21 +6,19 @@
     title="移动设备"
     :helpMessage="['提示1', '提示2']"
     @visible-change="handleShow"
+    @ok="handleOk"
   >
-    <!-- <template #insertFooter>
-      <a-button type="primary" danger @click="setLines" :disabled="loading">点我更新内容</a-button>
-    </template> -->
     <template v-if="loading">
-      <div class="empty-tips">加载中，稍等3秒……</div>
+      <div class="empty-tips">加载中，稍等……</div>
     </template>
     <template v-if="!loading">
       <a-list>
-        <RadioGroup v-model:value="groupList" @change="onCheckAllChangeList">
+        <RadioGroup v-model:value="selectList" @change="onCheckAllChangeList">
           <a-row>
-            <template v-for="(item, i) in groupTmpList" :key="item.id">
+            <template v-for="item in groupList" :key="item.groupId">
               <a-col class="group-item">
-                <a-list-item class="w-full">{{ item.name }} + {{ i }} </a-list-item>
-                <Radio :value="item.id" />
+                <a-list-item class="w-full">{{ item.groupName }}</a-list-item>
+                <Radio :value="item.groupId" />
               </a-col>
             </template>
           </a-row>
@@ -30,29 +28,16 @@
   </BasicModal>
 </template>
 <script lang="ts">
-  import { defineComponent, ref, watch, reactive, toRefs } from 'vue';
+  import { defineComponent, onMounted, ref, watch, reactive, toRefs } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { Row, Col, List, Radio } from 'ant-design-vue';
-  const groupTmpList: any[] = [
-    { id: 1, name: 'EH-Z-7G650', aqi: '1', pmValue: 30, coValue: 20 },
-    { id: 2, name: 'EH-Z-7G400A', aqi: '2', pmValue: 40, coValue: 50 },
-    { id: 3, name: 'EH-Z-7B200F', aqi: '4', pmValue: 0, coValue: 0 },
-    { id: 4, name: 'XS-D250A', aqi: '3', pmValue: 50, coValue: 60 },
-    { id: 5, name: 'XS-D150A', aqi: '4', pmValue: 0, coValue: 0 },
-    { id: 6, name: 'EH-Z-7G650', aqi: '1', pmValue: 30, coValue: 20 },
-    { id: 7, name: 'EH-Z-7G400A', aqi: '2', pmValue: 40, coValue: 50 },
-    { id: 8, name: 'EH-Z-7B200F', aqi: '3', pmValue: 50, coValue: 60 },
-    { id: 9, name: 'XS-D250A', aqi: '1', pmValue: 30, coValue: 20 },
-    { id: 10, name: 'XS-D150A', aqi: '4', pmValue: 0, coValue: 0 },
-    { id: 11, name: 'EH-Z-7G650', aqi: '1', pmValue: 30, coValue: 20 },
-    { id: 12, name: 'EH-Z-7G400A', aqi: '2', pmValue: 40, coValue: 50 },
-    { id: 13, name: 'EH-Z-7B200F', aqi: '3', pmValue: 50, coValue: 60 },
-    { id: 14, name: 'XS-D250A', aqi: '1', pmValue: 30, coValue: 20 },
-  ];
+  import { GetlistUserGroupApi } from '/@/api/sys/groupAndDevice';
+  interface stateType {
+    indeterminate: boolean;
+    groupList: any[];
+    selectList: any[];
+  }
 
-  // interface selectGroupType {
-  //   groupList?: any[];
-  // }
   export default defineComponent({
     components: {
       BasicModal,
@@ -63,10 +48,17 @@
       [Row.name]: Row,
       [Col.name]: Col,
     },
-    setup() {
-      const state = reactive({
+    props: {
+      removeList: {
+        type: Array,
+        default: () => [],
+      },
+    },
+    setup(props) {
+      const state: stateType = reactive({
         indeterminate: true,
         groupList: [],
+        selectList: [],
       });
       const loading = ref(true);
       const lines = ref(10);
@@ -78,13 +70,36 @@
           redoModalHeight();
         }
       );
+
+      // 群组列表（tabs）
+      async function getListData(index, size) {
+        let resData = await GetlistUserGroupApi({ pageIndex: index, pageSize: size });
+        if (resData) loading.value = false;
+        state.groupList = resData.list;
+      }
       const onCheckAllChangeList = (e: any) => {
         console.log('e===', e);
         Object.assign(state, {
           valueList: e,
           indeterminate: false,
         });
+        console.log('state===', state.selectList);
       };
+      async function handleOk() {
+        // const res = await AddlistUserGroupApi(values);
+        // if (res.code == 200) {
+        //   createMessage.success('添加成功');
+        //   handleClose();
+        // } else {
+        //   createErrorModal({
+        //     title: '提交失败',
+        //     content: res.msg + res.data[0],
+        //     // getContainer: () => document.body.querySelector(`.${prefixCls}`) || document.body,
+        //   });
+        // }
+        console.log('提交', props.removeList, state.selectList);
+      }
+
       function handleShow(visible: boolean) {
         if (visible) {
           loading.value = true;
@@ -100,15 +115,20 @@
       function setLines() {
         lines.value = Math.round(Math.random() * 20 + 10);
       }
+
+      onMounted(() => {
+        getListData(1, 10000);
+      });
       return {
         register,
         loading,
         handleShow,
         lines,
         setLines,
-        groupTmpList,
         ...toRefs(state),
         onCheckAllChangeList,
+        getListData,
+        handleOk,
       };
     },
   });

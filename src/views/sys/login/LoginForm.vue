@@ -183,6 +183,7 @@
         if (!data) return;
         try {
           loading.value = true;
+          // const userInfo = await userStore.login(
           const userInfo = await userStore.login(
             toRaw({
               // password: data.password,
@@ -193,11 +194,12 @@
               mode: 'none', //不要默认的错误提示
             })
           );
+          console.log('loginuserInfo', userInfo);
           if (userInfo) {
             notification.success({
               message: t('sys.login.loginSuccessTitle'),
               // description: `${t('sys.login.loginSuccessDesc')}: ${userInfo.realName}`,
-              description: `${t('sys.login.loginSuccessDesc')}:呼小博`,
+              description: `${t('sys.login.loginSuccessDesc')}:${userInfo.nickname}`,
               duration: 3,
             });
           }

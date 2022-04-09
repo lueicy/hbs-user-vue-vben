@@ -27,7 +27,7 @@
     emits: ['close'],
     setup(_, { emit }) {
       const modelRef = ref({});
-      const [register, { closeModal }] = useModalInner();
+      const [register] = useModalInner();
       const [registerForm, { validateFields }] = useForm({
         labelWidth: 120,
         schemas,
@@ -59,7 +59,6 @@
       }
       return {
         register,
-        closeModal,
         schemas,
         registerForm,
         model: modelRef,

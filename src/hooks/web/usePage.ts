@@ -38,6 +38,7 @@ export function useGo(_router?: Router) {
  */
 export const useRedo = (_router?: Router) => {
   let router;
+  console.log('redirect', _router);
   if (!_router) {
     router = useRouter();
   }

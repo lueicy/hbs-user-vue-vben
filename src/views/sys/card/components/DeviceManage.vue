@@ -25,6 +25,11 @@
     hight: '40px',
     borderRadius: '10px 10px 0px 0px',
   };
+  interface stateType {
+    activeKey: any;
+    titleName: string;
+    tabListTitle: any[];
+  }
 
   export default defineComponent({
     components: {
@@ -32,13 +37,13 @@
       DeviceManageList,
     },
     setup() {
-      const state = reactive({
+      const state: stateType = reactive({
         activeKey,
         titleName: '',
         tabListTitle: [],
       });
       const manageList = ref();
-      // 数组列表（tabs）
+      // 群组列表（tabs）
       async function getListData(index, size) {
         let resData = await GetlistUserGroupApi({ pageIndex: index, pageSize: size });
         resData.list.unshift({
@@ -62,7 +67,7 @@
           }
         });
         manageList.value.fetch(key);
-        console.log('onTabChange', state.titleName);
+        console.log('onTabChange', key);
       }
       onMounted(() => {
         getListData(1, 20);

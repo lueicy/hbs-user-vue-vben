@@ -42,7 +42,7 @@
     <a-list :pagination="paginationProp">
       <CheckboxGroup v-model:value="valueList" @change="onCheckAllChangeList">
         <a-row :gutter="16">
-          <template v-for="(item, i) in devicesList" :key="item.deviceId">
+          <template v-for="item in devicesList" :key="item.deviceId">
             <a-col :span="4">
               <a-list-item>
                 <a-card
@@ -203,7 +203,7 @@
   </div>
 
   <component :is="currentModal" v-model:visible="modalVisible" :userData="userData" />
-  <RemoveModel @register="register1" :minHeight="100" />
+  <RemoveModel @register="register1" :minHeight="100" :removeList="valueList" />
   <AddModel @register="register4" :minHeight="100" />
 
   <!-- <Drawer @register="register5" /> -->
@@ -226,7 +226,6 @@
   import { airQuity } from '/@/utils/other/data';
   // import { useDrawer } from '/@/components/Drawer';
   import Drawer from './Drawer.vue';
-  import { cardList } from '../data';
   import RemoveModel from './RemoveModel.vue';
   import AddModel from './AddModel.vue';
   import { useModal } from '/@/components/Modal';
@@ -241,7 +240,8 @@
   import {
     GetAllDeviceApi,
     GetDeviceByGroupIdApi,
-    OnOffSwitchApi,
+    SwitchAllOnOffApi,
+    SwitchByGroup,
   } from '/@/api/sys/groupAndDevice';
   import RippleDirective from '/@/directives/ripple';
   // import infiniteScroll from 'vue-infinite-scroll';
@@ -250,6 +250,15 @@
     name?: string;
     num?: Number;
     valueList?: any[];
+  }
+  interface stateType {
+    indeterminate: boolean;
+    actionSelect: boolean; //是否开启选择
+    devicesList: any[];
+    checkedList: any[];
+    valueList: any[];
+    loading: boolean;
+    busy: boolean;
   }
 
   const selectTitle: selectTitleType[] = [
@@ -289,7 +298,7 @@
     props: {
       groupId: {
         type: String,
-        default: '',
+        default: 'total',
       },
       groupName: {
         type: String,
@@ -297,7 +306,7 @@
       },
     },
     setup(props) {
-      const state = reactive({
+      const state: stateType = reactive({
         indeterminate: true,
         actionSelect: false, //是否开启选择
         devicesList: [],
@@ -482,10 +491,14 @@
           valueList: e,
           indeterminate: false,
         });
+        console.log('移动一个', state.valueList);
       };
-      const getSelectList = () => cardList.map((item) => item.id);
+      const getSelectList = () => state.devicesList.map((item) => item.deviceId);
       async function switchBtn(event) {
-        let switchRes = await OnOffSwitchApi({ status: event });
+        let switchRes =
+          props.groupId === 'total'
+            ? await SwitchAllOnOffApi(event)
+            : await SwitchByGroup({ groupId: props.groupId, status: event });
 
         try {
           if (switchRes && switchRes.code == 200) {
@@ -504,7 +517,6 @@
       }
 
       const getAllCheck = () => {
-        console.log('执行。');
         Object.assign(state, {
           valueList: getSelectList(),
         });
@@ -544,23 +556,24 @@
       );
 
       // 获取分页数据
-      async function fetch(groupId, index, size) {
+      async function fetch(groupId, index?, size?) {
+        console.log('获取设备', groupId);
         if (groupId == 'total') {
+          console.log('获取所有的设备信息');
           // 获取所有的设备信息
-          let res = await GetAllDeviceApi({ pageIndex: index, pageSize: size });
+          let res = await GetAllDeviceApi({ pageIndex: index || 1, pageSize: size || 18 });
           state.devicesList = res.list;
           total.value = res.total;
-          console.log('获取所有的设备信息', state.devicesList, total.value);
         } else {
           // 获取群组下的设备信息
           let res = await GetDeviceByGroupIdApi({
-            pageIndex: index,
-            pageSize: size,
+            pageIndex: index || 1,
+            pageSize: size || 18,
             groupId: groupId,
           });
           state.devicesList = res.list;
           total.value = res.total;
-          console.log('获取群组设备信息', state.devicesList);
+          // console.log('获取群组设备信息', state.devicesList);
         }
       }
 
@@ -624,7 +637,6 @@
         currentModal,
         openModalLoading,
         prefixCls: 'list-card',
-        list: cardList,
         selectTitle,
         airQuity,
         handleView,

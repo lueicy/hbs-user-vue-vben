@@ -4,15 +4,23 @@ import { defineStore } from 'pinia';
 import { store } from '/@/store';
 import { RoleEnum } from '/@/enums/roleEnum';
 import { PageEnum } from '/@/enums/pageEnum';
-import { ROLES_KEY, TOKEN_KEY, USER_INFO_KEY, ROUTER_KEY } from '/@/enums/cacheEnum';
+import {
+  ROLES_KEY,
+  TOKEN_KEY,
+  ADMIN_TOKEN_KEY,
+  USER_INFO_KEY,
+  ROUTER_KEY,
+} from '/@/enums/cacheEnum';
 import { getAuthCache, getToken, setAuthCache } from '/@/utils/auth';
 import { GetUserInfoModel, LoginParams, RegisterParams } from '/@/api/sys/model/userModel';
 import {
   doLogout,
   getUserInfo,
+  loginApim,
   loginApi,
   listAllDeviceTypeByPage,
   RegisterApi,
+  getUserInfoByM,
 } from '/@/api/sys/user';
 // import { listAllDeviceTypeByPage } from '/@/api/demo/table';
 import { useI18n } from '/@/hooks/web/useI18n';
@@ -22,6 +30,8 @@ import { router } from '/@/router';
 interface UserState {
   userInfo: Nullable<UserInfo>;
   token?: string;
+  adminToken?: string;
+  adminLogStatus?: boolean;
   roleList: RoleEnum[];
   sessionTimeout?: boolean;
   smsCode?: string;
@@ -34,11 +44,10 @@ interface UserState {
 export const useUserStore = defineStore({
   id: 'app-user',
   state: (): UserState => ({
-    // user info
     userInfo: null,
-    // token
     token: undefined,
-    // roleList
+    adminLogStatus: false, //是否登录管理员
+    adminToken: undefined, // 管理员token
     roleList: [],
     // Whether the login expired
     sessionTimeout: false,
@@ -56,6 +65,12 @@ export const useUserStore = defineStore({
     },
     getToken(): string {
       return this.token || getAuthCache<string>(TOKEN_KEY);
+    },
+    getAdminToken(): string {
+      return this.adminToken || getAuthCache<string>(ADMIN_TOKEN_KEY);
+    },
+    getAdminLogStatus(): boolean {
+      return !!this.adminLogStatus;
     },
     getRoleList(): RoleEnum[] {
       return this.roleList.length > 0 ? this.roleList : getAuthCache<RoleEnum[]>(ROLES_KEY);
@@ -85,6 +100,13 @@ export const useUserStore = defineStore({
       this.token = info;
       setAuthCache(TOKEN_KEY, info);
     },
+    setAdminToken(info: string | undefined) {
+      this.adminToken = info;
+      setAuthCache(ADMIN_TOKEN_KEY, info);
+    },
+    setAdminLogStatus(flag: boolean) {
+      this.adminLogStatus = flag;
+    },
     setRoleList(roleList: RoleEnum[]) {
       this.roleList = roleList;
       setAuthCache(ROLES_KEY, roleList);
@@ -112,25 +134,50 @@ export const useUserStore = defineStore({
       }
     ): Promise<GetUserInfoModel | null> {
       try {
-        const { goHome = true, mode, ...loginParams } = params;
-        const RESdATA: any = await loginApi(loginParams, mode);
-        // get user info
-        const userRequets = {
-          pageIndex: 1, //第几页
-          pageSize: 10, //页面大小
-          key: RESdATA.staffNo,
+        // 新的login接口请求------
+        const { goHome = true, mode } = params;
+        const loginParams = {
+          password: '91qmogrj',
+          userName: 'B220400002',
+          mode: 'none', //不要默认的错误提示
         };
-        const userInfo = await this.getUserInfoAction(userRequets);
-        console.log('userInfo-123--', userInfo);
-
+        const RESdATA: any = await loginApi(loginParams, mode);
+        // const userInfo = await this.getUserInfoAction();
         const sessionTimeout = this.sessionTimeout;
         sessionTimeout && this.setSessionTimeout(false);
-        // !sessionTimeout && goHome && (await router.replace('/home/index' || PageEnum.BASE_HOME));
-        !sessionTimeout &&
-          goHome &&
-          (await router.replace(userInfo.homePath || PageEnum.BASE_HOME));
+        !sessionTimeout && goHome && (await router.replace('/home/index' || PageEnum.BASE_HOME));
+        // !sessionTimeout &&
+        //   goHome &&
+        //   (await router.replace(userInfo.homePath || PageEnum.BASE_HOME));
+        console.log('RESdATA-123--', RESdATA);
+        return RESdATA;
+        // 新的login接口请求------
+        // 旧的login接口请求---------
+        // const { goHome = true, mode } = params;
+        // const loginParams = {
+        //   passwd: 'd3s9n6gg',
+        //   staffNo: '18926147235',
+        //   mode: 'none', //不要默认的错误提示
+        // };
+        // const RESdATA: any = await loginApim(loginParams, mode);
+        // // get user info
+        // const userRequets = {
+        //   pageIndex: 1, //第几页
+        //   pageSize: 10, //页面大小
+        //   key: RESdATA.staffNo,
+        // };
+        // const userInfo = await this.getUserInfoAction(userRequets);
+        // console.log('userInfo-123--', userInfo);
 
-        return userInfo;
+        // const sessionTimeout = this.sessionTimeout;
+        // sessionTimeout && this.setSessionTimeout(false);
+        // // !sessionTimeout && goHome && (await router.replace('/home/index' || PageEnum.BASE_HOME));
+        // !sessionTimeout &&
+        //   goHome &&
+        //   (await router.replace(userInfo.homePath || PageEnum.BASE_HOME));
+
+        // return userInfo;
+        // 旧的login接口请求---------
       } catch (error) {
         return Promise.reject(error);
       }
@@ -154,13 +201,13 @@ export const useUserStore = defineStore({
     //   this.setUserInfo(userInfo);
     //   this.setRoleList(roleList);
     // },
-    async getUserInfoAction(data): Promise<UserInfo> {
+    async getUserInfoAction(): Promise<UserInfo> {
       //promise返回值
-      const list = await getUserInfo(data);
+      const list = await getUserInfo();
 
-      console.log('list', list);
+      console.log('UserInfoList', list);
       list.token = getToken();
-      list.userId = list.id;
+      list.userId = list.userId;
       list.desc = 'manager';
       list.homePath = '/home/index';
       list.avatar = 'https://q1.qlogo.cn/g?b=qq&nk=190848757&s=640';
@@ -173,6 +220,22 @@ export const useUserStore = defineStore({
       // this.setRoleList(roleLi);
       // this.getListTypeAction();
       return list;
+      // 旧的login接口请求---------
+      // const { list } = await getUserInfoByM(data);
+      // list[0].token = getToken();
+      // list[0].userId = list[0].id;
+      // list[0].desc = 'manager';
+      // list[0].homePath = '/home/index';
+      // list[0].avatar = 'https://q1.qlogo.cn/g?b=qq&nk=190848757&s=640';
+      // const { roleList } = list[0];
+      // // roleList[0].value = 'super';
+      // console.log('roleList----', roleList);
+      // const roleLi = roleList.map((item) => item.roleCode) as RoleEnum[];
+      // console.log('roleLi----', roleLi);
+      // this.setUserInfo(list);
+      // this.setRoleList(roleLi);
+      // this.getListTypeAction();
+      // return list[0];
     },
     // listAllDeviceTypeByPage
     async getListTypeAction() {

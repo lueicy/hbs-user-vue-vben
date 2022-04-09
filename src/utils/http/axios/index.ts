@@ -10,7 +10,7 @@ import { useGlobSetting } from '/@/hooks/setting';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { RequestEnum, ResultEnum, ContentTypeEnum } from '/@/enums/httpEnum';
 import { isString } from '/@/utils/is';
-import { getToken } from '/@/utils/auth';
+import { getToken, getAdminToken } from '/@/utils/auth';
 import { setObjToUrlParams, deepMerge } from '/@/utils';
 import { useErrorLogStoreWithOut } from '/@/store/modules/errorLog';
 import { useI18n } from '/@/hooks/web/useI18n';
@@ -34,6 +34,7 @@ const transform: AxiosTransform = {
     const { isTransformResponse, isReturnNativeResponse } = options;
     // 是否返回原生响应头 比如：需要获取响应头时使用该属性
     if (isReturnNativeResponse) {
+      console.log('是否返回原生响应头', res);
       return res;
     }
     // 不进行任何处理，直接返回
@@ -45,7 +46,7 @@ const transform: AxiosTransform = {
     // 错误的时候返回
 
     const { data } = res;
-    console.log('res---数据-', res);
+    // console.log('res---数据-', res);
 
     if (!data) {
       // return '[HTTP] Request has no return value';
@@ -56,11 +57,13 @@ const transform: AxiosTransform = {
 
     // 这里逻辑可以根据项目进行修改
     const hasSuccess = data && Reflect.has(data, 'code') && Number(code) === ResultEnum.SUCCESS;
-    console.log('res---hasSuccess-', hasSuccess);
+    // console.log('res---hasSuccess-', hasSuccess);
     if (hasSuccess) {
       // return getToken() ? res.data : res;
       // data有返回数据就直接返回数据，没有就直接返回请求结果
+      console.log('resule', data);
       return data.data ? data.data : data;
+      // return data.data;
     }
 
     // 在此处根据自己项目的实际情况对不同的code执行不同的操作
@@ -144,12 +147,20 @@ const transform: AxiosTransform = {
     // if (token && (config as Recordable)?.requestOptions?.withToken !== false) {
     // jwt token
     // config.headers.Authorization = options.authenticationScheme
-    config.headers.authorization = getToken() ? getToken() : '';
+    const userStore = useUserStoreWithOut();
+    if (userStore.getAdminLogStatus) {
+      config.headers.authorization = getAdminToken() ? getAdminToken() : '';
+    } else {
+      config.headers.authorization = getToken() ? getToken() : '';
+    }
+
+    // config.headers.authorization = '';
     // options.authenticationScheme
     // ? `${options.authenticationScheme} ${token}`
     // : token;
     // }
-    // console.log('config.headers.authorization ----',config.headers.authorization );
+    console.log('getToken()', getToken());
+    console.log('config.headers.authorization ----', config.headers.authorization);
 
     return config;
   },
@@ -158,13 +169,20 @@ const transform: AxiosTransform = {
    * @description: 响应拦截器处理
    */
   responseInterceptors: (res: AxiosResponse<any>) => {
+    console.log('res-响应拦截器处理-', res);
     const userStore = useUserStoreWithOut();
-
-    // console.log('res-响应拦截器处理-',res);
     if (res.headers.authorization) {
       // let token=res.headers.authorization
-      userStore.setToken(res.headers.authorization);
+      if (userStore.getAdminLogStatus) {
+        userStore.setAdminToken(res.headers.authorization);
+      } else {
+        userStore.setToken(res.headers.authorization);
+      }
     }
+
+    // const token =
+    //   'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxNTEwMTk1MjEwODk2OTM2OTYwIiwiYXV0aCI6W3siYXV0aG9yaXR5IjoiUk9MRV9DTElFTlQifV0sImlhdCI6MTY0OTQwNjExNywiZXhwIjoxNjY0OTU4MTE3fQ.iGpRgCdmOyyUxxsRdHjPjnc4pMSoKXaf_rCYbR1w7SA';
+    // userStore.setToken(token);
     return res;
   },
 

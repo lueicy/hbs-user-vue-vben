@@ -1,13 +1,5 @@
 import { defHttp } from '/@/utils/http/axios';
-import {
-  LoginParams,
-  LoginResultModel,
-  RegisterParams,
-  GetSms,
-  // GetUserInfoModel,
-  // getUserNumByTimeParams,
-  listUserGroup,
-} from './model/userModel';
+import { LoginParams, LoginResultModel, RegisterParams, GetSms } from './model/userModel';
 import {
   listAllDeviceTypeByPageParams,
   listAllDeviceTypeByPageItem,
@@ -17,11 +9,11 @@ import { GetStatisticsDataType } from './model/menuModel';
 import { ErrorMessageMode } from '/#/axios';
 
 enum Api {
-  // Login = 'manage/admin/login',
+  Loginm = 'manage/admin/login',
   Login = 'enterprise/user/login',
   Logout = 'manage/admin/logout',
   GetUserInfo = 'user/getUserById',
-  // GetUserInfo = 'manage/admin/listAdminByPage',
+  GetUserInfoByM = 'manage/admin/listAdminByPage',
   GetPermCode = 'manage/getPermCode',
   listAllDeviceTypeByPage_List = 'manage/deviceType/listAllDeviceTypeByPage',
   RegisterApi = 'enterprise/user/register',
@@ -35,6 +27,17 @@ export function loginApi(params: LoginParams, mode: ErrorMessageMode = 'modal') 
   return defHttp.post<LoginResultModel>(
     {
       url: Api.Login,
+      params,
+    },
+    {
+      errorMessageMode: mode,
+    }
+  );
+}
+export function loginApim(params: any, mode: ErrorMessageMode = 'modal') {
+  return defHttp.post<LoginResultModel>(
+    {
+      url: Api.Loginm,
       params,
     },
     {
@@ -71,12 +74,11 @@ export function GetSmsApi(params: GetSms, mode: ErrorMessageMode = 'modal') {
 /**
  * @description: getUserInfo
  */
-// export function getUserInfo(params: GetStatisticsDataType) {
-//   // return defHttp.get<GetUserInfoModel>({ url: Api.GetUserInfo,params });
-//   return defHttp.get({ url: Api.GetUserInfo, params });
-// }
-export const getUserInfo = (params: GetStatisticsDataType) =>
-  defHttp.get({ url: Api.GetUserInfo, params });
+export function getUserInfoByM(params: GetStatisticsDataType) {
+  // return defHttp.get<GetUserInfoModel>({ url: Api.GetUserInfo,params });
+  return defHttp.get({ url: Api.GetUserInfoByM, params });
+}
+export const getUserInfo = () => defHttp.get({ url: Api.GetUserInfo });
 
 export function getPermCode() {
   return defHttp.get<string[]>({ url: Api.GetPermCode });
