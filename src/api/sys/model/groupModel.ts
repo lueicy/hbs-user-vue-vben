@@ -9,6 +9,7 @@ export interface listUserGroup {
 export interface listUserGroupParams {
   pageIndex: number;
   pageSize: number;
+  key?: string;
 }
 export interface AddGroupParams {
   groupName: string;
@@ -24,4 +25,8 @@ export interface RemoveGroupParams {
 export interface OnOffSwitchParams {
   groupId: string; //群组id
   status: string; // 1-开/0-关
+}
+export interface addDecviceParams {
+  deviceList: any; //设备id列表
+  userId: string; // 管理员ID
 }

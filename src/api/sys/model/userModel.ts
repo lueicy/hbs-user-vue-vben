@@ -47,17 +47,19 @@ export interface LoginResultModel {
  * @description: Get user information return value
  */
 export interface GetUserInfoModel {
-  roles: RoleInfo[];
-  // 用户id
-  userId: string | number;
-  // 用户名
-  username: string;
-  // 真实名字
-  realName: string;
-  // 头像
-  avatar: string;
-  // 介绍
-  desc?: string;
+  // roles: RoleInfo[];
+  // userId: string | number; // 用户id
+  // username: string; // 用户名
+  // realName: string; // 真实名字
+  // avatar: string; // 头像
+  // desc?: string; // 介绍
+
+  address: string; // 介绍
+  id: string | number; // 用户id
+  nickname: string; // 昵称
+  tel: string; // 电话
+  type: string; // 分类，0-普通用户， 1-企业用户
+  username: string; // 用户名
 }
 
 /**

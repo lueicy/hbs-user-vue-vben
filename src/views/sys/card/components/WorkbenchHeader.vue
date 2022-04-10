@@ -68,8 +68,8 @@
         </div>
       </div>
       <div class="px-2 py-4">
-        <a-input-search placeholder="搜索设备PID" style="width: 400px" />
-        <a-button class="ml-3 s-btn">查询</a-button>
+        <a-input-search v-model:value="deviceId" placeholder="搜索设备PID" style="width: 400px" />
+        <a-button class="ml-3 s-btn" @click="searchById">查询</a-button>
       </div>
     </div>
     <div class="px-4 md:flex md:w-2/10">
@@ -92,6 +92,8 @@
 </template>
 <script lang="ts">
   import { defineComponent, reactive, toRefs, onMounted } from 'vue';
+  import bus from '/@/utils/bus';
+  import { useMessage } from '/@/hooks/web/useMessage';
 
   import headerImg from '/@/assets/images/header.jpg';
   import { growCardList } from './data';
@@ -110,8 +112,10 @@
         dateYear: '',
         dateDay: '',
         dateWeek: '',
+        deviceId: '',
       });
-
+      const { createMessage } = useMessage();
+      const { error } = createMessage;
       function dealWeekDay(event: any) {
         switch (event) {
           case 0:
@@ -145,9 +149,16 @@
         dealWeekDay(moment(time).weekday());
         console.log('time', state.dateWeek);
       }
+      function searchById() {
+        console.log('搜索id', state.deviceId);
+        if (!state.deviceId) {
+          return error('请输入设备PID/SN/MAC');
+        }
+        bus.emit('searchByPid', state.deviceId);
+      }
 
       onMounted(() => Politenes());
-      return { ...toRefs(state), headerImg, cardLists: growCardList };
+      return { ...toRefs(state), headerImg, cardLists: growCardList, searchById };
     },
   });
 </script>

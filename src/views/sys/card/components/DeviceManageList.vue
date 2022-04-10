@@ -217,6 +217,7 @@
     toRefs,
     computed,
     onMounted,
+    onBeforeUnmount,
     shallowRef,
     ComponentOptions,
     ref,
@@ -230,13 +231,13 @@
   import AddModel from './AddModel.vue';
   import { useModal } from '/@/components/Modal';
   import { useMessage } from '/@/hooks/web/useMessage';
+  import bus from '/@/utils/bus';
 
   import { useI18n } from '/@/hooks/web/useI18n';
   import deviceImg_green from '/@/assets/images/device/device/green.png';
   import deviceImg_good from '/@/assets/images/device/device/good.png';
   import deviceImg_bad from '/@/assets/images/device/device/bad.png';
   import deviceImg_off from '/@/assets/images/device/device/off.png';
-  import bus from '/@/utils/bus';
   import {
     GetAllDeviceApi,
     GetDeviceByGroupIdApi,
@@ -481,7 +482,6 @@
       }
 
       function handleView(item) {
-        console.log('点击查看详情', state.actionSelect);
         if (state.actionSelect) return; //判断选择按钮是否开启
         bus.emit('showDetail222', item);
       }
@@ -556,12 +556,16 @@
       );
 
       // 获取分页数据
-      async function fetch(groupId, index?, size?) {
+      async function fetch(groupId, index?, size?, pId?) {
         console.log('获取设备', groupId);
         if (groupId == 'total') {
-          console.log('获取所有的设备信息');
+          console.log('获取所有的设备信息' + pId);
           // 获取所有的设备信息
-          let res = await GetAllDeviceApi({ pageIndex: index || 1, pageSize: size || 18 });
+          let res = await GetAllDeviceApi({
+            pageIndex: index || 1,
+            pageSize: size || 18,
+            key: pId,
+          });
           state.devicesList = res.list;
           total.value = res.total;
         } else {
@@ -576,6 +580,10 @@
           // console.log('获取群组设备信息', state.devicesList);
         }
       }
+      const searchByPid = (event) => {
+        fetch('total', 1, 20, event);
+      };
+      bus.on('searchByPid', searchByPid);
 
       // 滚动加载
       // function handleInfiniteOnLoad() {
@@ -620,10 +628,12 @@
         fetch(props.groupId, 1, size);
       }
 
-      // onMounted(() => handleView());
       onMounted(() => {
         console.log('props.groupList', props.groupName);
         fetch(props.groupId, 1, 18);
+      });
+      onBeforeUnmount(() => {
+        bus.off('searchByPid', searchByPid);
       });
       return {
         register1,

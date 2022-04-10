@@ -14,7 +14,7 @@ export interface RouteItem {
  */
 export interface SmsCode {
   tel?: string | any;
-  sms?: string | any;
+  smsCode?: string | any;
 }
 /**
  * @description: 添加管理员

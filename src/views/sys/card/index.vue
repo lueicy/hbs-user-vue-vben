@@ -58,7 +58,7 @@
       });
 
       onBeforeUnmount(() => {
-        // bus.off('showDetail222', catchShow);
+        bus.off('showDetail222', catchShow);
       });
 
       return {

@@ -15,10 +15,10 @@
         <FormItem name="tel" class="enter-x">
           <Input size="large" v-model:value="formData.tel" :placeholder="t('sys.login.mobile')" />
         </FormItem>
-        <FormItem name="sms" class="enter-x">
+        <FormItem name="smsCode" class="enter-x">
           <CountdownInput
             size="large"
-            v-model:value="formData.sms"
+            v-model:value="formData.smsCode"
             :placeholder="t('sys.login.smsCode')"
           />
         </FormItem>
@@ -90,7 +90,7 @@
       const formData = reactive<SmsCode>({
         // account: '',
         tel: '',
-        sms: '',
+        smsCode: '',
       });
 
       const getShow = computed(() => unref(getLoginState) === LoginStateEnum.RESET_PASSWORD);
@@ -98,14 +98,18 @@
       async function handleReset() {
         const form = unref(formRef);
         if (!form) return;
-        if (formData.sms.length < 6 || formData.sms.length > 6)
+        if (formData.smsCode.length < 6 || formData.smsCode.length > 6)
           return error('验证码长度不能大于6位数或少于6位数');
-        await ResetPwd(formData);
-        await form.resetFields(); //清空表单输入框
-        setTimeout(() => {
-          success('重置密码成功,请注意查收手机短信');
-          handleBackLogin();
-        }, 500);
+        console.log('formData', formData);
+        const resetRes = await ResetPwd(formData);
+        console.log('resetRes', resetRes);
+        if (resetRes.code === 200) {
+          await form.resetFields(); //清空表单输入框
+          setTimeout(() => {
+            success('重置密码成功,请注意查收手机短信');
+            handleBackLogin();
+          }, 500);
+        }
       }
 
       watch(

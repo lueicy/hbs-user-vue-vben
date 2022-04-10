@@ -6,6 +6,7 @@
       title="添加设备"
       @visible-change="handleVisibleChange"
       @ok="handleLogin"
+      @cancel="cancelAdmin"
     >
       <div class="admin-title">请输入管理员账号</div>
       <div class="pt-3px pr-3px">
@@ -20,11 +21,15 @@
       title="添加设备"
       @visible-change="handleVisibleChange"
       @ok="handleAddDevice"
+      @cancel="cancelAdd"
     >
-      <div class="admin-title">请输入设备id</div>
-      <div>
-        <a-button @click="appendField" class="mr-2"> 添加 </a-button>
+      <div class="flex justify-between">
+        <div class="admin-title">请输入设备id</div>
+        <div>
+          <a-button @click="appendField" class="mr-2"> 添加 </a-button>
+        </div>
       </div>
+
       <div class="pt-3px pr-3px">
         <BasicForm @register="addForm" />
       </div>
@@ -32,22 +37,26 @@
   </template>
 </template>
 <script lang="ts">
-  import { defineComponent, ref, nextTick, toRefs, reactive } from 'vue';
+  import { defineComponent, toRaw, nextTick, toRefs, reactive } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { BasicForm, FormSchema, useForm } from '/@/components/Form/index';
   import { useUserStoreWithOut } from '/@/store/modules/user';
+
+  import { useI18n } from '/@/hooks/web/useI18n';
+  import { useMessage } from '/@/hooks/web/useMessage';
+  import { addDeviceByAdmin } from '/@/api/sys/groupAndDevice';
   const logSchemas: FormSchema[] = [
     {
-      field: 'field1',
+      field: 'userName',
       component: 'Input',
       label: '管理员账号',
       colProps: {
         span: 24,
       },
-      defaultValue: '111',
+      defaultValue: '',
     },
     {
-      field: 'field2',
+      field: 'password',
       component: 'Input',
       label: '管理员密码',
       colProps: {
@@ -71,6 +80,7 @@
     adminLogin: boolean;
     addTime: number;
     selectList: any[];
+    userId: any;
   }
   export default defineComponent({
     components: { BasicModal, BasicForm },
@@ -78,10 +88,12 @@
       userData: { type: Object },
     },
     setup(props) {
+      const { t } = useI18n();
       const state: stateType = reactive({
         adminLogin: false,
         addTime: 1,
         selectList: [],
+        userId: '',
       });
       const userStore = useUserStoreWithOut();
       const [registerForm, { validateFields }] = useForm({
@@ -103,17 +115,67 @@
 
       const [register] = useModalInner();
 
+      const { createMessage, createErrorModal } = useMessage();
+      const { error, success } = createMessage;
+
       async function handleLogin() {
         const values = (await validateFields()) as any;
+        if (!values.userName || !values.password) return error('请输入账号密码');
         userStore.setAdminLogStatus(true); //请求失败后改为false
-        // const res = await AddlistUserGroupApi(values);
-        state.adminLogin = true;
+        try {
+          const userInfo = await userStore.login(
+            toRaw({
+              password: values.password,
+              userName: values.userName,
+              mode: 'none', //不要默认的错误提示
+            })
+          );
+          console.log('loginAdminInfo', userInfo);
+          if (userInfo) {
+            state.adminLogin = true;
+            state.userId = userInfo.id;
+            success('登录成功');
+          }
+        } catch (error) {
+          userStore.setAdminLogStatus(false);
+          createErrorModal({
+            title: t('sys.api.errorTip'),
+            content: error.message || t('sys.api.networkExceptionMsg'),
+          });
+        }
+        // const res = await addDeviceByAdmin(values);
+        // state.adminLogin = true;
         console.log('登录', values);
+      }
+      function cancelAdmin() {
+        state.adminLogin = false;
+        userStore.setAdminLogStatus(false);
       }
       async function handleAddDevice() {
         const values = (await addValidateFields()) as any;
-        // const res = await AddlistUserGroupApi(values);
-        console.log('添加设备地', values);
+        try {
+          const addRes = await addDeviceByAdmin(
+            toRaw({
+              deviceList: Object.values(values),
+              userId: state.userId,
+              mode: 'none', //不要默认的错误提示
+            })
+          );
+          console.log('添加设备地', addRes);
+          if (addRes) {
+            success('添加设备成功');
+          }
+        } catch (error) {
+          userStore.setAdminLogStatus(false);
+          createErrorModal({
+            title: t('sys.api.errorTip'),
+            content: error.message || t('sys.api.networkExceptionMsg'),
+          });
+        }
+      }
+      function cancelAdd() {
+        state.adminLogin = false;
+        userStore.setAdminLogStatus(false);
       }
 
       function handleVisibleChange() {}
@@ -123,7 +185,7 @@
         console.log('state.addTime', state.addTime);
         appendSchemaByField(
           {
-            field: `field + ${state.addTime}`,
+            field: `field${state.addTime}`,
             label: '设备PID',
             component: 'Input',
             colProps: {
@@ -142,8 +204,10 @@
         handleVisibleChange,
         ...toRefs(state),
         handleLogin,
+        cancelAdmin,
         appendField,
         handleAddDevice,
+        cancelAdd,
       };
     },
   });

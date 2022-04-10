@@ -6,6 +6,7 @@ import {
   UpdateGroupParams,
   RemoveGroupParams,
   OnOffSwitchParams,
+  addDecviceParams,
 } from './model/groupModel';
 
 enum Api {
@@ -17,6 +18,7 @@ enum Api {
   GetDeviceByGroupId = 'groupDevice/listGroupDevices', // 获取所有设备
   OnOffSwitch = 'device/switchAll/', //开关所有设备
   SwitchByGroup = 'groupDevice/', //开关所有设备
+  addDevice = 'manage/enterprise/device/addDevice', //管理员添加设备
 }
 
 /**
@@ -75,5 +77,15 @@ export function SwitchAllOnOffApi(params) {
 export function SwitchByGroup(params: OnOffSwitchParams) {
   return defHttp.get({
     url: Api.SwitchByGroup + params.groupId + '/' + params.status,
+  });
+}
+
+/**
+ * @description: 管理员添加设备
+ */
+export function addDeviceByAdmin(params: addDecviceParams) {
+  return defHttp.post({
+    url: Api.addDevice,
+    params,
   });
 }
