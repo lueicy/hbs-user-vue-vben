@@ -1,5 +1,11 @@
 import { defHttp } from '/@/utils/http/axios';
-import { LoginParams, LoginResultModel, RegisterParams, GetSms } from './model/userModel';
+import {
+  LoginParams,
+  LoginAdminParams,
+  LoginResultModel,
+  RegisterParams,
+  GetSms,
+} from './model/userModel';
 import {
   listAllDeviceTypeByPageParams,
   listAllDeviceTypeByPageItem,
@@ -34,7 +40,10 @@ export function loginApi(params: LoginParams, mode: ErrorMessageMode = 'modal') 
     }
   );
 }
-export function loginApim(params: any, mode: ErrorMessageMode = 'modal') {
+/**
+ * @description: Admin login api
+ */
+export function loginByAdmin(params: LoginAdminParams, mode: ErrorMessageMode = 'modal') {
   return defHttp.post<LoginResultModel>(
     {
       url: Api.Loginm,

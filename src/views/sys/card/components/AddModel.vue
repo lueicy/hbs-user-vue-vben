@@ -4,6 +4,7 @@
       v-bind="$attrs"
       @register="register"
       title="添加设备"
+      :maskClosable="false"
       @visible-change="handleVisibleChange"
       @ok="handleLogin"
       @cancel="cancelAdmin"
@@ -20,6 +21,7 @@
       @register="register"
       title="添加设备"
       @visible-change="handleVisibleChange"
+      :maskClosable="false"
       @ok="handleAddDevice"
       @cancel="cancelAdd"
     >
@@ -37,7 +39,7 @@
   </template>
 </template>
 <script lang="ts">
-  import { defineComponent, toRaw, nextTick, toRefs, reactive } from 'vue';
+  import { defineComponent, toRaw, toRefs, reactive } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { BasicForm, FormSchema, useForm } from '/@/components/Form/index';
   import { useUserStoreWithOut } from '/@/store/modules/user';
@@ -84,10 +86,7 @@
   }
   export default defineComponent({
     components: { BasicModal, BasicForm },
-    props: {
-      userData: { type: Object },
-    },
-    setup(props) {
+    setup() {
       const { t } = useI18n();
       const state: stateType = reactive({
         adminLogin: false,
@@ -113,7 +112,7 @@
         },
       });
 
-      const [register] = useModalInner();
+      const [register,{ closeModal }] = useModalInner();
 
       const { createMessage, createErrorModal } = useMessage();
       const { error, success } = createMessage;
@@ -123,10 +122,10 @@
         if (!values.userName || !values.password) return error('请输入账号密码');
         userStore.setAdminLogStatus(true); //请求失败后改为false
         try {
-          const userInfo = await userStore.login(
+          const userInfo = await userStore.loginAdmin(
             toRaw({
-              password: values.password,
-              userName: values.userName,
+              passwd: values.password,
+              staffNo: values.userName,
               mode: 'none', //不要默认的错误提示
             })
           );
@@ -161,9 +160,9 @@
               mode: 'none', //不要默认的错误提示
             })
           );
-          console.log('添加设备地', addRes);
           if (addRes) {
             success('添加设备成功');
+            closeModal();
           }
         } catch (error) {
           userStore.setAdminLogStatus(false);

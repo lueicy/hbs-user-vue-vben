@@ -6,7 +6,7 @@
         <a-button type="primary" class="add-btn" @click="addGroup"> 新增数组 </a-button>
       </div>
       <div class="group-table">
-        <BasicTable @register="groupTable" @edit-change="onEditChange">
+        <BasicTable @register="groupTable" @edit-change="onEditChange" @click="toDetail">
           <template #operation="{ record, column }">
             <TableAction :actions="createActions(record, column)" />
           </template>
@@ -48,7 +48,7 @@
   } from '/@/api/sys/groupAndDevice';
   const tableColums: BasicColumn[] = [
     {
-      title: '设备名称',
+      title: '群组名称',
       dataIndex: 'groupName',
       editRow: true,
       // 默认必填校验
@@ -98,7 +98,7 @@
       const [groupInfo, { openModal: openModal }] = useModal();
       const currentEditKeyRef = ref('');
       const { createMessage: msg } = useMessage();
-      const [groupTable] = useTable({
+      const [groupTable, { reload, updateTableDataRecord }] = useTable({
         api: GetlistUserGroupApi,
         columns: tableColums,
         // dataSource: toRaw(state.listData.list),
@@ -106,7 +106,7 @@
         showTableSetting: true,
         inset: true,
         canResize: true,
-        tableSetting: { redo: false, size: false, fullScreen: false, setting: true },
+        tableSetting: { redo: true, size: false, fullScreen: false, setting: false },
         pagination: true,
       });
 
@@ -115,6 +115,9 @@
       //   state.listData = await GetlistUserGroupApi({ pageIndex: index, pageSize: size });
       //   console.log('listData', toRaw(state.listData.list));
       // }
+      function toDetail(event) {
+        console.log('点击查看群组', event);
+      }
 
       async function handleSave(record: EditRecordRow) {
         // 校验
@@ -123,13 +126,13 @@
         console.log(valid);
         if (valid) {
           try {
-            const data = cloneDeep(record.editValueRefs);
+            const data: any = cloneDeep(record.editValueRefs);
             console.log('8899', data, record);
             //TODO 此处将数据提交给服务器保存
             // ...
             // 保存之后提交编辑状态
             let params = {
-              groupName: record.groupName,
+              groupName: data.groupName,
               id: record.groupId, // 用户群组主键
               sort: record.sort,
             };
@@ -141,6 +144,7 @@
               currentEditKeyRef.value = '';
             }
             msg.success({ content: '数据已保存', key: 'saving' });
+            reload();
           } catch (error) {
             msg.error({ content: '保存失败', key: 'saving' });
           }
@@ -193,7 +197,7 @@
         const res = await RemovelistUserGroupApi({
           userGroupId: record.groupId,
         });
-        console.log('点击了删除', record);
+        reload();
         console.log('点击了删除222', res);
       }
       function onEditChange({ column, value, record }) {
@@ -213,6 +217,7 @@
         });
       }
       function onClose() {
+        reload();
         modalVisible.value = false;
       }
 
@@ -235,6 +240,7 @@
         groupInfo,
         openModal,
         onClose,
+        toDetail,
       };
     },
   });

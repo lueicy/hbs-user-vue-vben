@@ -12,11 +12,16 @@ import {
   ROUTER_KEY,
 } from '/@/enums/cacheEnum';
 import { getAuthCache, getToken, setAuthCache } from '/@/utils/auth';
-import { GetUserInfoModel, LoginParams, RegisterParams } from '/@/api/sys/model/userModel';
+import {
+  GetUserInfoModel,
+  LoginParams,
+  LoginAdminParams,
+  RegisterParams,
+} from '/@/api/sys/model/userModel';
 import {
   doLogout,
   getUserInfo,
-  loginApim,
+  loginByAdmin,
   loginApi,
   listAllDeviceTypeByPage,
   RegisterApi,
@@ -125,7 +130,7 @@ export const useUserStore = defineStore({
       this.sessionTimeout = false;
     },
     /**
-     * @description: login
+     * @description: user login
      */
     async login(
       params: LoginParams & {
@@ -135,14 +140,8 @@ export const useUserStore = defineStore({
     ): Promise<GetUserInfoModel | null> {
       try {
         // 新的login接口请求------
-        const { goHome = true, mode } = params;
-        const loginParams = {
-          password: '91qmogrj',
-          userName: 'B220400002',
-          mode: 'none', //不要默认的错误提示
-        };
+        const { goHome = true, mode, ...loginParams } = params;
         const RESdATA: any = await loginApi(loginParams, mode);
-        // const userInfo = await this.getUserInfoAction();
         const sessionTimeout = this.sessionTimeout;
         sessionTimeout && this.setSessionTimeout(false);
         !sessionTimeout && goHome && (await router.replace('/home/index' || PageEnum.BASE_HOME));
@@ -151,33 +150,33 @@ export const useUserStore = defineStore({
         //   (await router.replace(userInfo.homePath || PageEnum.BASE_HOME));
         console.log('RESdATA-123--', RESdATA);
         return RESdATA;
-        // 新的login接口请求------
-        // 旧的login接口请求---------
-        // const { goHome = true, mode } = params;
-        // const loginParams = {
-        //   passwd: 'd3s9n6gg',
-        //   staffNo: '18926147235',
-        //   mode: 'none', //不要默认的错误提示
-        // };
-        // const RESdATA: any = await loginApim(loginParams, mode);
-        // // get user info
-        // const userRequets = {
-        //   pageIndex: 1, //第几页
-        //   pageSize: 10, //页面大小
-        //   key: RESdATA.staffNo,
-        // };
-        // const userInfo = await this.getUserInfoAction(userRequets);
-        // console.log('userInfo-123--', userInfo);
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    },
 
+    /**
+     * @description: admin login
+     */
+    async loginAdmin(
+      params: any & {
+        goHome?: boolean;
+        mode?: ErrorMessageMode;
+      }
+    ): Promise<GetUserInfoModel | null> {
+      try {
+        // 新的login接口请求------
+        const { goHome = true, mode, ...LoginAdminParams } = params;
+        const RESdATA: any = await loginByAdmin(LoginAdminParams, mode);
+        // const userInfo = await this.getUserInfoAction();
         // const sessionTimeout = this.sessionTimeout;
         // sessionTimeout && this.setSessionTimeout(false);
-        // // !sessionTimeout && goHome && (await router.replace('/home/index' || PageEnum.BASE_HOME));
+        // !sessionTimeout && goHome && (await router.replace('/home/index' || PageEnum.BASE_HOME));
         // !sessionTimeout &&
         //   goHome &&
         //   (await router.replace(userInfo.homePath || PageEnum.BASE_HOME));
-
-        // return userInfo;
-        // 旧的login接口请求---------
+        console.log('adminLogin-123--', RESdATA);
+        return RESdATA;
       } catch (error) {
         return Promise.reject(error);
       }

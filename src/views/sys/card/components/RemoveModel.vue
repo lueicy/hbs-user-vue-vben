@@ -4,8 +4,8 @@
     destroyOnClose
     @register="register"
     title="移动设备"
+    :maskClosable="false"
     :helpMessage="['提示1', '提示2']"
-    @visible-change="handleShow"
     @ok="handleOk"
   >
     <template v-if="loading">
@@ -28,10 +28,11 @@
   </BasicModal>
 </template>
 <script lang="ts">
-  import { defineComponent, onMounted, ref, watch, reactive, toRefs } from 'vue';
+  import { defineComponent, onMounted, ref, watch, reactive, toRefs, toRaw } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { Row, Col, List, Radio } from 'ant-design-vue';
-  import { GetlistUserGroupApi } from '/@/api/sys/groupAndDevice';
+  import { GetlistUserGroupApi, removeDevice } from '/@/api/sys/groupAndDevice';
+  import { useMessage } from '/@/hooks/web/useMessage';
   interface stateType {
     indeterminate: boolean;
     groupList: any[];
@@ -49,10 +50,7 @@
       [Col.name]: Col,
     },
     props: {
-      removeList: {
-        type: Array,
-        default: () => [],
-      },
+      userData: { type: Object },
     },
     setup(props) {
       const state: stateType = reactive({
@@ -62,14 +60,16 @@
       });
       const loading = ref(true);
       const lines = ref(10);
-      const [register, { setModalProps, redoModalHeight }] = useModalInner();
+      const [register, { closeModal, setModalProps }] = useModalInner();
+      const { createMessage, createErrorModal } = useMessage();
+      const { success } = createMessage;
 
-      watch(
-        () => lines.value,
-        () => {
-          redoModalHeight();
-        }
-      );
+      // watch(
+      //   () => lines.value,
+      //   () => {
+      //     redoModalHeight();
+      //   }
+      // );
 
       // 群组列表（tabs）
       async function getListData(index, size) {
@@ -86,18 +86,23 @@
         console.log('state===', state.selectList);
       };
       async function handleOk() {
-        // const res = await AddlistUserGroupApi(values);
-        // if (res.code == 200) {
-        //   createMessage.success('添加成功');
-        //   handleClose();
-        // } else {
-        //   createErrorModal({
-        //     title: '提交失败',
-        //     content: res.msg + res.data[0],
-        //     // getContainer: () => document.body.querySelector(`.${prefixCls}`) || document.body,
-        //   });
-        // }
-        console.log('提交', props.removeList, state.selectList);
+        try {
+          const params = {
+            deviceIdList: toRaw(props.userData),
+            groupId: state.selectList,
+          };
+          const res = await removeDevice(params);
+          if (res.code == 200) {
+            createMessage.success('添加成功');
+            closeModal();
+          }
+          console.log('提交', params, toRaw(props.userData));
+        } catch (error) {
+          createErrorModal({
+            title: '错误提示',
+            content: error.message,
+          });
+        }
       }
 
       function handleShow(visible: boolean) {

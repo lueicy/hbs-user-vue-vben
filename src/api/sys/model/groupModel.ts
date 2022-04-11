@@ -30,3 +30,8 @@ export interface addDecviceParams {
   deviceList: any; //设备id列表
   userId: string; // 管理员ID
 }
+export interface removeDeviceParams {
+  deviceId?: string;
+  deviceIdList: any; //设备id列表
+  groupId: string; // 管理员ID
+}

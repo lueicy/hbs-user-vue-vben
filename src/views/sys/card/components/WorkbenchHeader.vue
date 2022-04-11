@@ -21,7 +21,7 @@
         <div
           class="flex flex-col h-40 px-4 py-4 mx-2"
           :style="{
-            backgroundImage: 'url(' + './src/assets/images/homePage/zongshu.png' + ')',
+            backgroundImage: 'url(' + dealImge('1') + ')',
             backgroundSize: '100% 100%',
             backgroundRepeat: 'no-repeat',
             width: '305px',
@@ -33,7 +33,7 @@
         <div
           class="flex flex-col h-40 px-4 py-4 mx-2"
           :style="{
-            backgroundImage: 'url(' + '/src/assets/images/homePage/zaixian.png' + ')',
+            backgroundImage: 'url(' + dealImge('2') + ')',
             backgroundSize: '100% 100%',
             backgroundRepeat: 'no-repeat',
             width: '305px',
@@ -45,7 +45,7 @@
         <div
           class="flex flex-col h-40 px-4 py-4 mx-2"
           :style="{
-            backgroundImage: 'url(' + '/src/assets/images/homePage/lixian.png' + ')',
+            backgroundImage: 'url(' + dealImge('3') + ')',
             backgroundSize: '100% 100%',
             backgroundRepeat: 'no-repeat',
             width: '305px',
@@ -57,7 +57,7 @@
         <div
           class="flex flex-col h-40 px-4 py-4 mx-2"
           :style="{
-            backgroundImage: 'url(' + '/src/assets/images/homePage/yichang.png' + ')',
+            backgroundImage: 'url(' + dealImge('4') + ')',
             backgroundSize: '100% 100%',
             backgroundRepeat: 'no-repeat',
             width: '305px',
@@ -76,7 +76,7 @@
       <div
         class="flex-col items-center justify-between px-4 py-5 md:flex"
         :style="{
-          backgroundImage: 'url(' + '/src/assets/images/homePage/datecard.png' + ')',
+          backgroundImage: 'url(' + dealImge('5') + ')',
           backgroundSize: '100% 100%',
           backgroundRepeat: 'no-repeat',
           width: '250px',
@@ -91,7 +91,7 @@
   </div>
 </template>
 <script lang="ts">
-  import { defineComponent, reactive, toRefs, onMounted } from 'vue';
+  import { defineComponent, reactive, toRefs, onMounted, computed } from 'vue';
   import bus from '/@/utils/bus';
   import { useMessage } from '/@/hooks/web/useMessage';
 
@@ -99,6 +99,11 @@
   import { growCardList } from './data';
   import moment from 'moment';
   // import { StatisticsData } from '/@/api/sys/model/homePage';
+  import zongshuImg from '/@/assets/images/homePage/zongshu.png';
+  import zaixianImg from '/@/assets/images/homePage/zaixian.png';
+  import lixianImg from '/@/assets/images/homePage/lixian.png';
+  import yichangImg from '/@/assets/images/homePage/yichang.png';
+  import dateImg from '/@/assets/images/homePage/datecard.png';
   export default defineComponent({
     props: {
       statisticsData: {
@@ -141,6 +146,31 @@
             break;
         }
       }
+      const dealImge = computed(() => {
+        return function (event) {
+          let imageUrl = '';
+          switch (event) {
+            case '1':
+              imageUrl = zongshuImg;
+              break;
+            case '2':
+              imageUrl = zaixianImg;
+              break;
+            case '3':
+              imageUrl = lixianImg;
+              break;
+            case '4':
+              imageUrl = yichangImg;
+              break;
+            case '5':
+              imageUrl = dateImg;
+              break;
+            default:
+              imageUrl = yichangImg;
+          }
+          return imageUrl;
+        };
+      });
 
       function Politenes() {
         let time = new Date();
@@ -152,13 +182,13 @@
       function searchById() {
         console.log('搜索id', state.deviceId);
         if (!state.deviceId) {
-          return error('请输入设备PID/SN/MAC');
+          return error('请输入设备PID');
         }
         bus.emit('searchByPid', state.deviceId);
       }
 
       onMounted(() => Politenes());
-      return { ...toRefs(state), headerImg, cardLists: growCardList, searchById };
+      return { ...toRefs(state), headerImg, cardLists: growCardList, searchById, dealImge };
     },
   });
 </script>

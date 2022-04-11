@@ -1,11 +1,18 @@
 /**
- * @description: Login interface parameters
+ * @description: user Login interface parameters
  */
 export interface LoginParams {
   userName: string;
   password: string;
   // passwd: string;
   // staffNo: string;
+}
+/**
+ * @description: admin Login interface parameters
+ */
+export interface LoginAdminParams {
+  passwd: string;
+  staffNo: string;
 }
 
 export interface LoginParamsGetRole {

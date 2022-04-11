@@ -7,6 +7,7 @@ import {
   RemoveGroupParams,
   OnOffSwitchParams,
   addDecviceParams,
+  removeDeviceParams,
 } from './model/groupModel';
 
 enum Api {
@@ -15,10 +16,11 @@ enum Api {
   UpdatelistUserGroup = 'userGroup/updateGroup', // 修改数组
   RemovelistUserGroup = 'userGroup/removeGroup', // 删除数组
   GetAllDevice = 'enterprise/dashboard/listUserDevice', // 获取所有设备
-  GetDeviceByGroupId = 'groupDevice/listGroupDevices', // 获取所有设备
+  GetDeviceByGroupId = 'enterprise/dashboard/listDevice', // 获取群组设备
   OnOffSwitch = 'device/switchAll/', //开关所有设备
   SwitchByGroup = 'groupDevice/', //开关所有设备
   addDevice = 'manage/enterprise/device/addDevice', //管理员添加设备
+  removeDevice = 'groupDevice/addToGroup', //添加设备到数组
 }
 
 /**
@@ -43,9 +45,8 @@ export function UpdatelistUserGroupApi(params: UpdateGroupParams) {
   });
 }
 export function RemovelistUserGroupApi(params: RemoveGroupParams) {
-  return defHttp.post({
-    url: Api.RemovelistUserGroup,
-    params,
+  return defHttp.delete({
+    url: Api.RemovelistUserGroup + '?userGroupId=' + params.userGroupId,
   });
 }
 // 获取用户所有设备
@@ -77,6 +78,16 @@ export function SwitchAllOnOffApi(params) {
 export function SwitchByGroup(params: OnOffSwitchParams) {
   return defHttp.get({
     url: Api.SwitchByGroup + params.groupId + '/' + params.status,
+  });
+}
+
+/**
+ * @description: 用户移动设备
+ */
+export function removeDevice(params: removeDeviceParams) {
+  return defHttp.post({
+    url: Api.removeDevice,
+    params,
   });
 }
 

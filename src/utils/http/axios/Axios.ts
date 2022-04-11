@@ -137,8 +137,8 @@ export class VAxios {
       });
     }
     // formData.append(params.name || 'file', params.file, params.filename);
-    formData.append( 'file', params.file);
-    formData.append( 'type', params.type);
+    formData.append('file', params.file);
+    formData.append('type', params.type);
 
     // const customParams = omit(params, 'file', 'filename', 'file');
 

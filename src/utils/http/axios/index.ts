@@ -159,9 +159,6 @@ const transform: AxiosTransform = {
     // ? `${options.authenticationScheme} ${token}`
     // : token;
     // }
-    console.log('getToken()', getToken());
-    console.log('config.headers.authorization ----', config.headers.authorization);
-
     return config;
   },
 
@@ -169,7 +166,6 @@ const transform: AxiosTransform = {
    * @description: 响应拦截器处理
    */
   responseInterceptors: (res: AxiosResponse<any>) => {
-    console.log('res-响应拦截器处理-', res);
     const userStore = useUserStoreWithOut();
     if (res.headers.authorization) {
       // let token=res.headers.authorization

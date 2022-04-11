@@ -39,172 +39,180 @@
       :infinite-scroll-disabled="busy"
       :infinite-scroll-distance="50"
     > -->
-    <a-list :pagination="paginationProp">
-      <CheckboxGroup v-model:value="valueList" @change="onCheckAllChangeList">
-        <a-row :gutter="16">
-          <template v-for="item in devicesList" :key="item.deviceId">
-            <a-col :span="4">
-              <a-list-item>
-                <a-card
-                  v-ripple
-                  :hoverable="false"
-                  :class="`${prefixCls}__card`"
-                  @click="handleView(item)"
-                >
-                  <div :class="`${prefixCls}__card-title-name`" class="flex justify-center">
-                    <span class="name">{{ item.deviceName }}</span>
-                  </div>
-                  <div :class="`${prefixCls}__card-title`">
-                    <div class="fl group-name"> 群组位置：{{ item.groupList[0] }} </div>
-                    <div class="online fr">
-                      <span
-                        :style="{ color: item.online == '10' ? '' : '#A6AAB8' }"
-                        class="dib iconify"
-                        :data-icon="item.online == '10' ? 'ic:baseline-wifi' : 'mdi:wifi-cancel'"
-                      ></span>
 
-                      <span :style="{ color: item.online == '10' ? '' : '#A6AAB8' }">
-                        {{ item.online == '10' ? '在线' : '离线' }}
-                      </span>
+    <template v-if="devicesList.length">
+      <a-list :pagination="paginationProp">
+        <CheckboxGroup v-model:value="valueList" @change="onCheckAllChangeList">
+          <a-row :gutter="16">
+            <template v-for="item in devicesList" :key="item.deviceId">
+              <a-col :span="4">
+                <a-list-item>
+                  <a-card
+                    v-ripple
+                    :hoverable="false"
+                    :class="`${prefixCls}__card`"
+                    @click="handleView(item)"
+                  >
+                    <div :class="`${prefixCls}__card-title-name`" class="flex justify-center">
+                      <span class="name">{{ item.deviceName }}</span>
                     </div>
-                  </div>
-                  <div :class="`${prefixCls}__card-detail`">
-                    <div
-                      v-if="item.online == '10'"
-                      class="flex flex-col items-center justify-center"
-                      :style="{
-                        backgroundImage: 'url(' + dealAqires('url', item.airQuality) + ')',
-                        backgroundSize: '100% 100%',
-                        backgroundRepeat: 'no-repeat',
-                        width: '147px',
-                        height: '135px',
-                      }"
-                    >
-                      <span class="mb-6 aqi-title">AQI</span>
-                      <span
-                        class="air-status"
-                        :style="{ color: dealAqires('style', item.airQuality) }"
-                        >{{ dealAqires('text', item.airQuality) }}</span
+                    <div :class="`${prefixCls}__card-title`">
+                      <div class="fl group-name">
+                        群组位置：{{ item.groupList ? item.groupList[0] : '' }}
+                      </div>
+                      <div class="online fr">
+                        <span
+                          :style="{ color: item.online == '10' ? '' : '#A6AAB8' }"
+                          class="dib iconify"
+                          :data-icon="item.online == '10' ? 'ic:baseline-wifi' : 'mdi:wifi-cancel'"
+                        ></span>
+
+                        <span :style="{ color: item.online == '10' ? '' : '#A6AAB8' }">
+                          {{ item.online == '10' ? '在线' : '离线' }}
+                        </span>
+                      </div>
+                    </div>
+                    <div :class="`${prefixCls}__card-detail`">
+                      <div
+                        v-if="item.online == '10'"
+                        class="flex flex-col items-center justify-center"
+                        :style="{
+                          backgroundImage: 'url(' + dealAqires('url', item.airQuality) + ')',
+                          backgroundSize: '100% 100%',
+                          backgroundRepeat: 'no-repeat',
+                          width: '147px',
+                          height: '135px',
+                        }"
                       >
-                    </div>
-                    <div
-                      v-else
-                      class="flex flex-col items-center justify-center"
-                      :style="{
-                        backgroundImage: 'url(' + dealAqires('url', '04') + ')',
-                        backgroundSize: '100% 100%',
-                        backgroundRepeat: 'no-repeat',
-                        width: '147px',
-                        height: '135px',
-                      }"
-                    >
-                      <span class="mb-6 aqi-title">AQI</span>
-                      <span class="air-status" :style="{ color: dealAqires('style', '04') }">
-                        {{ item.open == '00' ? '关机' : '离线' }}
-                      </span>
-                    </div>
-
-                    <br />
-                  </div>
-                  <div :class="`${prefixCls}__card-title`" style="height: 60px">
-                    <div class="flex justify-between">
-                      <span style="width: 40px">PM2.5</span>
-                      <span style="width: 92px">
-                        <a-progress
-                          :percent="item.pm25Real"
-                          :show-info="false"
-                          :strokeColor="dealAqires('style', item.airQuality)"
-                        />
-                      </span>
-                      <span style="width: 77px; text-align: end"> {{ item.pm25Real }}ug/m³</span>
-                    </div>
-                    <div class="flex justify-between">
-                      <span style="width: 40px">CO2</span>
-                      <span style="width: 92px">
-                        <a-progress
-                          :percent="dealAirQuality(item.co2Real)"
-                          :show-info="false"
-                          :strokeColor="dealAqires('style', item.airQuality)"
-                        />
-                      </span>
-                      <span style="width: 77px; text-align: end">{{ item.co2Real }}ppm</span>
-                    </div>
-                  </div>
-                  <div :class="`${prefixCls}__card-title`">
-                    <div class="fl">滤网维护周期</div>
-                    <!-- <div class="windTag fl">高速风</div> -->
-                    <div class="mainTag fr">
-                      <span :style="{ color: item.meshCycle < 43200 ? '#FF5F59' : '' }">
-                        {{ dealFixTime(item.meshCycle) }}个月
-                      </span>
-                    </div>
-                  </div>
-                  <div :class="`${prefixCls}__card-title`" class="flex justify-between w-full">
-                    <div style="width: 90px; height: 20px">
-                      <div class="fl">模式</div>
-                      <div class="online fr">
+                        <span class="mb-6 aqi-title">AQI</span>
                         <span
-                          :style="{ color: item.online == '10' ? '' : '#A6AAB8' }"
-                          class="dib iconify"
-                          :data-icon="
-                            item.online == '10'
-                              ? 'ic:outline-font-download'
-                              : 'ic:outline-font-download-off'
-                          "
-                        ></span>
-
-                        <span
-                          :style="{
-                            color: item.online == '10' ? '' : '#A6AAB8',
-                            marginLeft: '5px',
-                          }"
+                          class="air-status"
+                          :style="{ color: dealAqires('style', item.airQuality) }"
+                          >{{ dealAqires('text', item.airQuality) }}</span
                         >
-                          {{ dealPattern(item.pattern) }}
+                      </div>
+                      <div
+                        v-else
+                        class="flex flex-col items-center justify-center"
+                        :style="{
+                          backgroundImage: 'url(' + dealAqires('url', '04') + ')',
+                          backgroundSize: '100% 100%',
+                          backgroundRepeat: 'no-repeat',
+                          width: '147px',
+                          height: '135px',
+                        }"
+                      >
+                        <span class="mb-6 aqi-title">AQI</span>
+                        <span class="air-status" :style="{ color: dealAqires('style', '04') }">
+                          {{ item.open == '00' ? '关机' : '离线' }}
+                        </span>
+                      </div>
+
+                      <br />
+                    </div>
+                    <div :class="`${prefixCls}__card-title`" style="height: 60px">
+                      <div class="flex justify-between">
+                        <span style="width: 40px">PM2.5</span>
+                        <span style="width: 92px">
+                          <a-progress
+                            :percent="item.pm25Real"
+                            :show-info="false"
+                            :strokeColor="dealAqires('style', item.airQuality)"
+                          />
+                        </span>
+                        <span style="width: 77px; text-align: end"> {{ item.pm25Real }}ug/m³</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span style="width: 40px">CO2</span>
+                        <span style="width: 92px">
+                          <a-progress
+                            :percent="dealAirQuality(item.co2Real)"
+                            :show-info="false"
+                            :strokeColor="dealAqires('style', item.airQuality)"
+                          />
+                        </span>
+                        <span style="width: 77px; text-align: end">{{ item.co2Real }}ppm</span>
+                      </div>
+                    </div>
+                    <div :class="`${prefixCls}__card-title`">
+                      <div class="fl">滤网维护周期</div>
+                      <!-- <div class="windTag fl">高速风</div> -->
+                      <div class="mainTag fr">
+                        <span :style="{ color: item.meshCycle < 43200 ? '#FF5F59' : '' }">
+                          {{ dealFixTime(item.meshCycle) }}个月
                         </span>
                       </div>
                     </div>
-                    <div style="width: 80px; height: 20px">
-                      <div class="fl">风速</div>
-                      <div class="online fr">
-                        <span
-                          :style="{ color: item.online == '10' ? '' : '#A6AAB8' }"
-                          class="dib iconify"
-                          :data-icon="
-                            item.wind == '01' ? 'ic:sharp-wind-power' : 'ic:outline-wind-power'
-                          "
-                        ></span>
+                    <div :class="`${prefixCls}__card-title`" class="flex justify-between w-full">
+                      <div style="width: 90px; height: 20px">
+                        <div class="fl">模式</div>
+                        <div class="online fr">
+                          <span
+                            :style="{ color: item.online == '10' ? '' : '#A6AAB8' }"
+                            class="dib iconify"
+                            :data-icon="
+                              item.online == '10'
+                                ? 'ic:outline-font-download'
+                                : 'ic:outline-font-download-off'
+                            "
+                          ></span>
 
-                        <span
-                          :style="{
-                            color: item.online == '10' ? '' : '#A6AAB8',
-                            marginLeft: '5px',
-                          }"
-                        >
-                          {{ dealWind(item.wind) }}
-                        </span>
+                          <span
+                            :style="{
+                              color: item.online == '10' ? '' : '#A6AAB8',
+                              marginLeft: '5px',
+                            }"
+                          >
+                            {{ dealPattern(item.pattern) }}
+                          </span>
+                        </div>
+                      </div>
+                      <div style="width: 80px; height: 20px">
+                        <div class="fl">风速</div>
+                        <div class="online fr">
+                          <span
+                            :style="{ color: item.online == '10' ? '' : '#A6AAB8' }"
+                            class="dib iconify"
+                            :data-icon="
+                              item.wind == '01' ? 'ic:sharp-wind-power' : 'ic:outline-wind-power'
+                            "
+                          ></span>
+
+                          <span
+                            :style="{
+                              color: item.online == '10' ? '' : '#A6AAB8',
+                              marginLeft: '5px',
+                            }"
+                          >
+                            {{ dealWind(item.wind) }}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <template v-if="actionSelect">
-                    <!-- 遮罩层 -->
-                    <div :class="`${prefixCls}__card-bgColor`"></div>
-                    <!-- 多选框 -->
-                    <Checkbox :value="item.deviceId" />
-                  </template>
-                </a-card>
-              </a-list-item>
-            </a-col>
-          </template>
-        </a-row>
-      </CheckboxGroup>
-    </a-list>
+                    <template v-if="actionSelect">
+                      <!-- 遮罩层 -->
+                      <div :class="`${prefixCls}__card-bgColor`"></div>
+                      <!-- 多选框 -->
+                      <Checkbox :value="item.deviceId" />
+                    </template>
+                  </a-card>
+                </a-list-item>
+              </a-col>
+            </template>
+          </a-row>
+        </CheckboxGroup>
+      </a-list>
+    </template>
+    <template v-else>
+      <div class="p-5"> <Empty /></div>
+    </template>
+
     <!-- </div> -->
+    <component :is="currentModal" v-model:visible="modalVisible" :userData="userData" />
+    <RemoveModel @register="register1" :minHeight="100" />
+    <AddModel @register="register4" :minHeight="100" />
   </div>
-
-  <component :is="currentModal" v-model:visible="modalVisible" :userData="userData" />
-  <RemoveModel @register="register1" :minHeight="100" :removeList="valueList" />
-  <AddModel @register="register4" :minHeight="100" />
 
   <!-- <Drawer @register="register5" /> -->
   <!-- </div> -->
@@ -223,7 +231,7 @@
     ref,
     nextTick,
   } from 'vue';
-  import { Card, Row, Col, List, Progress, Checkbox } from 'ant-design-vue';
+  import { Card, Row, Col, List, Progress, Checkbox, Empty } from 'ant-design-vue';
   import { airQuity } from '/@/utils/other/data';
   // import { useDrawer } from '/@/components/Drawer';
   import Drawer from './Drawer.vue';
@@ -291,6 +299,7 @@
       [Progress.name]: Progress,
       CheckboxGroup: Checkbox.Group,
       Checkbox,
+      Empty,
     },
     directives: {
       Ripple: RippleDirective,
@@ -473,10 +482,7 @@
             break;
         }
         nextTick(() => {
-          // `useModal` not working with dynamic component
-          // passing data through `userData` prop
-          userData.value = { data: Math.random(), info: 'Info222' };
-          // open the target modal
+          userData.value = state.valueList;
           modalVisible.value = true;
         });
       }
@@ -487,10 +493,11 @@
       }
       const onCheckAllChangeList = (e: any) => {
         console.log('e===', e);
-        Object.assign(state, {
-          valueList: e,
-          indeterminate: false,
-        });
+        // Object.assign(state, {
+        //   valueList: e,
+        //   indeterminate: false,
+        // });
+        state.valueList = e;
         console.log('移动一个', state.valueList);
       };
       const getSelectList = () => state.devicesList.map((item) => item.deviceId);
@@ -509,7 +516,6 @@
           createErrorModal({
             title: t('sys.api.errorTip'),
             content: error.msg || t('sys.api.networkExceptionMsg'),
-            // getContainer: () => document.body.querySelector(`.${prefixCls}`) || document.body,
           });
         } finally {
           console.log('switchRes', switchRes);
@@ -559,7 +565,6 @@
       async function fetch(groupId, index?, size?, pId?) {
         console.log('获取设备', groupId);
         if (groupId == 'total') {
-          console.log('获取所有的设备信息' + pId);
           // 获取所有的设备信息
           let res = await GetAllDeviceApi({
             pageIndex: index || 1,
@@ -568,6 +573,7 @@
           });
           state.devicesList = res.list;
           total.value = res.total;
+          console.log('获取所有的设备信息', state.devicesList);
         } else {
           // 获取群组下的设备信息
           let res = await GetDeviceByGroupIdApi({
@@ -575,9 +581,10 @@
             pageSize: size || 18,
             groupId: groupId,
           });
+          // console.log('获取群组下的设备信息', res);
           state.devicesList = res.list;
           total.value = res.total;
-          // console.log('获取群组设备信息', state.devicesList);
+          console.log('获取群组设备信息', state.devicesList);
         }
       }
       const searchByPid = (event) => {
@@ -902,5 +909,11 @@
     &__card:hover {
       border: 1px solid #09b9dc;
     }
+  }
+  /deep/ .ant-empty {
+    min-height: 400px;
+  }
+  /deep/ .ant-row {
+    min-width: 1600px;
   }
 </style>
