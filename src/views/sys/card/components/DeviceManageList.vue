@@ -492,13 +492,11 @@
         bus.emit('showDetail222', item);
       }
       const onCheckAllChangeList = (e: any) => {
-        console.log('e===', e);
         // Object.assign(state, {
         //   valueList: e,
         //   indeterminate: false,
         // });
         state.valueList = e;
-        console.log('移动一个', state.valueList);
       };
       const getSelectList = () => state.devicesList.map((item) => item.deviceId);
       async function switchBtn(event) {
@@ -517,8 +515,6 @@
             title: t('sys.api.errorTip'),
             content: error.msg || t('sys.api.networkExceptionMsg'),
           });
-        } finally {
-          console.log('switchRes', switchRes);
         }
       }
 
@@ -533,11 +529,9 @@
         });
       };
       const addDevice = () => {
-        console.log('添加设备');
         openTargetModal(2);
       };
       const removeDevive = () => {
-        console.log('移动设备', JSON.parse(JSON.stringify(state.valueList)));
         openTargetModal(1);
       };
       const selectAll = (id) => {
@@ -563,7 +557,6 @@
 
       // 获取分页数据
       async function fetch(groupId, index?, size?, pId?) {
-        console.log('获取设备', groupId);
         if (groupId == 'total') {
           // 获取所有的设备信息
           let res = await GetAllDeviceApi({
@@ -573,7 +566,6 @@
           });
           state.devicesList = res.list;
           total.value = res.total;
-          console.log('获取所有的设备信息', state.devicesList);
         } else {
           // 获取群组下的设备信息
           let res = await GetDeviceByGroupIdApi({
@@ -584,7 +576,6 @@
           // console.log('获取群组下的设备信息', res);
           state.devicesList = res.list;
           total.value = res.total;
-          console.log('获取群组设备信息', state.devicesList);
         }
       }
       const searchByPid = (event) => {
@@ -657,9 +648,7 @@
         selectTitle,
         airQuity,
         handleView,
-        // ...toRefs(lisState),
         ...toRefs(state),
-        // register5,
         selectAll,
         getAllCheck,
         onCheckAllChangeList,

@@ -23,6 +23,15 @@
   import bus from '/@/utils/bus';
   import { Icon } from '/@/components/Icon';
   import { getStatisticsData } from '/@/api/sys/menu';
+  import { getDeviceDetail } from '/@/api/sys/groupAndDevice';
+  import { useI18n } from '/@/hooks/web/useI18n';
+  import { useMessage } from '/@/hooks/web/useMessage';
+
+  interface stateType {
+    isDetail: boolean; //是否开启选择
+    statisticsRes: any;
+    deviceData: any;
+  }
 
   export default defineComponent({
     components: {
@@ -37,15 +46,33 @@
     },
 
     setup() {
-      const state = reactive({
+      const state: stateType = reactive({
         isDetail: true, //是否开启选择
         statisticsRes: {},
         deviceData: {},
       });
-      const catchShow = (event) => {
-        state.isDetail = event.deviceId ? false : true;
-        state.deviceData = event;
-      };
+
+      const { t } = useI18n();
+      const { createMessage, createErrorModal } = useMessage();
+      const { error, success } = createMessage;
+      async function catchShow(event) {
+        if (!event || !event.deviceId) return;
+        try {
+          const res = await getDeviceDetail(event.deviceId);
+          if (res) {
+            state.isDetail = event.deviceId ? false : true;
+            state.deviceData = res;
+            state.deviceData.deviceName = event.deviceName;
+            state.deviceData.groupList = event.groupList.length ? event.groupList[0] : '';
+            state.deviceData.online = event.online;
+          }
+        } catch (error) {
+          createErrorModal({
+            title: t('sys.api.errorTip'),
+            content: error.message || t('sys.api.networkExceptionMsg'),
+          });
+        }
+      }
       // 统计数据
       async function getStatistics() {
         state.statisticsRes = await getStatisticsData();

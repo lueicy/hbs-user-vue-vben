@@ -51,7 +51,7 @@
             width: '305px',
           }"
         >
-          <div class="py-5 text-lg text-white"> 离线设备 </div>
+          <div class="py-5 text-lg text-white"> 在线设备 </div>
           <div class="py-5 text-xl text-white"> {{ statisticsData.onlineNum }} 台 </div>
         </div>
         <div

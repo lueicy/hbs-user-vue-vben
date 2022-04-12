@@ -10,14 +10,10 @@ import {
   ADMIN_TOKEN_KEY,
   USER_INFO_KEY,
   ROUTER_KEY,
+  APP_DEVICE_ID_KEY,
 } from '/@/enums/cacheEnum';
 import { getAuthCache, getToken, setAuthCache } from '/@/utils/auth';
-import {
-  GetUserInfoModel,
-  LoginParams,
-  LoginAdminParams,
-  RegisterParams,
-} from '/@/api/sys/model/userModel';
+import { GetUserInfoModel, LoginParams, RegisterParams } from '/@/api/sys/model/userModel';
 import {
   doLogout,
   getUserInfo,
@@ -25,7 +21,6 @@ import {
   loginApi,
   listAllDeviceTypeByPage,
   RegisterApi,
-  getUserInfoByM,
 } from '/@/api/sys/user';
 // import { listAllDeviceTypeByPage } from '/@/api/demo/table';
 import { useI18n } from '/@/hooks/web/useI18n';
@@ -44,6 +39,7 @@ interface UserState {
   smsCodeLogin?: string;
   routerName?: string;
   routerNameList?: string[];
+  appDeviceId?: string;
 }
 
 export const useUserStore = defineStore({
@@ -62,6 +58,7 @@ export const useUserStore = defineStore({
     // 路由参数名
     routerName: '',
     routerNameList: [],
+    appDeviceId: undefined,
   }),
   getters: {
     getUserInfo(): UserInfo {
@@ -82,6 +79,9 @@ export const useUserStore = defineStore({
     },
     getSessionTimeout(): boolean {
       return !!this.sessionTimeout;
+    },
+    getAppDeviceId(): string {
+      return this.appDeviceId || getAuthCache<string>(APP_DEVICE_ID_KEY);
     },
   },
   actions: {
@@ -128,6 +128,10 @@ export const useUserStore = defineStore({
       this.token = '';
       this.roleList = [];
       this.sessionTimeout = false;
+    },
+    setAppDeviceId(info: string | undefined) {
+      this.appDeviceId = info;
+      setAuthCache(APP_DEVICE_ID_KEY, info);
     },
     /**
      * @description: user login

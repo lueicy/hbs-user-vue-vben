@@ -10,12 +10,11 @@ import { useGlobSetting } from '/@/hooks/setting';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { RequestEnum, ResultEnum, ContentTypeEnum } from '/@/enums/httpEnum';
 import { isString } from '/@/utils/is';
-import { getToken, getAdminToken } from '/@/utils/auth';
+import { getToken, getAdminToken, getAppDeviceId, setAppDeviceId } from '/@/utils/auth';
 import { setObjToUrlParams, deepMerge } from '/@/utils';
 import { useErrorLogStoreWithOut } from '/@/store/modules/errorLog';
 import { useI18n } from '/@/hooks/web/useI18n';
 import { joinTimestamp, formatRequestDate } from './helper';
-// import { useUserStore } from '/@/store/modules/user';
 import { useUserStoreWithOut } from '/@/store/modules/user';
 
 const globSetting = useGlobSetting();
@@ -34,7 +33,6 @@ const transform: AxiosTransform = {
     const { isTransformResponse, isReturnNativeResponse } = options;
     // 是否返回原生响应头 比如：需要获取响应头时使用该属性
     if (isReturnNativeResponse) {
-      console.log('是否返回原生响应头', res);
       return res;
     }
     // 不进行任何处理，直接返回
@@ -147,7 +145,14 @@ const transform: AxiosTransform = {
     // if (token && (config as Recordable)?.requestOptions?.withToken !== false) {
     // jwt token
     // config.headers.Authorization = options.authenticationScheme
+    config.headers.appversion = 'v1.0.0'; // 后端要求加的请求头参数
     const userStore = useUserStoreWithOut();
+    if (userStore.getAppDeviceId) {
+      config.headers.appdeviceid = getAppDeviceId();
+    } else {
+      config.headers.appdeviceid = setAppDeviceId(32, 32); // 后端要求加的请求头参数
+      userStore.setAppDeviceId(config.headers.appdeviceid);
+    }
     if (userStore.getAdminLogStatus) {
       config.headers.authorization = getAdminToken() ? getAdminToken() : '';
     } else {

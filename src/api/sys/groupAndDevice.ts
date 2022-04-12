@@ -21,6 +21,8 @@ enum Api {
   SwitchByGroup = 'groupDevice/', //开关所有设备
   addDevice = 'manage/enterprise/device/addDevice', //管理员添加设备
   removeDevice = 'groupDevice/addToGroup', //添加设备到数组
+  getDetail = 'deviceStatus/latest/',
+  getSingleDetail = 'userDevice/getUserDevice/',
 }
 
 /**
@@ -98,5 +100,25 @@ export function addDeviceByAdmin(params: addDecviceParams) {
   return defHttp.post({
     url: Api.addDevice,
     params,
+  });
+}
+
+/**
+ * @description: 用户获取设备详情
+ * params:deviceId 设备id
+ */
+export function getDeviceDetail(params: any) {
+  return defHttp.get({
+    url: Api.getDetail + params,
+  });
+}
+
+/**
+ * @description: 用户获取单个设备
+ * params:deviceId 设备id
+ */
+export function getSingleDevice(params: any) {
+  return defHttp.get({
+    url: Api.getSingleDetail + params,
   });
 }

@@ -7,6 +7,7 @@ export const LOCALE_KEY = 'LOCALE__';
 
 // user info key
 export const USER_INFO_KEY = 'USER__INFO__';
+export const APP_DEVICE_ID_KEY = 'APP__DEVICE__KEY__';
 
 // role info key
 export const ROLES_KEY = 'ROLES__KEY__';

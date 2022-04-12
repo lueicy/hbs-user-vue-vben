@@ -14,15 +14,15 @@
       <div class="flex justify-between sta-title">
         <div class="flex flex-col justify-between sta-title-l">
           <span class="l-name">
-            厦门呼博士的名称
+            {{ statusData.deviceName }}
             <Icon icon="ant-design:edit-filled" style="font-size: 22px; padding-left: 8px" />
           </span>
-          <span class="l-space">一年级二班</span>
+          <span class="l-space">{{ statusData.groupList }}</span>
         </div>
         <div
           class="flex flex-col items-center justify-center sta-title-m"
           :style="{
-            backgroundImage: 'url(' + imageUrl + ')',
+            backgroundImage: 'url(' + dealAqires('url', statusData.tvoc) + ')',
             backgroundSize: '100% 100%',
             backgroundRepeat: 'no-repeat',
             width: '313px',
@@ -30,19 +30,19 @@
           }"
         >
           <span class="mb-6 aqi-title">AQI</span>
-          <span class="air-status" :style="{ color: dealAqires('style', aqi) }">{{
+          <span class="air-status" :style="{ color: dealAqires('style', statusData.tvoc) }">{{
             dealAqires('text', aqi)
           }}</span>
         </div>
         <div class="flex items-center sta-title-r">
           <span
-            :style="{ color: 3 % 3 == 0 ? '' : '#A6AAB8' }"
+            :style="{ color: statusData.online == '10' ? '' : '#A6AAB8' }"
             class="dib iconify"
-            :data-icon="3 % 3 == 0 ? 'ic:baseline-wifi' : 'mdi:wifi-cancel'"
+            :data-icon="statusData.online == '10' ? 'ic:baseline-wifi' : 'mdi:wifi-cancel'"
           ></span>
 
-          <span :style="{ color: 3 % 3 == 0 ? '' : '#A6AAB8' }">
-            {{ 3 % 3 == 0 ? '在线' : '离线' }}
+          <span :style="{ color: statusData.online == '10' ? '' : '#A6AAB8' }">
+            {{ statusData.online == '10' ? '在线' : '离线' }}
           </span>
         </div>
       </div>
@@ -53,63 +53,74 @@
             <div class="flex justify-between">
               <span class="sta-footer-l-name">PM2.5</span>
               <div class="sta-footer-l-name">
-                <span>10</span>
+                <span>{{ statusData.pm25Real }}</span>
                 <span class="sta-footer-l-name-u">ug/m³</span>
               </div>
             </div>
             <div class="flex">
               <a-progress
-                :percent="30"
+                :percent="statusData.pm25Real"
                 :show-info="false"
-                :strokeColor="dealAqires('style', aqi)"
+                :strokeColor="dealAqires('style', statusData.tvoc)"
                 class="progress-border"
               />
-              <Icon icon="ant-design:edit-filled" class="icon-g" />优
+              <span class="flex" :style="{ color: dealAqires('style', statusData.tvoc) }">
+                <icon-font type="icon-greenpery" class="icon-g" />{{ dealText(statusData.tvoc) }}
+              </span>
             </div>
           </div>
           <div style="width: 300px">
             <div class="flex justify-between">
               <span class="sta-footer-l-name">CO2</span>
               <div class="sta-footer-l-name">
-                <span>1000</span>
+                <span>{{ statusData.co2Real }}</span>
                 <span class="sta-footer-l-name-u">ppm</span>
               </div>
             </div>
             <div class="flex">
               <a-progress
-                :percent="30"
+                :percent="dealAirQuality(statusData.co2Real)"
                 :show-info="false"
-                :strokeColor="dealAqires('style', aqi)"
+                :strokeColor="dealAqires('style', statusData.tvoc)"
               />
-              <Icon icon="ant-design:edit-filled" class="icon-g" />
-              <span>优</span>
+              <span class="flex" :style="{ color: dealAqires('style', statusData.tvoc) }">
+                <icon-font type="icon-greenpery" class="icon-g" />{{ dealText(statusData.tvoc) }}
+              </span>
             </div>
           </div>
         </div>
         <div class="flex flex-col sta-footer-r">
           <div>
             <span class="sta-footer-r-mod-t">模式：</span>
-            <span style="color: #999999"
-              ><Icon icon="ant-design:edit-filled" class="icon-g" />智能</span
-            >
+            <span :style="{ color: dealAqires('style', statusData.tvoc) }">
+              <icon-font type="icon-energy" class="icon-g" />
+              {{ dealPattern(statusData.pattem) }}
+            </span>
           </div>
           <div>
             <span class="sta-footer-r-mod-t">风速：</span>
-            <span style="color: #999999"
-              ><Icon icon="ant-design:edit-filled" class="icon-g" />弱</span
-            >
+            <span :style="{ color: dealAqires('style', statusData.tvoc) }">
+              <icon-font v-if="statusData.wind == '01'" type="icon-wind" class="icon-g" />
+              <icon-font v-if="statusData.wind == '02'" type="icon-wind1" class="icon-g" />
+              <icon-font v-if="statusData.wind == '03'" type="icon-wind2" class="icon-g" />
+              {{ dealWind(statusData.wind) }}
+            </span>
           </div>
           <div>
             <span class="sta-footer-r-mod-t">童锁：</span>
-            <span class="sta-footer-r-mod-d">开启</span>
+            <span class="sta-footer-r-mod-d">{{
+              statusData.childLock == '00' ? '关锁' : '开锁'
+            }}</span>
           </div>
           <div>
             <span class="sta-footer-r-mod-t">滤网维护：</span>
-            <span class="sta-footer-r-mod-d">4个月</span>
+            <span class="sta-footer-r-mod-d">{{ dealFixTime(statusData.meshCycle) }}个月</span>
           </div>
           <div>
             <span class="sta-footer-r-mod-t">定时模式：</span>
-            <span class="sta-footer-r-mod-d" style="color: rgba(0, 185, 215, 0.5)">已设置定时</span>
+            <span class="sta-footer-r-mod-d" style="color: rgba(0, 185, 215, 0.5)">
+              {{ clockStatus == '00' ? '未设置' : '已设置' }}
+            </span>
           </div>
         </div>
       </div>
@@ -118,59 +129,179 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, reactive, toRefs, computed } from 'vue';
+  import { defineComponent, reactive, toRefs, computed, onMounted } from 'vue';
   import { Select, Progress } from 'ant-design-vue';
   import { Icon } from '/@/components/Icon';
-  import deviceImg_green from '/@/assets/images/device/device/detail_green.png';
+  // import deviceImg_green from '/@/assets/images/device/device/detail_green.png';
+  import deviceImg_green from '/@/assets/images/device/device/green.png';
+  import deviceImg_good from '/@/assets/images/device/device/good.png';
+  import deviceImg_bad from '/@/assets/images/device/device/bad.png';
+  import { createFromIconfontCN } from '@ant-design/icons-vue';
+  import { iconfontJS } from '/@/utils/iconfont';
+  const IconFont = createFromIconfontCN({
+    scriptUrl: iconfontJS(),
+  });
   export default defineComponent({
     components: {
       [Select.name]: Select,
       ASelectOption: Select.Option,
       Icon,
       [Progress.name]: Progress,
+      IconFont,
     },
     props: {
-      deviceData: {
+      statusData: {
         type: Object,
         default: null,
       },
     },
-    setup() {
+    setup(props) {
       const state = reactive({
         selectValue: '更多',
         imageUrl: deviceImg_green,
-        aqi: '1', // 空气质量
+        clockStatus: props.statusData.clockStatus, // 设备定时，00-未设置，01-已设置
       });
+
       // 判断空气质量，根据结果显示样式
       // color: #52c41a; //清新  color: #A9A9AF; //离线 color: #FFC400; //良好 color: #FF4D4F; //污浊
       const dealAqires = computed(() => {
         return function (type, event) {
           let colStyle = '';
           let aqiText = '';
+          let imageUrl = '';
           switch (event) {
-            case '1':
+            case '01':
               colStyle = '#52c41a';
               aqiText = '清新';
+              imageUrl = deviceImg_green;
               break;
-            case '2':
+            case '02':
               colStyle = '#FFC400';
               aqiText = '良好';
+              imageUrl = deviceImg_good;
               break;
-            case '3':
+            case '03':
               colStyle = '#FF4D4F';
               aqiText = '污浊';
-              break;
-            case '4':
-              colStyle = '#A9A9AF';
-              aqiText = '离线';
+              imageUrl = deviceImg_bad;
               break;
             default:
               colStyle = '#A9A9AF';
-              aqiText = '离线';
+              aqiText = '清新';
+              imageUrl = deviceImg_green;
           }
-          return type === 'style' ? colStyle : aqiText;
+          return type === 'style' ? colStyle : type === 'text' ? aqiText : imageUrl;
         };
       });
+      const dealText = computed(() => {
+        return function (event) {
+          let aqiText = '';
+          switch (event) {
+            case '01':
+              aqiText = '优';
+              break;
+            case '02':
+              aqiText = '良';
+              break;
+            case '03':
+              aqiText = '差';
+              break;
+            default:
+              aqiText = '优';
+          }
+          return aqiText;
+        };
+      });
+      // 计算co2含量的空气质量
+      const dealAirQuality = computed(() => {
+        return function (event) {
+          let resNum = 0;
+          if (event == 0) resNum = 0;
+          if (event > 0 && event < 350) resNum = 10;
+          if (event > 350 && event <= 1000) resNum = 20;
+          if (event > 1000 && event <= 2000) resNum = 50;
+          if (event > 2000 && event <= 5000) resNum = 80;
+          if (event > 5000) resNum = 90;
+          return resNum;
+        };
+      });
+      // 计算维护周期
+      const dealFixTime = computed(() => {
+        return function (event) {
+          let resNum = 0;
+          if (event < 43200) resNum = 0;
+          if (event > 43200) resNum = parseInt(event / 43200);
+          return resNum;
+        };
+      });
+      // 计算风速强弱
+      const dealWind = computed(() => {
+        return function (event) {
+          let wind = '';
+          switch (event) {
+            case '01':
+              wind = '弱';
+              break;
+            case '02':
+              wind = '中';
+              break;
+            case '03':
+              wind = '强';
+              break;
+          }
+          return wind;
+        };
+      });
+      // 计算运行模式
+      // 模式 01:智能模式 02新风模式 03:净化模式 04:送风模式 05:排风模式 06:除味模式 07:节能模式 08:除湿模式 09:新风+除湿模式 8~:除霜模式（自动）4~:辅热模式（自动）2~:除湿模式（自动）
+      const dealPattern = computed(() => {
+        return function (event) {
+          let patternText = '';
+          switch (event) {
+            case '01':
+              patternText = '智能';
+              break;
+            case '02':
+              patternText = '新风';
+              break;
+            case '03':
+              patternText = '净化';
+              break;
+            case '04':
+              patternText = '送风';
+              break;
+            case '05':
+              patternText = '排风';
+              break;
+            case '06':
+              patternText = '除味';
+              break;
+            case '07':
+              patternText = '节能';
+              break;
+            case '08':
+              patternText = '除湿';
+              break;
+            case '09':
+              patternText = '新风+除湿';
+              break;
+            case '8~':
+              patternText = '除霜(自动)';
+              break;
+            case '4~':
+              patternText = '辅热(自动)';
+              break;
+            case '8~':
+              patternText = '除湿(自动)';
+              break;
+            default:
+              patternText = '智能';
+          }
+          return patternText;
+        };
+      });
+
+
       function handleChange(value) {
         state.selectValue = value;
         switch (value) {
@@ -187,10 +318,18 @@
             state.selectValue = '更多';
         }
       }
+      onMounted(() => {
+        console.log('statusData', props.statusData);
+      });
       return {
         handleChange,
         ...toRefs(state),
         dealAqires,
+        dealText,
+        dealAirQuality,
+        dealFixTime,
+        dealPattern,
+        dealWind,
       };
     },
   });
@@ -339,7 +478,11 @@
   .icon-g {
     font-size: 22px !important;
     padding-left: 8px;
-    color: #52c41a;
+  }
+  .icon-big {
+    font-size: 27px !important;
+    padding-left: 8px;
+    color: #999999;
   }
 
   /deep/ .ant-select-selection-item,

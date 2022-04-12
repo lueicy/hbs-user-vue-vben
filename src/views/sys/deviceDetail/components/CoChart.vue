@@ -33,7 +33,7 @@
           barData.push(b);
           lineData.push(d + b);
         }
-        console.log('category', category);
+        // console.log('category', category);
         return { barData, category, lineData };
       })();
 

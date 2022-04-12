@@ -87,7 +87,6 @@
   export default defineComponent({
     components: { BasicModal, BasicForm },
     setup() {
-      const { t } = useI18n();
       const state: stateType = reactive({
         adminLogin: false,
         addTime: 1,
@@ -112,8 +111,8 @@
         },
       });
 
-      const [register,{ closeModal }] = useModalInner();
-
+      const [register, { closeModal }] = useModalInner();
+      const { t } = useI18n();
       const { createMessage, createErrorModal } = useMessage();
       const { error, success } = createMessage;
 
