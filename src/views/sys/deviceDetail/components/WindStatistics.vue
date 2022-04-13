@@ -2,24 +2,97 @@
   <div class="flex flex-col wind-container">
     <div class="flex flex-col wind-con-overview">
       <div class="over-title">风量统计</div>
-      <div class="over-date">日期插件</div>
-      <div class="flex justify-between model-li">
-        <template v-for="(item, i) in modelList" :key="i">
-          <div class="model-item">{{ item.name + i }}</div>
+      <div class="over-date">
+        <DatePicker v-model:value="dateValue" @change="dateOk" format="YYYY-MM" picker="month" />
+      </div>
+      <div class="flex justify-between flex-nowrap model-li">
+        <template v-for="item in modelList" :key="item.pattern">
+          <div class="model-item">
+            <div class="flex justify-between hearder">
+              <div class="hearder-text">{{ dealPattern(item.pattern, 'text') }}</div>
+              <div class="model-icon">
+                <icon-font :type="dealPattern(item.pattern, 'icon')" class="icon-g" />
+              </div>
+            </div>
+            <div class="flex justify-between footer">
+              <span>风量：</span>
+              <span>{{ item.volume }}m³</span>
+            </div>
+          </div>
         </template>
+        <!-- <div class="model-item">
+          <div class="flex justify-between hearder">
+            <div class="hearder-text">新风模式</div>
+            <div class="model-icon"><icon-font type="icon-newwind" class="icon-g" /></div>
+          </div>
+          <div class="flex justify-between footer">
+            <span>风量：</span>
+            <span>87631m³</span>
+          </div>
+        </div>
+        <div class="model-item">
+          <div class="flex justify-between hearder">
+            <div class="hearder-text">送风模式</div>
+            <div class="model-icon"><icon-font type="icon-blowing" class="icon-g" /></div>
+          </div>
+          <div class="flex justify-between footer">
+            <span>风量：</span>
+            <span>87631m³</span>
+          </div>
+        </div>
+        <div class="model-item">
+          <div class="flex justify-between hearder">
+            <div class="hearder-text">节能模式</div>
+            <div class="model-icon"><icon-font type="icon-energy" class="icon-g" /></div>
+          </div>
+          <div class="flex justify-between footer">
+            <span>风量：</span>
+            <span>87631m³</span>
+          </div>
+        </div>
+        <div class="model-item">
+          <div class="flex justify-between hearder">
+            <div class="hearder-text">除味模式</div>
+            <div class="model-icon"><icon-font type="icon-deodorize" class="icon-g" /></div>
+          </div>
+          <div class="flex justify-between footer">
+            <span>风量：</span>
+            <span>87631m³</span>
+          </div>
+        </div>
+        <div class="model-item">
+          <div class="flex justify-between hearder">
+            <div class="hearder-text">除味模式</div>
+            <div class="model-icon"><icon-font type="icon-deodorize" class="icon-g" /></div>
+          </div>
+          <div class="flex justify-between footer">
+            <span>风量：</span>
+            <span>87631m³</span>
+          </div>
+        </div>
+        <div class="model-item">
+          <div class="flex justify-between hearder">
+            <div class="hearder-text">除味模式</div>
+            <div class="model-icon"><icon-font type="icon-deodorize" class="icon-g" /></div>
+          </div>
+          <div class="flex justify-between footer">
+            <span>风量：</span>
+            <span>87631m³</span>
+          </div>
+        </div> -->
       </div>
       <div class="over-title">数据概况</div>
       <div class="flex over-content">
         <div class="step-side">
           <a-steps progress-dot :current="modelList.length" direction="vertical">
-            <template v-for="(item, i) in modelList" :key="i">
+            <template v-for="item in modelList" :key="item.pattern">
               <a-step title="" :description="''" style="display: inline-block" />
             </template>
           </a-steps>
         </div>
 
         <div class="data-con">
-          <template v-for="(item, i) in modelList" :key="i">
+          <template v-for="item in modelList" :key="item.pattern">
             <div class="flex justify-between data-cov">
               <div class="flex flex-col justify-around date-item">
                 <div class="item-use">
@@ -28,7 +101,7 @@
                 </div>
                 <div class="use-date">2022-02-23</div>
               </div>
-              <div class="wind-item">风量： {{ item.name + i }} m³ </div>
+              <div class="wind-item">风量： {{ item.volume }} m³ </div>
             </div>
           </template>
         </div>
@@ -38,11 +111,18 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent } from 'vue';
-  import { Steps } from 'ant-design-vue';
-  // import { Icon } from '/@/components/Icon';
-  interface modelType {
-    name?: string;
+  import { defineComponent, ref, toRefs, reactive, onMounted, computed } from 'vue';
+  import { Steps, DatePicker } from 'ant-design-vue';
+  import dayjs from 'dayjs';
+  import { createFromIconfontCN } from '@ant-design/icons-vue';
+  import { iconfontJS } from '/@/utils/iconfont';
+  import { getWindInfo } from '/@/api/sys/groupAndDevice';
+
+  const IconFont = createFromIconfontCN({
+    scriptUrl: iconfontJS(),
+  });
+  interface stateType {
+    modelList?: any;
     value?: Number;
     icon?: string;
   }
@@ -51,38 +131,105 @@
     components: {
       [Steps.name]: Steps,
       [Steps.Step.name]: Steps.Step,
+      IconFont,
+      DatePicker: DatePicker.MonthPicker,
       // Icon,
     },
+    props: {
+      deviceId: {
+        type: String,
+        defaule: '',
+      },
+    },
     setup() {
-      let modelList: modelType[] = [
-        {
-          name: '智能模式',
-          value: 84563,
-          icon: 'ant-design:plus-outlined',
-        },
-        {
-          name: '新风模式',
-          value: 84563,
-          icon: 'ant-design:plus-outlined',
-        },
-        {
-          name: '送风模式',
-          value: 84563,
-          icon: 'ant-design:plus-outlined',
-        },
-        {
-          name: '节能模式',
-          value: 84563,
-          icon: 'ant-design:plus-outlined',
-        },
-        {
-          name: '除味模式',
-          value: 84563,
-          icon: 'ant-design:plus-outlined',
-        },
-      ];
+      const state: stateType = reactive({
+        modelList: [],
+      });
+      const dateValue: any = ref<any>();
+
+      // 模式 01:智能模式 02新风模式 03:净化模式 04:送风模式 05:排风模式 06:除味模式 07:节能模式
+      const dealPattern = computed(() => {
+        return function (event, type) {
+          let patternText = '';
+          let icon = '';
+          switch (event) {
+            case '01':
+              patternText = '智能模式';
+              icon = 'icon-energy';
+              break;
+            case '02':
+              patternText = '新风模式';
+              icon = 'icon-newwind';
+              break;
+            case '03':
+              patternText = '净化模式';
+              icon = 'icon-blowing';
+              break;
+            case '04':
+              patternText = '送风模式';
+              icon = 'icon-energy';
+              break;
+            case '05':
+              patternText = '排风模式';
+              icon = 'icon-deodorize';
+              break;
+            case '06':
+              patternText = '除味模式';
+              icon = 'icon-energy';
+              break;
+            case '07':
+              patternText = '节能模式';
+              icon = 'icon-energy';
+              break;
+            default:
+              patternText = '智能';
+              icon = 'icon-energy';
+          }
+          return type == 'icon' ? icon : patternText;
+        };
+      });
+
+      function dateOk() {
+        console.log('dateValue', dayjs(dateValue.value).format('YYYY-MM'));
+        // getHistory(
+        //   props.deviceId,
+        //   dayjs(dateValue.value).format('YYYY-MM'),
+        //   dayjs(dateValue.value[1]).format('YYYY-MM-DD HH:mm:ss')
+        // );
+      }
+      async function getWindStatis() {
+        // const res = await getWindInfo()
+        state.modelList = [
+          {
+            pattern: '01',
+            volume: 84563,
+          },
+          {
+            pattern: '02',
+            volume: 84563,
+          },
+          {
+            pattern: '03',
+            volume: 84563,
+          },
+          {
+            pattern: '04',
+            volume: 84563,
+          },
+          {
+            pattern: '05',
+            volume: 84563,
+          },
+        ];
+      }
+      onMounted(() => {
+        getWindStatis();
+      });
       return {
-        modelList,
+        ...toRefs(state),
+        dealPattern,
+        dateValue,
+        dateOk,
       };
     },
   });
@@ -145,8 +292,23 @@
         .model-item {
           width: 134px;
           height: 67px;
+          padding: 0px 8px 8px 8px;
           background: rgba(255, 255, 255, 0.39);
           box-shadow: 0px 3px 6px rgba(219, 219, 219, 0.5);
+          font-weight: 600;
+          .hearder {
+            color: #333333;
+            text-align: center;
+            line-height: 33px;
+            border-bottom: 1px solid #e9e9e9;
+          }
+          .footer {
+            padding-top: 8px;
+          }
+          .model-icon {
+            font-size: 30px;
+            color: #09b9d7;
+          }
         }
         .model-item:hover {
           border: 1px solid #09b9d7;

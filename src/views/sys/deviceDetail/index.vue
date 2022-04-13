@@ -5,11 +5,11 @@
         <DeviceStatus :statusData="statusData" />
       </div>
       <div class="datav-top-r">
-        <InformationAgg :baseInfo="baseInfo" />
-        <SharerInfo />
+        <InformationAgg :baseInfo="baseInfo" :networkInfo="networkInfo" />
+        <SharerInfo :deviceId="statusData.deviceId" />
       </div>
     </div>
-    <HistoryInfo />
+    <HistoryInfo :deviceId="statusData.deviceId" />
   </div>
 </template>
 
@@ -20,16 +20,16 @@
   import SharerInfo from './components/SharerInfo.vue';
   import HistoryInfo from './components/HistoryInfo.vue';
 
-  import { getSingleDevice } from '/@/api/sys/groupAndDevice';
+  import { getSingleDevice, getNetworkInfo } from '/@/api/sys/groupAndDevice';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useMessage } from '/@/hooks/web/useMessage';
-import { AnyNsRecord } from 'dns';
 
   interface stateType {
     statusData?: any;
     num?: Number;
     valueList?: any[];
     baseInfo?: any;
+    networkInfo?: any;
   }
   export default defineComponent({
     components: {
@@ -49,6 +49,7 @@ import { AnyNsRecord } from 'dns';
         statusData: props.deviceData,
         actionSelect: false, //是否开启选择
         baseInfo: {},
+        networkInfo: {},
         devicesList: [],
         checkedList: [],
         valueList: [],
@@ -56,24 +57,43 @@ import { AnyNsRecord } from 'dns';
         busy: false,
       });
       const { t } = useI18n();
-      const { createMessage, createErrorModal } = useMessage();
+      const { createErrorModal } = useMessage();
 
       async function getSingleDetail() {
+        console.log('getSingleDetail', props.deviceData);
         if (!props.deviceData || !props.deviceData.deviceId) return;
         try {
           const res = await getSingleDevice(props.deviceData.deviceId);
           if (res) {
             state.statusData.clockStatus = res.clockStatus;
             const { deviceName, mac, model, pid, deviceErrorDataVO } = res;
+            state.baseInfo.deviceId = state.statusData.deviceId;
             state.baseInfo.deviceName = deviceName;
             state.baseInfo.mac = mac;
             state.baseInfo.model = model;
             state.baseInfo.pid = pid;
             state.baseInfo.deviceErrorDataVO = deviceErrorDataVO;
-            console.log('定时模式', state.statusData.clockStatus);
-            console.log('基本信息', state.baseInfo);
           }
-        } catch (error) {
+        } catch (error: any) {
+          createErrorModal({
+            title: t('sys.api.errorTip'),
+            content: error.message || t('sys.api.networkExceptionMsg'),
+          });
+        }
+      }
+
+      async function getNetworkDetail() {
+        if (!props.deviceData || !props.deviceData.deviceId) return;
+        try {
+          const res = await getNetworkInfo({ deviceId: props.deviceData.deviceId });
+          if (res) {
+            const { routerIp, rssi, ssid, wifiMac } = res;
+            state.networkInfo.routerIp = routerIp;
+            state.networkInfo.rssi = rssi;
+            state.networkInfo.ssid = ssid;
+            state.networkInfo.wifiMac = wifiMac;
+          }
+        } catch (error: any) {
           createErrorModal({
             title: t('sys.api.errorTip'),
             content: error.message || t('sys.api.networkExceptionMsg'),
@@ -83,11 +103,12 @@ import { AnyNsRecord } from 'dns';
 
       onMounted(() => {
         getSingleDetail();
-        console.log('详情页里面', props.deviceData);
+        getNetworkDetail();
       });
       return {
         ...toRefs(state),
         getSingleDetail,
+        getNetworkDetail,
       };
     },
   });

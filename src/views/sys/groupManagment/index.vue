@@ -84,9 +84,6 @@
       BasicTable,
       TableAction,
     },
-    // directives: {
-    //   Ripple: RippleDirective,
-    // },
 
     setup() {
       const state = reactive({
@@ -98,10 +95,9 @@
       const [groupInfo, { openModal: openModal }] = useModal();
       const currentEditKeyRef = ref('');
       const { createMessage: msg } = useMessage();
-      const [groupTable, { reload, updateTableDataRecord }] = useTable({
+      const [groupTable, { reload }] = useTable({
         api: GetlistUserGroupApi,
         columns: tableColums,
-        // dataSource: toRaw(state.listData.list),
         showIndexColumn: true,
         showTableSetting: true,
         inset: true,
@@ -110,11 +106,6 @@
         pagination: true,
       });
 
-      // 统计数据
-      // async function getListData(index, size) {
-      //   state.listData = await GetlistUserGroupApi({ pageIndex: index, pageSize: size });
-      //   console.log('listData', toRaw(state.listData.list));
-      // }
       function toDetail(event) {
         console.log('点击查看群组', event);
       }

@@ -1,31 +1,30 @@
 <template>
-  <BasicModal
-    v-bind="$attrs"
-    @register="register"
-    title="添加分享人"
-    @visible-change="handleVisibleChange"
-  >
+  <BasicModal v-bind="$attrs" @register="register" title="添加分享人" @ok="handleAdd">
     <div class="pt-3px pr-3px">
-      <BasicForm @register="registerForm" :model="model" />
+      <BasicForm @register="addShareForm" :model="model" />
     </div>
   </BasicModal>
 </template>
 <script lang="ts">
-  import { defineComponent, ref, nextTick } from 'vue';
+  import { defineComponent, ref, toRaw } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { BasicForm, FormSchema, useForm } from '/@/components/Form/index';
+
+  import { useI18n } from '/@/hooks/web/useI18n';
+  import { useMessage } from '/@/hooks/web/useMessage';
+  import { AddSharingUser } from '/@/api/sys/groupAndDevice';
   const schemas: FormSchema[] = [
     {
-      field: 'field1',
+      field: 'remark',
       component: 'Input',
       label: '分享人名称',
       colProps: {
         span: 24,
       },
-      defaultValue: '111',
+      defaultValue: '',
     },
     {
-      field: 'field2',
+      field: 'tel',
       component: 'Input',
       label: '分享人账号',
       colProps: {
@@ -37,16 +36,11 @@
     components: { BasicModal, BasicForm },
     props: {
       userData: { type: Object },
+      deviceId: { type: String },
     },
     setup(props) {
       const modelRef = ref({});
-      const [
-        registerForm,
-        {
-          // setFieldsValue,
-          // setProps
-        },
-      ] = useForm({
+      const [addShareForm, { validateFields }] = useForm({
         labelWidth: 120,
         schemas,
         showActionButtonGroup: false,
@@ -54,32 +48,37 @@
           span: 24,
         },
       });
+      const { t } = useI18n();
+      const { createMessage, createErrorModal } = useMessage();
+      const { error, success } = createMessage;
 
-      const [register] = useModalInner((data) => {
-        data && onDataReceive(data);
-      });
+      const [register, { closeModal }] = useModalInner();
 
-      function onDataReceive(data) {
-        console.log('Data Received', data);
-        // 方式1;
-        // setFieldsValue({
-        //   field2: data.data,
-        //   field1: data.info,
-        // });
-
-        // // 方式2
-        modelRef.value = { field2: data.data, field1: data.info };
-
-        // setProps({
-        //   model:{ field2: data.data, field1: data.info }
-        // })
+      async function handleAdd() {
+        const values = (await validateFields()) as any;
+        if (!values.remark || !values.tel) return error('请输入分享人名称和账号');
+        try {
+          const userInfo = await AddSharingUser(
+            toRaw({
+              deviceId: props.deviceId,
+              remark: values.remark,
+              tel: values.tel,
+              mode: 'none', //不要默认的错误提示
+            })
+          );
+          if (userInfo) {
+            success('添加成功');
+            closeModal();
+          }
+        } catch (error: any) {
+          createErrorModal({
+            title: t('sys.api.errorTip'),
+            content: error.message || t('sys.api.networkExceptionMsg'),
+          });
+        }
       }
 
-      function handleVisibleChange(v) {
-        v && props.userData && nextTick(() => onDataReceive(props.userData));
-      }
-
-      return { register, schemas, registerForm, model: modelRef, handleVisibleChange };
+      return { register, schemas, addShareForm, model: modelRef, handleAdd };
     },
   });
 </script>

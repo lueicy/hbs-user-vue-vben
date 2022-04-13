@@ -40,6 +40,12 @@
       CoChart,
       PmChart,
     },
+    props: {
+      deviceId: {
+        type: String,
+        defaule: '',
+      },
+    },
     setup() {
       const state = reactive({
         choseEchart: true, //是否开启选择

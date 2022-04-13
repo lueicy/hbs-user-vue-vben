@@ -35,3 +35,11 @@ export interface removeDeviceParams {
   deviceIdList: any; //设备id列表
   groupId: string; // 管理员ID
 }
+// 获取风量数据
+export interface getWindParams {
+  data: string;
+  deviceId: string;
+  pageSize: number;
+  pageIndex: number;
+  pattern?: string;
+}

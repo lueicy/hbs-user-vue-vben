@@ -31,7 +31,7 @@
         >
           <span class="mb-6 aqi-title">AQI</span>
           <span class="air-status" :style="{ color: dealAqires('style', statusData.tvoc) }">{{
-            dealAqires('text', aqi)
+            dealAqires('text', statusData.tvoc)
           }}</span>
         </div>
         <div class="flex items-center sta-title-r">
@@ -300,7 +300,6 @@
           return patternText;
         };
       });
-
 
       function handleChange(value) {
         state.selectValue = value;

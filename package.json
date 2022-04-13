@@ -44,6 +44,7 @@
     "codemirror": "^5.62.0",
     "cropperjs": "^1.5.12",
     "crypto-js": "^4.0.0",
+    "dayjs": "^1.11.0",
     "echarts": "^5.1.2",
     "intro.js": "^4.1.0",
     "lodash-es": "^4.17.21",

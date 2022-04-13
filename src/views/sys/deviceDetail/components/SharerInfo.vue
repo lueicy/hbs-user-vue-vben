@@ -13,7 +13,12 @@
         </template>
       </BasicTable>
     </div>
-    <component :is="currentModal" v-model:visible="modalVisible" :userData="userData" />
+    <component
+      :is="currentModal"
+      v-model:visible="modalVisible"
+      :userData="userData"
+      :deviceId="deviceId"
+    />
     <AddSharerModel @register="sharerInfo" :minHeight="100" />
   </div>
 </template>
@@ -33,6 +38,7 @@
   import { useMessage } from '/@/hooks/web/useMessage';
   import AddSharerModel from './AddSharerModel.vue';
   import { useModal } from '/@/components/Modal';
+  import { getSharingList, updateRemark, deleteSharingUser } from '/@/api/sys/groupAndDevice';
   const tableColums: BasicColumn[] = [
     {
       title: '名称',
@@ -53,28 +59,6 @@
       slots: { customRender: 'operation' },
     },
   ];
-  const listData = [
-    {
-      id: 0,
-      name: 'weqweq',
-    },
-    {
-      id: 1,
-      name: 'weqweq',
-    },
-    {
-      id: 2,
-      name: 'weqweq',
-    },
-    {
-      id: 3,
-      name: 'weqweq',
-    },
-    {
-      id: 4,
-      name: 'weqweq',
-    },
-  ];
   export default defineComponent({
     components: {
       Icon,
@@ -82,14 +66,21 @@
       TableAction,
       AddSharerModel,
     },
-    setup() {
+    props: {
+      deviceId: {
+        type: String,
+        defaule: '',
+      },
+    },
+    setup(props) {
       const currentModal = shallowRef<Nullable<ComponentOptions>>(null);
       const modalVisible = ref<Boolean>(false);
       const userData = ref<any>(null);
+      let listData = ref<any>([]);
       const [sharerInfo, { openModal: openModal }] = useModal();
       const { createMessage: msg } = useMessage();
       const currentEditKeyRef = ref('');
-      const [sharerTable] = useTable({
+      const [sharerTable, { reload }] = useTable({
         // api: demoListApi,
         columns: tableColums,
         dataSource: listData,
@@ -97,15 +88,19 @@
         showTableSetting: true,
         inset: true,
         canResize: true,
-        tableSetting: { redo: false, size: false, fullScreen: false, setting: true },
+        tableSetting: { redo: true, size: false, fullScreen: false, setting: true },
         pagination: false,
       });
+      async function getSharingUserLiat() {
+        const res = await getSharingList({ deviceId: props.deviceId });
+        if (res && res.length) {
+          listData = res;
+        }
+      }
       // 添加分享人
       function addSharer() {
-        console.log('添加分享人');
         currentModal.value = AddSharerModel;
         nextTick(() => {
-          userData.value = { data: Math.random(), info: 'Info222' };
           modalVisible.value = true;
         });
       }
@@ -114,20 +109,23 @@
         // 校验
         msg.loading({ content: '正在保存...', duration: 0, key: 'saving' });
         const valid = await record.onValid?.();
-        console.log(valid);
         if (valid) {
           try {
-            const data = cloneDeep(record.editValueRefs);
-            console.log(data);
+            const data: any = cloneDeep(record.editValueRefs);
             //TODO 此处将数据提交给服务器保存
             // ...
             // 保存之后提交编辑状态
+            let params = {
+              groupName: data.remark,
+              sharingId: record.sharingId, // 用户群组主键
+            };
+            const res = await updateRemark(params);
             const pass = await record.onEdit?.(false, true);
-            console.log('pass', pass);
-            if (pass) {
+            if (res.code == 200 && pass) {
               currentEditKeyRef.value = '';
             }
             msg.success({ content: '数据已保存', key: 'saving' });
+            reload();
           } catch (error) {
             msg.error({ content: '保存失败', key: 'saving' });
           }
@@ -170,26 +168,29 @@
       function handleEdit(record: EditRecordRow) {
         currentEditKeyRef.value = record.key;
         record.onEdit?.(true);
-        console.log('点击了编辑', record);
       }
       function handleCancel(record: EditRecordRow) {
         currentEditKeyRef.value = '';
         record.onEdit?.(false, false);
       }
-      function handleDelete(record: EditRecordRow) {
-        console.log('点击了删除', record);
+      async function handleDelete(record: EditRecordRow) {
+        const res = await deleteSharingUser({
+          sharingId: record.sharingId,
+        });
+        reload();
+        console.log('点击了删除222', res);
       }
       function onEditChange({ column, value, record }) {
         // 本例
         if (column.dataIndex === 'id') {
           record.editValueRefs.name4.value = `${value}`;
         }
-        console.log(column, value, record);
       }
       onMounted(() => {
-        console.log(listData);
+        getSharingUserLiat();
       });
       return {
+        getSharingUserLiat,
         sharerTable,
         handleEdit,
         handleDelete,
@@ -257,7 +258,7 @@
   }
   /deep/ .ant-table-body {
     max-height: 150px !important;
-    height: 150px !important;
+    // height: 150px !important;
   }
   /deep/ .ant-table-title {
     display: none;

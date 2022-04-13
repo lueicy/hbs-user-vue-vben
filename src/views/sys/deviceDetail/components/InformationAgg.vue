@@ -12,11 +12,6 @@
         <span class="info-con-n"> 设备PID： </span>
         <span class="info-con-d">{{ baseInfo.pid }}</span>
       </div>
-      <!-- <div class="info-content">
-        <span class="dot-3"></span>
-        <span class="info-con-n"> 设备激活时间： </span>
-        <span class="info-con-d">EH-Z-7G650</span>
-      </div> -->
       <div class="info-content">
         <span class="dot-4"></span>
         <span class="info-con-n"> 设备MAC地址： </span>
@@ -30,21 +25,32 @@
     </div>
     <div class="info-basic">
       <div class="info-title">网络信息</div>
-      <div class="info-content" v-for="(item, i) in netWorkList" :key="i">
-        <span :class="`dot-${i + 1}`"></span>
-        <span class="info-con-n"> {{ item.name }} </span>
-        <span class="info-con-d">{{ item.value }}</span>
+      <div class="info-content">
+        <span class="dot-1"></span>
+        <span class="info-con-n"> 路由器名称： </span>
+        <span class="info-con-d">{{ networkInfo.ssid }}</span>
+      </div>
+      <div class="info-content">
+        <span class="dot-2"></span>
+        <span class="info-con-n"> WIFI信号强度： </span>
+        <span class="info-con-d">{{ networkInfo.rssi }}</span>
+      </div>
+      <div class="info-content">
+        <span class="dot-3"></span>
+        <span class="info-con-n"> WIFI的MAC地址： </span>
+        <span class="info-con-d">{{ networkInfo.wifiMac }}</span>
+      </div>
+      <div class="info-content">
+        <span class="dot-4"></span>
+        <span class="info-con-n"> 路由器IP： </span>
+        <span class="info-con-d">{{ networkInfo.routerIp }}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-  import { defineComponent, computed, toRaw } from 'vue';
-  interface InfoType {
-    name?: string;
-    value?: string;
-  }
+  import { defineComponent, computed, toRaw, onMounted } from 'vue';
 
   export default defineComponent({
     props: {
@@ -52,56 +58,12 @@
         type: Object,
         default: () => {},
       },
+      networkInfo: {
+        type: Object,
+        default: () => {},
+      },
     },
-    setup(props) {
-      let infoList: InfoType[] = [
-        {
-          name: '设备型号：',
-          value: 'EH-Z-7G650',
-        },
-        {
-          name: '设备PID：',
-          value: 'EH-Z-7G650',
-        },
-        {
-          name: '设备激活时间：',
-          value: 'EH-Z-7G650',
-        },
-        {
-          name: '设备MAC地址：',
-          value: 'EH-Z-7G650',
-        },
-        {
-          name: '设备运行状态：',
-          value: 'EH-Z-7G650',
-        },
-      ];
-      let netWorkList: InfoType[] = [
-        {
-          name: '路由器名称：',
-          value: '呼博士123',
-        },
-        {
-          name: 'WIFI信号强度：',
-          value: '39',
-        },
-        {
-          name: 'WIFI的MAC地址：',
-          value: 'EH-Z-7G650',
-        },
-        {
-          name: '路由器IP：',
-          value: 'test',
-        },
-      ];
-      // function dealInfoList(): void {
-      //   infoList = <InfoType>[
-      //     {
-      //       name: '设备型号',
-      //       value: 'EH-Z-7G650',
-      //     },
-      //   ];
-      // }
+    setup() {
       const dealError = computed(() => {
         return function (event) {
           let lock = false;
@@ -139,7 +101,6 @@
                   errorReason = '设备良好，请继续保持';
               }
               lock = true;
-              console.log('errorReason', errorReason);
               return errorReason;
             } else {
               lock = true;
@@ -148,11 +109,10 @@
           }
         };
       });
+
+      onMounted(() => {});
       return {
-        infoList,
-        netWorkList,
         dealError,
-        // dealInfoList,
       };
     },
   });

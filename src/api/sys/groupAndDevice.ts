@@ -8,6 +8,7 @@ import {
   OnOffSwitchParams,
   addDecviceParams,
   removeDeviceParams,
+  getWindParams,
 } from './model/groupModel';
 
 enum Api {
@@ -23,6 +24,13 @@ enum Api {
   removeDevice = 'groupDevice/addToGroup', //添加设备到数组
   getDetail = 'deviceStatus/latest/',
   getSingleDetail = 'userDevice/getUserDevice/',
+  getNetwordApi = 'deviceNetwork/getNetworkDataInfo/',
+  getSharingUserApi = 'userShareDevice/listSharingUser/',
+  addSharingUser = 'userShareDevice/sendSharingDevice/',
+  updateRemark = '/userShareDevice/updateSharingDevice/',
+  deleteSharingUser = 'userShareDevice/cancelSharingDevice/',
+  getHistoryApi = 'userDevice/history/',
+  getWindInfoApi = 'airVolume/listAirVolumeByPage/',
 }
 
 /**
@@ -120,5 +128,81 @@ export function getDeviceDetail(params: any) {
 export function getSingleDevice(params: any) {
   return defHttp.get({
     url: Api.getSingleDetail + params,
+  });
+}
+
+/**
+ * @description: 用户获取单个设备的网络信息
+ * params:deviceId 设备id
+ */
+export function getNetworkInfo(params: any) {
+  return defHttp.get({
+    url: Api.getNetwordApi,
+    params,
+  });
+}
+
+/**
+ * @description: 获取分享人信息列表
+ * params:deviceId 设备id
+ * status:分享状态, 0-等待接受，1-已接受，2-已拒绝, 3-已删除, 4-已失效, 不传查所有
+ */
+export function getSharingList(params: any) {
+  return defHttp.get({
+    url: Api.getSharingUserApi,
+    params,
+  });
+}
+/**
+ * @description: 发起分享（添加分享人）
+ * params:deviceId 设备id
+ * tel:电话号码；remark:备注
+ */
+export function AddSharingUser(params: any) {
+  return defHttp.post({
+    url: Api.addSharingUser,
+    params,
+  });
+}
+/**
+ * @description: 修改分享（修改备注）
+ * params:sharingId 分享id
+ * remark:备注
+ */
+export function updateRemark(params: any) {
+  return defHttp.post({
+    url: Api.updateRemark,
+    params,
+  });
+}
+/**
+ * @description: 发起分享（添加分享人）
+ * params:sharingId 分享id
+ */
+export function deleteSharingUser(params: any) {
+  return defHttp.post({
+    url: Api.deleteSharingUser,
+    params,
+  });
+}
+/**
+ * @description: 获取历史记录
+ * @param:deviceId 设备id， start：开始时间，end: 结束时间yyyy-MM-dd HH:mm:ss
+ */
+export function getHistoryInfo(params: any) {
+  return defHttp.get({
+    url: Api.getHistoryApi,
+    params,
+  });
+}
+
+/**
+ * @description: 获取历史记录
+ * @param:deviceId 设备id， date:月份2022-10，pageIndex：第几页；pageSize：页面大小；pattern：模式（默认为空查全部）
+ */
+export function getWindInfo(params: getWindParams) {
+  return defHttp.get({
+    url: Api.getWindInfoApi,
+    params,
   });
 }

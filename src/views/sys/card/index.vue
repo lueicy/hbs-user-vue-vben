@@ -66,7 +66,7 @@
             state.deviceData.groupList = event.groupList.length ? event.groupList[0] : '';
             state.deviceData.online = event.online;
           }
-        } catch (error) {
+        } catch (error: any) {
           createErrorModal({
             title: t('sys.api.errorTip'),
             content: error.message || t('sys.api.networkExceptionMsg'),
