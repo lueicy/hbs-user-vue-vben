@@ -253,7 +253,6 @@
     SwitchByGroup,
   } from '/@/api/sys/groupAndDevice';
   import RippleDirective from '/@/directives/ripple';
-  // import infiniteScroll from 'vue-infinite-scroll';
 
   interface selectTitleType {
     name?: string;

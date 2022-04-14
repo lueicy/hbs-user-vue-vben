@@ -32,6 +32,7 @@ enum Api {
   getWindInfoApi = 'airVolume/listAirVolumeByPage/',
   getModelTypeApi = 'airVolume/totalAirVolume',
   getDeviceStatusApi = 'deviceStatus/',
+  deleteDrviceApi = 'manage/enterprise/device/removeDevice/',
 }
 
 /**
@@ -225,5 +226,16 @@ export function getModelType(params: any) {
 export function getDeviceStatus(params: any) {
   return defHttp.get({
     url: Api.getDeviceStatusApi + params.deviceId + '/' + params.t + '/' + params.item,
+  });
+}
+
+/**
+ * @description: 管理员删除设备
+ * params:userId 企业用户id; deviceList:删除的设备id列表
+ */
+export function deleteByAdmin(params: any) {
+  return defHttp.post({
+    url: Api.deleteDrviceApi,
+    params,
   });
 }

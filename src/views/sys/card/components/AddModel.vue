@@ -134,7 +134,7 @@
             state.userId = userInfo.id;
             success('登录成功');
           }
-        } catch (error) {
+        } catch (error: any) {
           userStore.setAdminLogStatus(false);
           createErrorModal({
             title: t('sys.api.errorTip'),
@@ -163,7 +163,7 @@
             success('添加设备成功');
             closeModal();
           }
-        } catch (error) {
+        } catch (error: any) {
           userStore.setAdminLogStatus(false);
           createErrorModal({
             title: t('sys.api.errorTip'),

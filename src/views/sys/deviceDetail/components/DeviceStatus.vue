@@ -125,11 +125,26 @@
         </div>
       </div>
     </div>
+
+    <component :is="currentModal" v-model:visible="modalVisible" />
+    <DeleteModel @register="register1" :minHeight="100" />
+    <TimingModel @register="register2" :minHeight="100" />
+    <ControlModel @register="register3" :minHeight="100" />
   </div>
 </template>
 
 <script lang="ts">
-  import { defineComponent, reactive, toRefs, computed, onMounted } from 'vue';
+  import {
+    defineComponent,
+    ref,
+    reactive,
+    toRefs,
+    computed,
+    onMounted,
+    shallowRef,
+    ComponentOptions,
+    nextTick,
+  } from 'vue';
   import { Select, Progress } from 'ant-design-vue';
   import { Icon } from '/@/components/Icon';
   // import deviceImg_green from '/@/assets/images/device/device/detail_green.png';
@@ -138,11 +153,19 @@
   import deviceImg_bad from '/@/assets/images/device/device/bad.png';
   import { createFromIconfontCN } from '@ant-design/icons-vue';
   import { iconfontJS } from '/@/utils/iconfont';
+
+  import DeleteModel from './DeleteModel.vue';
+  import ControlModel from './ControlModel.vue';
+  import TimingModel from './TimingModel.vue';
+  import { useModal } from '/@/components/Modal';
   const IconFont = createFromIconfontCN({
     scriptUrl: iconfontJS(),
   });
   export default defineComponent({
     components: {
+      ControlModel,
+      TimingModel,
+      DeleteModel,
       [Select.name]: Select,
       ASelectOption: Select.Option,
       Icon,
@@ -161,6 +184,35 @@
         imageUrl: deviceImg_green,
         clockStatus: props.statusData.clockStatus, // 设备定时，00-未设置，01-已设置
       });
+      // 弹窗相关 ↓
+      const currentModal = shallowRef<Nullable<ComponentOptions>>(null);
+      const [register1, { openModal: openModal1 }] = useModal();
+      const [register2, { openModal: openModal2 }] = useModal();
+      const [register3, { openModal: openModal3 }] = useModal();
+      const modalVisible = ref<Boolean>(false);
+
+      function handleChange(value) {
+        state.selectValue = value;
+        switch (value) {
+          case '1':
+            currentModal.value = ControlModel; // 设备控制
+            break;
+          case '2':
+            currentModal.value = TimingModel; // 定时模式
+            break;
+          case '3':
+            currentModal.value = DeleteModel; // 移除设备
+            break;
+          default:
+            state.selectValue = '更多';
+        }
+        nextTick(() => {
+          // userData.value = state.valueList;
+          modalVisible.value = true;
+        });
+      }
+
+      // 弹窗相关 ↑
 
       // 判断空气质量，根据结果显示样式
       // color: #52c41a; //清新  color: #A9A9AF; //离线 color: #FFC400; //良好 color: #FF4D4F; //污浊
@@ -301,22 +353,6 @@
         };
       });
 
-      function handleChange(value) {
-        state.selectValue = value;
-        switch (value) {
-          case '1':
-            console.log(`设备控制 ${state.selectValue}`);
-            break;
-          case '2':
-            console.log(`定时模式 ${state.selectValue}`);
-            break;
-          case '3':
-            console.log(`移除设备 ${state.selectValue}`);
-            break;
-          default:
-            state.selectValue = '更多';
-        }
-      }
       onMounted(() => {
         console.log('statusData', props.statusData);
       });
@@ -329,6 +365,11 @@
         dealFixTime,
         dealPattern,
         dealWind,
+        currentModal,
+        modalVisible,
+        register1,
+        register2,
+        register3,
       };
     },
   });
