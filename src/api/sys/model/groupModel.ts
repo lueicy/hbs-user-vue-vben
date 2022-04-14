@@ -37,8 +37,8 @@ export interface removeDeviceParams {
 }
 // 获取风量数据
 export interface getWindParams {
-  data: string;
-  deviceId: string;
+  date: any;
+  deviceId: any;
   pageSize: number;
   pageIndex: number;
   pattern?: string;

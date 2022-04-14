@@ -1,13 +1,40 @@
 <template>
-  <div>PM2.5</div>
+  <div class="flex justify-between over-content">
+    <span>单位：μg/m³</span>
+    <RadioGroup
+      size="large"
+      :default-value="'d'"
+      v-model:value="chartDate"
+      button-style="solid"
+      @change="changeStatus"
+    >
+      <radio :value="'d'"> 24小时 </radio>
+      <radio :value="'m'"> 30天 </radio>
+    </RadioGroup>
+  </div>
   <div ref="chartRef" :style="{ height, width }"></div>
 </template>
 <script lang="ts">
-  import { defineComponent, PropType, ref, Ref, onMounted } from 'vue';
+  import { defineComponent, PropType, ref, Ref, onMounted, reactive, toRefs } from 'vue';
 
   import { useECharts } from '/@/hooks/web/useECharts';
+  import { getDeviceStatus } from '/@/api/sys/groupAndDevice';
+  import { Radio } from 'ant-design-vue';
+  import dayjs from 'dayjs';
+
+  interface stateType {
+    insideValues?: any;
+    insideDates?: any;
+    outsideValues?: any;
+    outsideDates?: any;
+    chartDate: string;
+  }
 
   export default defineComponent({
+    components: {
+      RadioGroup: Radio.Group,
+      Radio: Radio.Button,
+    },
     props: {
       width: {
         type: String as PropType<string>,
@@ -17,35 +44,61 @@
         type: String as PropType<string>,
         default: '312px',
       },
+      deviceId: {
+        type: String,
+      },
     },
-    setup() {
-      const getLineData = (() => {
-        const category: any[] = [];
-        let dottedBase = +new Date();
-        const lineData: any[] = [];
-        const barData: any[] = [];
-
-        for (let i = 0; i < 20; i++) {
-          const date = new Date((dottedBase += 1000 * 3600 * 24));
-          category.push([date.getFullYear(), date.getMonth() + 1, date.getDate()].join('-'));
-          const b = Math.random() * 200;
-          const d = Math.random() * 200;
-          barData.push(b);
-          lineData.push(d + b);
-        }
-        return { barData, category, lineData };
-      })();
+    setup(props) {
+      const state: stateType = reactive({
+        insideValues: [],
+        insideDates: [],
+        outsideValues: [],
+        outsideDates: [],
+        chartDate: 'd',
+      });
 
       const chartRef = ref<HTMLDivElement | null>(null);
       const { setOptions, echarts } = useECharts(chartRef as Ref<HTMLDivElement>);
-      const { barData, lineData, category } = getLineData;
-      onMounted(() => {
+
+      function changeStatus() {
+        getEchartData();
+      }
+      async function getEchartData() {
+        let param = {
+          deviceId: props.deviceId,
+          t: state.chartDate,
+          item: 'pm25_in',
+        };
+        let param2 = {
+          deviceId: props.deviceId,
+          t: state.chartDate,
+          item: 'pm25_out',
+        };
+        let insideRes = await getDeviceStatus(param);
+        let outsideRes = await getDeviceStatus(param2);
+        if (insideRes) {
+          state.insideDates = insideRes.map((item) => {
+            return dayjs(item.date).format('MM-DD HH:mm');
+          });
+          state.insideValues = insideRes.map((item) => {
+            return Number(item.value);
+          });
+        }
+        if (outsideRes) {
+          state.outsideValues = outsideRes.map((item) => {
+            return Number(item.value);
+          });
+        }
+        chartInit();
+      }
+      function chartInit() {
         setOptions({
-          backgroundColor: '#0f375f',
+          // backgroundColor: '#0f375f',
+          color: ['#37A2FF', '#000000'],
           tooltip: {
             trigger: 'axis',
             axisPointer: {
-              type: 'shadow',
+              type: 'cross',
               label: {
                 show: true,
                 backgroundColor: '#333',
@@ -53,13 +106,14 @@
             },
           },
           legend: {
-            data: ['line', 'bar'],
+            data: ['室外', '室内'],
             textStyle: {
               color: '#ccc',
             },
           },
           xAxis: {
-            data: category,
+            data: state.insideDates,
+            boundaryGap: false,
             axisLine: {
               lineStyle: {
                 color: '#ccc',
@@ -76,59 +130,81 @@
           },
           series: [
             {
-              name: 'line',
+              name: '室外',
               type: 'line',
+              stack: 'Total',
               smooth: true,
-              showAllSymbol: 'auto',
-              symbol: 'emptyCircle',
-              symbolSize: 15,
-              data: lineData,
-            },
-            {
-              name: 'bar',
-              type: 'bar',
-              barWidth: 10,
-              itemStyle: {
-                borderRadius: 5,
+              lineStyle: {
+                width: 0,
+              },
+              showSymbol: false,
+              areaStyle: {
+                opacity: 0.8,
                 color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                  { offset: 0, color: '#14c8d4' },
-                  { offset: 1, color: '#43eec6' },
+                  {
+                    offset: 0,
+                    color: 'rgba(132, 220, 237, 1)',
+                  },
+                  {
+                    offset: 1,
+                    color: 'rgba(131, 226, 244, 1)',
+                  },
                 ]),
               },
-              data: barData,
+              data: state.outsideValues,
+              markLine: {
+                silent: false,
+                lineStyle: {
+                  color: '#CB5E40',
+                  type: [5, 10],
+                },
+                data: [
+                  {
+                    yAxis: 200,
+                  },
+                ],
+                label: {
+                  formatter: '污浊',
+                },
+                emphasis: {
+                  disabled: true,
+                },
+              },
             },
             {
-              name: 'line',
-              type: 'bar',
-              barGap: '-100%',
-              barWidth: 10,
-              itemStyle: {
+              name: '室内',
+              type: 'line',
+              stack: 'Total',
+              smooth: true,
+              lineStyle: {
+                width: 0,
+              },
+              showSymbol: false,
+              areaStyle: {
+                opacity: 0.8,
                 color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                  { offset: 0, color: 'rgba(20,200,212,0.5)' },
-                  { offset: 0.2, color: 'rgba(20,200,212,0.2)' },
-                  { offset: 1, color: 'rgba(20,200,212,0)' },
+                  {
+                    offset: 0,
+                    color: 'rgba(139, 175, 255, 1)',
+                  },
+                  {
+                    offset: 1,
+                    color: 'rgba(184, 197, 237, 1)',
+                  },
                 ]),
               },
-              z: -12,
-              data: lineData,
-            },
-            {
-              name: 'dotted',
-              type: 'pictorialBar',
-              symbol: 'rect',
-              itemStyle: {
-                color: '#0f375f',
+              emphasis: {
+                focus: 'series',
               },
-              symbolRepeat: true,
-              symbolSize: [12, 4],
-              symbolMargin: 1,
-              z: -10,
-              data: lineData,
+              data: state.insideValues,
             },
           ],
         });
+      }
+      onMounted(() => {
+        getEchartData();
       });
-      return { chartRef, getLineData };
+      return { ...toRefs(state), chartRef, changeStatus, getEchartData, chartInit };
     },
   });
 </script>

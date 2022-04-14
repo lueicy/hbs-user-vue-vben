@@ -3,42 +3,45 @@
     <div class="flex flex-col air-con-overview">
       <div class="over-title">空气质量</div>
       <div class="flex air-index">
-        <template v-for="(item, i) in airTitle" :key="i">
-          <a-button @click="choseEchart = !choseEchart" class="air-item">{{ item.name }}</a-button>
-        </template>
-      </div>
-      <div class="flex justify-between over-content">
-        <span>单位：μg/m³</span>
-        <span style="border: 1px solid rgba(9, 185, 215, 1)">
-          <a-button type="default" class="time-btn">24小时</a-button>
-          <a-button type="primary" class="time-btn">30天</a-button>
-        </span>
+        <RadioGroup
+          size="large"
+          :default-value="true"
+          v-model:value="choseEchart"
+          button-style="solid"
+        >
+          <radio :value="true"> CO2 </radio>
+          <radio :value="false"> PM2.5 </radio>
+        </RadioGroup>
       </div>
       <div v-if="choseEchart" class="over-content">
-        <CoChart />
+        <CoChart :deviceId="deviceId" />
       </div>
       <div v-else class="over-content">
-        <PmChart />
+        <PmChart :deviceId="deviceId" />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-  import { defineComponent, reactive, toRefs } from 'vue';
+  import { defineComponent, reactive, toRefs, onMounted } from 'vue';
   import CoChart from './CoChart.vue';
   import PmChart from './PmChart.vue';
-  // import { Icon } from '/@/components/Icon';
-  interface airType {
-    name?: string;
-    id?: Number;
-    icon?: string;
+  import { Radio } from 'ant-design-vue';
+
+  interface stateType {
+    choseEchart?: boolean;
+    chartDate?: String;
+    co2List?: any;
+    pmInsideList?: any;
+    pmOutsideList?: any;
   }
   export default defineComponent({
     components: {
-      // Icon,
       CoChart,
       PmChart,
+      RadioGroup: Radio.Group,
+      Radio: Radio.Button,
     },
     props: {
       deviceId: {
@@ -47,27 +50,11 @@
       },
     },
     setup() {
-      const state = reactive({
+      const state: stateType = reactive({
         choseEchart: true, //是否开启选择
       });
-      let airTitle: airType[] = [
-        {
-          name: 'CO2',
-          id: 84563,
-          icon: 'ant-design:plus-outlined',
-        },
-        {
-          name: 'PM2.5',
-          id: 84563,
-          icon: 'ant-design:plus-outlined',
-        },
-      ];
-      function selectAir(event) {
-        console.log('选择空气指标', event);
-      }
+      onMounted(() => {});
       return {
-        selectAir,
-        airTitle,
         ...toRefs(state),
       };
     },
@@ -115,7 +102,6 @@
         margin-bottom: 24px;
         .time-btn {
           padding: 0px;
-          width: 51px;
           border-radius: 2px;
           box-sizing: content-box;
         }
@@ -127,9 +113,13 @@
       }
     }
   }
-  /deep/ .ant-btn-primary {
-    background: rgba(9, 185, 220, 1);
-    border-color: rgba(9, 185, 220, 1);
+  /deep/ .ant-radio-button-wrapper-checked {
+    background: rgba(9, 185, 220, 1) !important;
+    border-color: rgba(9, 185, 220, 1) !important;
+  }
+  /deep/ .ant-radio-button-wrapper {
+    min-width: 80px !important;
+    text-align: center;
   }
   .icon-add {
     font-size: 22px !important;

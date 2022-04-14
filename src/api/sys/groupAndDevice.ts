@@ -8,7 +8,6 @@ import {
   OnOffSwitchParams,
   addDecviceParams,
   removeDeviceParams,
-  getWindParams,
 } from './model/groupModel';
 
 enum Api {
@@ -31,6 +30,8 @@ enum Api {
   deleteSharingUser = 'userShareDevice/cancelSharingDevice/',
   getHistoryApi = 'userDevice/history/',
   getWindInfoApi = 'airVolume/listAirVolumeByPage/',
+  getModelTypeApi = 'airVolume/totalAirVolume',
+  getDeviceStatusApi = 'deviceStatus/',
 }
 
 /**
@@ -197,12 +198,32 @@ export function getHistoryInfo(params: any) {
 }
 
 /**
- * @description: 获取历史记录
+ * @description: 获取风量记录
  * @param:deviceId 设备id， date:月份2022-10，pageIndex：第几页；pageSize：页面大小；pattern：模式（默认为空查全部）
  */
-export function getWindInfo(params: getWindParams) {
+export function getWindInfo(params: any) {
   return defHttp.get({
     url: Api.getWindInfoApi,
     params,
+  });
+}
+/**
+ * @description: 获取模式风总量
+ * @param:deviceId 设备id， date:月份2022-10；pattern：模式（默认为空查全部）
+ */
+export function getModelType(params: any) {
+  return defHttp.get({
+    url: Api.getModelTypeApi,
+    params,
+  });
+}
+
+/**
+ * @description: 获取设备单项状态数据
+ * @param:deviceId 设备id， item:状态项，【 co2 | pm25_in | pm25_out 】；t：时间，d-近24小时，m-近30天
+ */
+export function getDeviceStatus(params: any) {
+  return defHttp.get({
+    url: Api.getDeviceStatusApi + params.deviceId + '/' + params.t + '/' + params.item,
   });
 }

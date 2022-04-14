@@ -6,8 +6,8 @@
         <DatePicker v-model:value="dateValue" @change="dateOk" format="YYYY-MM" picker="month" />
       </div>
       <div class="flex justify-between flex-nowrap model-li">
-        <template v-for="item in modelList" :key="item.pattern">
-          <div class="model-item">
+        <template v-for="item in modelTypeList" :key="item.pattern">
+          <div class="model-item" @click="clickModel(item.pattern)">
             <div class="flex justify-between hearder">
               <div class="hearder-text">{{ dealPattern(item.pattern, 'text') }}</div>
               <div class="model-icon">
@@ -16,92 +16,43 @@
             </div>
             <div class="flex justify-between footer">
               <span>风量：</span>
-              <span>{{ item.volume }}m³</span>
+              <span>{{ item.totalVolume }}m³</span>
             </div>
           </div>
         </template>
-        <!-- <div class="model-item">
-          <div class="flex justify-between hearder">
-            <div class="hearder-text">新风模式</div>
-            <div class="model-icon"><icon-font type="icon-newwind" class="icon-g" /></div>
-          </div>
-          <div class="flex justify-between footer">
-            <span>风量：</span>
-            <span>87631m³</span>
-          </div>
-        </div>
-        <div class="model-item">
-          <div class="flex justify-between hearder">
-            <div class="hearder-text">送风模式</div>
-            <div class="model-icon"><icon-font type="icon-blowing" class="icon-g" /></div>
-          </div>
-          <div class="flex justify-between footer">
-            <span>风量：</span>
-            <span>87631m³</span>
-          </div>
-        </div>
-        <div class="model-item">
-          <div class="flex justify-between hearder">
-            <div class="hearder-text">节能模式</div>
-            <div class="model-icon"><icon-font type="icon-energy" class="icon-g" /></div>
-          </div>
-          <div class="flex justify-between footer">
-            <span>风量：</span>
-            <span>87631m³</span>
-          </div>
-        </div>
-        <div class="model-item">
-          <div class="flex justify-between hearder">
-            <div class="hearder-text">除味模式</div>
-            <div class="model-icon"><icon-font type="icon-deodorize" class="icon-g" /></div>
-          </div>
-          <div class="flex justify-between footer">
-            <span>风量：</span>
-            <span>87631m³</span>
-          </div>
-        </div>
-        <div class="model-item">
-          <div class="flex justify-between hearder">
-            <div class="hearder-text">除味模式</div>
-            <div class="model-icon"><icon-font type="icon-deodorize" class="icon-g" /></div>
-          </div>
-          <div class="flex justify-between footer">
-            <span>风量：</span>
-            <span>87631m³</span>
-          </div>
-        </div>
-        <div class="model-item">
-          <div class="flex justify-between hearder">
-            <div class="hearder-text">除味模式</div>
-            <div class="model-icon"><icon-font type="icon-deodorize" class="icon-g" /></div>
-          </div>
-          <div class="flex justify-between footer">
-            <span>风量：</span>
-            <span>87631m³</span>
-          </div>
-        </div> -->
       </div>
       <div class="over-title">数据概况</div>
       <div class="flex over-content">
         <div class="step-side">
           <a-steps progress-dot :current="modelList.length" direction="vertical">
             <template v-for="item in modelList" :key="item.pattern">
-              <a-step title="" :description="''" style="display: inline-block" />
+              <a-step title="Finished" :description="''" style="display: inline-block">
+                <!-- <template #icon>
+                  <icon-font :type="dealPattern(item.pattern, 'icon')" class="icon-g" />
+                </template> -->
+              </a-step>
             </template>
           </a-steps>
         </div>
 
         <div class="data-con">
           <template v-for="item in modelList" :key="item.pattern">
-            <div class="flex justify-between data-cov">
-              <div class="flex flex-col justify-around date-item">
-                <div class="item-use">
-                  <span class="use-title">使用时长：</span>
-                  <span class="use-time">396分钟57秒</span>
-                </div>
-                <div class="use-date">2022-02-23</div>
+            <div class="flex data-con">
+              <div class="flex model-icon">
+                <icon-font :type="dealPattern(item.pattern, 'icon')" class="icon-g" />
               </div>
-              <div class="wind-item">风量： {{ item.volume }} m³ </div>
+              <div class="flex justify-between data-cov">
+                <div class="flex flex-col justify-around date-item">
+                  <div class="item-use">
+                    <span class="use-title">使用时长：</span>
+                    <span class="use-time">{{ countMinute(item.beginTime, item.finishTime) }}</span>
+                  </div>
+                  <div class="use-date"
+                    >{{ fixTimeFormat(item.beginTime) }} - {{ fixTimeFormat(item.finishTime) }}</div
+                  >
+                </div>
+                <div class="wind-item">风量： {{ item.volume }} m³ </div>
+              </div>
             </div>
           </template>
         </div>
@@ -114,16 +65,20 @@
   import { defineComponent, ref, toRefs, reactive, onMounted, computed } from 'vue';
   import { Steps, DatePicker } from 'ant-design-vue';
   import dayjs from 'dayjs';
+  import duration from 'dayjs/plugin/duration.js';
   import { createFromIconfontCN } from '@ant-design/icons-vue';
   import { iconfontJS } from '/@/utils/iconfont';
-  import { getWindInfo } from '/@/api/sys/groupAndDevice';
+  import { getWindInfo, getModelType } from '/@/api/sys/groupAndDevice';
+  import { useI18n } from '/@/hooks/web/useI18n';
+  import { useMessage } from '/@/hooks/web/useMessage';
+  dayjs.extend(duration);
 
   const IconFont = createFromIconfontCN({
     scriptUrl: iconfontJS(),
   });
   interface stateType {
     modelList?: any;
-    value?: Number;
+    modelTypeList?: any;
     icon?: string;
   }
 
@@ -141,11 +96,16 @@
         defaule: '',
       },
     },
-    setup() {
+    setup(props) {
       const state: stateType = reactive({
+        modelTypeList: [],
         modelList: [],
       });
       const dateValue: any = ref<any>();
+
+      const { t } = useI18n();
+      const { createMessage, createErrorModal } = useMessage();
+      const { error, success } = createMessage;
 
       // 模式 01:智能模式 02新风模式 03:净化模式 04:送风模式 05:排风模式 06:除味模式 07:节能模式
       const dealPattern = computed(() => {
@@ -188,48 +148,81 @@
           return type == 'icon' ? icon : patternText;
         };
       });
-
+      const fixTimeFormat = computed(() => {
+        return function (time) {
+          let ccc = dayjs(time).format('YYYY/MM/DD HH:mm:ss');
+          return ccc;
+        };
+      });
+      const countMinute = computed(() => {
+        return function (beginTime, endTime) {
+          let start = dayjs(beginTime);
+          let end = dayjs(endTime);
+          let minute = (dayjs.duration(end.diff(start)).as('seconds') / 60).toFixed(0); // 计算分钟
+          let second = parseInt(dayjs.duration(end.diff(start)).as('seconds') % 60); // 计算秒
+          return minute + '分' + second + '秒';
+        };
+      });
+      async function getWindStatis(dateM?, patternM?) {
+        let param = {
+          date: dateM || dayjs().format('YYYY-MM'),
+          deviceId: props.deviceId,
+          pageIndex: 1,
+          pageSize: 10000,
+          pattern: patternM || '',
+        };
+        try {
+          const res = await getWindInfo(param);
+          if (res) {
+            state.modelList = res.list;
+          }
+        } catch (error: any) {
+          createErrorModal({
+            title: t('sys.api.errorTip'),
+            content: error.message || t('sys.api.networkExceptionMsg'),
+          });
+        }
+      }
+      async function getModelTypeList(dateM?) {
+        let param = {
+          date: dateM || dayjs().format('YYYY-MM'),
+          deviceId: props.deviceId,
+          pattern: '',
+        };
+        try {
+          const res = await getModelType(param);
+          if (res) {
+            state.modelTypeList = res;
+          }
+        } catch (error: any) {
+          createErrorModal({
+            title: t('sys.api.errorTip'),
+            content: error.message || t('sys.api.networkExceptionMsg'),
+          });
+        }
+      }
       function dateOk() {
-        console.log('dateValue', dayjs(dateValue.value).format('YYYY-MM'));
-        // getHistory(
-        //   props.deviceId,
-        //   dayjs(dateValue.value).format('YYYY-MM'),
-        //   dayjs(dateValue.value[1]).format('YYYY-MM-DD HH:mm:ss')
-        // );
+        getModelTypeList(dayjs(dateValue.value).format('YYYY-MM'));
+        getWindStatis(dayjs(dateValue.value).format('YYYY-MM'));
       }
-      async function getWindStatis() {
-        // const res = await getWindInfo()
-        state.modelList = [
-          {
-            pattern: '01',
-            volume: 84563,
-          },
-          {
-            pattern: '02',
-            volume: 84563,
-          },
-          {
-            pattern: '03',
-            volume: 84563,
-          },
-          {
-            pattern: '04',
-            volume: 84563,
-          },
-          {
-            pattern: '05',
-            volume: 84563,
-          },
-        ];
+      function clickModel(event) {
+        getWindStatis(dayjs(dateValue.value).format('YYYY-MM'), event);
       }
+
       onMounted(() => {
         getWindStatis();
+        getModelTypeList();
       });
       return {
         ...toRefs(state),
         dealPattern,
+        fixTimeFormat,
+        countMinute,
         dateValue,
         dateOk,
+        clickModel,
+        getModelTypeList,
+        getWindStatis,
       };
     },
   });
@@ -254,6 +247,7 @@
       padding: 16px 24px;
       background: rgba(245, 252, 254, 0.39);
       box-shadow: 0px 3px 6px #dbdbdb;
+      min-height: 575px;
       .over-title {
         width: 100%;
         height: 21px;
@@ -276,14 +270,16 @@
         margin: 24px 0px;
         overflow: auto;
         .step-side {
-          width: 50px;
+          width: 20px;
         }
         .data-con {
           min-width: 666px;
           .data-cov {
             min-height: 50px;
             border-bottom: 1px solid #e9e9e9;
-            margin-bottom: 15px;
+            margin-bottom: 14px;
+            min-width: 600px;
+            margin-left: 20px;
           }
         }
       }
@@ -304,10 +300,6 @@
           }
           .footer {
             padding-top: 8px;
-          }
-          .model-icon {
-            font-size: 30px;
-            color: #09b9d7;
           }
         }
         .model-item:hover {
@@ -335,6 +327,10 @@
       font-size: 16px;
       color: #999999;
     }
+  }
+  .model-icon {
+    font-size: 30px;
+    color: #09b9d7;
   }
 
   /deep/ .ant-steps-item-title {

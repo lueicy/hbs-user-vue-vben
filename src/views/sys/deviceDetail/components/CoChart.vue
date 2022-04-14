@@ -1,13 +1,37 @@
 <template>
-  <div>CO2</div>
+  <div class="flex justify-between over-content">
+    <span>单位：ppm</span>
+    <RadioGroup
+      size="large"
+      :default-value="'d'"
+      v-model:value="chartDate"
+      button-style="solid"
+      @change="changeStatus"
+    >
+      <radio :value="'d'"> 24小时 </radio>
+      <radio :value="'m'"> 30天 </radio>
+    </RadioGroup>
+  </div>
   <div ref="chartRef" :style="{ height, width }"></div>
 </template>
 <script lang="ts">
-  import { defineComponent, PropType, ref, Ref, onMounted } from 'vue';
-
+  import { defineComponent, PropType, ref, Ref, onMounted, toRefs, reactive } from 'vue';
+  import { Radio } from 'ant-design-vue';
   import { useECharts } from '/@/hooks/web/useECharts';
+  import { getDeviceStatus } from '/@/api/sys/groupAndDevice';
+  import dayjs from 'dayjs';
+
+  interface stateType {
+    dateList?: any;
+    valueList?: any;
+    chartDate?: any;
+  }
 
   export default defineComponent({
+    components: {
+      RadioGroup: Radio.Group,
+      Radio: Radio.Button,
+    },
     props: {
       width: {
         type: String as PropType<string>,
@@ -17,30 +41,40 @@
         type: String as PropType<string>,
         default: '312px',
       },
+      deviceId: {
+        type: String,
+      },
     },
-    setup() {
-      const getLineData = (() => {
-        const category: any[] = [];
-        let dottedBase = +new Date();
-        const lineData: any[] = [];
-        const barData: any[] = [];
-
-        for (let i = 0; i < 20; i++) {
-          const date = new Date((dottedBase += 1000 * 3600 * 24));
-          category.push([date.getFullYear(), date.getMonth() + 1, date.getDate()].join('-'));
-          const b = Math.random() * 200;
-          const d = Math.random() * 200;
-          barData.push(b);
-          lineData.push(d + b);
-        }
-        // console.log('category', category);
-        return { barData, category, lineData };
-      })();
+    setup(props) {
+      const state: stateType = reactive({
+        dateList: [],
+        valueList: [],
+        chartDate: 'd',
+      });
 
       const chartRef = ref<HTMLDivElement | null>(null);
       const { setOptions, echarts } = useECharts(chartRef as Ref<HTMLDivElement>);
-      const { category } = getLineData;
-      onMounted(() => {
+      function changeStatus() {
+        getEchartData();
+      }
+      async function getEchartData() {
+        let param = {
+          deviceId: props.deviceId,
+          t: state.chartDate,
+          item: 'co2',
+        };
+        let res = await getDeviceStatus(param);
+        if (res) {
+          state.dateList = res.map((item) => {
+            return dayjs(item.date).format('MM-DD HH:mm');
+          });
+          state.valueList = res.map((item) => {
+            return Number(item.value);
+          });
+          chartInit();
+        }
+      }
+      function chartInit() {
         setOptions({
           // backgroundColor: '#0f375f',
           color: ['#37A2FF', '#000000'],
@@ -55,13 +89,13 @@
             },
           },
           legend: {
-            data: ['室外', '室内'],
+            data: ['室内'],
             textStyle: {
               color: '#ccc',
             },
           },
           xAxis: {
-            data: category,
+            data: state.dateList,
             boundaryGap: false,
             axisLine: {
               lineStyle: {
@@ -78,54 +112,6 @@
             },
           },
           series: [
-            {
-              name: '室外',
-              type: 'line',
-              stack: 'Total',
-              smooth: true,
-              lineStyle: {
-                width: 0,
-              },
-              showSymbol: false,
-              areaStyle: {
-                opacity: 0.8,
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                  {
-                    offset: 0,
-                    color: 'rgba(132, 220, 237, 1)',
-                  },
-                  {
-                    offset: 1,
-                    color: 'rgba(131, 226, 244, 1)',
-                  },
-                ]),
-              },
-              // emphasis: {
-              //   focus: 'series',
-              // },
-              data: [
-                140, 232, 101, 264, 90, 340, 250, 232, 101, 264, 90, 340, 120, 282, 111, 234, 220,
-                340, 310, 152, 231,
-              ],
-              markLine: {
-                silent: false,
-                lineStyle: {
-                  color: '#CB5E40',
-                  type: [5, 10],
-                },
-                data: [
-                  {
-                    yAxis: 200,
-                  },
-                ],
-                label: {
-                  formatter: '污浊',
-                },
-                emphasis: {
-                  disabled: true,
-                },
-              },
-            },
             {
               name: '室内',
               type: 'line',
@@ -151,15 +137,15 @@
               emphasis: {
                 focus: 'series',
               },
-              data: [
-                120, 282, 111, 234, 220, 340, 310, 140, 232, 101, 264, 90, 340, 250, 120, 282, 111,
-                234, 220, 340, 310,
-              ],
+              data: state.valueList,
             },
           ],
         });
+      }
+      onMounted(() => {
+        getEchartData();
       });
-      return { chartRef, getLineData };
+      return { ...toRefs(state), chartRef, getEchartData, changeStatus, chartInit };
     },
   });
 </script>

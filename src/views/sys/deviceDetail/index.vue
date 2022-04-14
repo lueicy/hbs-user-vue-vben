@@ -60,7 +60,6 @@
       const { createErrorModal } = useMessage();
 
       async function getSingleDetail() {
-        console.log('getSingleDetail', props.deviceData);
         if (!props.deviceData || !props.deviceData.deviceId) return;
         try {
           const res = await getSingleDevice(props.deviceData.deviceId);
