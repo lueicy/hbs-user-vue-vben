@@ -37,11 +37,11 @@
           text="当前版本V1.0.0"
           icon="file-icons:v-ray"
         />
-        <MenuItem
+        <!-- <MenuItem
           key="lock"
           text="修改密码"
           icon="carbon:password"
-        />
+        /> -->
         <MenuItem
           key="logout"
           :text="t('layout.header.dropdownItemLoginOut')"

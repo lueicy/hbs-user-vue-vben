@@ -146,13 +146,14 @@ export const useUserStore = defineStore({
         // 新的login接口请求------
         const { goHome = true, mode, ...loginParams } = params;
         const RESdATA: any = await loginApi(loginParams, mode);
+
         const sessionTimeout = this.sessionTimeout;
         sessionTimeout && this.setSessionTimeout(false);
         !sessionTimeout && goHome && (await router.replace('/home/index' || PageEnum.BASE_HOME));
         // !sessionTimeout &&
         //   goHome &&
         //   (await router.replace(userInfo.homePath || PageEnum.BASE_HOME));
-        console.log('RESdATA-123--', RESdATA);
+        // console.log('RESdATA-123--', RESdATA);
         return RESdATA;
       } catch (error) {
         return Promise.reject(error);
