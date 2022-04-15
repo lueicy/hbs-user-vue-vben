@@ -26,3 +26,9 @@
     },
   });
 </script>
+<style lang="less">
+  .ant-btn-primary {
+    background: #00b9d7 !important;
+    border-color: #00b9d7 !important;
+  }
+</style>

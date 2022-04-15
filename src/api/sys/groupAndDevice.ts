@@ -33,6 +33,10 @@ enum Api {
   getModelTypeApi = 'airVolume/totalAirVolume',
   getDeviceStatusApi = 'deviceStatus/',
   deleteDrviceApi = 'manage/enterprise/device/removeDevice/',
+  getSubtypeApi = 'deviceType/getBySubType/',
+  addSceneApi = 'sceneClock/addSceneClock',
+  getListSceneApi = 'sceneClock/listSceneClock/',
+  deleteSceneApi = 'sceneClock/deleteSceneClock/',
 }
 
 /**
@@ -237,5 +241,54 @@ export function deleteByAdmin(params: any) {
   return defHttp.post({
     url: Api.deleteDrviceApi,
     params,
+  });
+}
+
+/**
+ * @description: 根据型号获取模式列表风速列表
+ * params:subType 设备型号;
+ */
+export function getBySubtype(params: any) {
+  return defHttp.get({
+    url: Api.getSubtypeApi + params,
+  });
+}
+
+/**
+ * @description: 新增设备定时数据
+ * params:{
+	name: 定时标签,
+	open: 是否开机 00-关机 01-开机,
+	ownerId: 属主ID,
+	ownerType: 属主类型 00-群组 01-设备,
+	pattern: 模式,
+	status: 状态 00-关闭 01-开启,
+	triggerTime:触发时间 如 0800,
+	weekDay:周几 如周一二三：1,2,3, ,
+	wind: 风速
+}
+ */
+export function addSceneClock(params: any) {
+  return defHttp.post({
+    url: Api.addSceneApi,
+    params,
+  });
+}
+/**
+ * @description: 获取设备定时数据
+ * params:ownerId 设备id/群组id;
+ */
+export function getListScene(params: any) {
+  return defHttp.get({
+    url: Api.getListSceneApi + params,
+  });
+}
+/**
+ * @description: 删除定时模式
+ * params:sceneClockId 定时模式id;
+ */
+export function deleteScene(params: any) {
+  return defHttp.delete({
+    url: Api.deleteSceneApi + params,
   });
 }

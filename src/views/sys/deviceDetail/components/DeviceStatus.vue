@@ -126,7 +126,7 @@
       </div>
     </div>
 
-    <component :is="currentModal" v-model:visible="modalVisible" />
+    <component :is="currentModal" v-model:visible="modalVisible" :deviceData="statusData" />
     <DeleteModel @register="register1" :minHeight="100" />
     <TimingModel @register="register2" :minHeight="100" :minWidth="716" />
     <ControlModel @register="register3" :minHeight="100" />

@@ -64,8 +64,9 @@
         try {
           const res = await getSingleDevice(props.deviceData.deviceId);
           if (res) {
-            state.statusData.clockStatus = res.clockStatus;
-            const { deviceName, mac, model, pid, deviceErrorDataVO } = res;
+            const { deviceName, mac, model, clockStatus, pid, deviceErrorDataVO } = res;
+            state.statusData.clockStatus = clockStatus;
+            state.statusData.model = model;
             state.baseInfo.deviceId = state.statusData.deviceId;
             state.baseInfo.deviceName = deviceName;
             state.baseInfo.mac = mac;
