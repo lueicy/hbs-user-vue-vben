@@ -37,6 +37,7 @@ enum Api {
   addSceneApi = 'sceneClock/addSceneClock',
   getListSceneApi = 'sceneClock/listSceneClock/',
   deleteSceneApi = 'sceneClock/deleteSceneClock/',
+  sendCommandApi = 'device/sendCommand/',
 }
 
 /**
@@ -290,5 +291,16 @@ export function getListScene(params: any) {
 export function deleteScene(params: any) {
   return defHttp.delete({
     url: Api.deleteSceneApi + params,
+  });
+}
+
+/**
+ * @description: 设备命令下发
+ * params:command：command；deviceId：设备id device/sendCommand/{deviceId}
+ */
+export function sendCommand(deviceId: any, params: any) {
+  return defHttp.post({
+    url: Api.sendCommandApi + deviceId,
+    params,
   });
 }

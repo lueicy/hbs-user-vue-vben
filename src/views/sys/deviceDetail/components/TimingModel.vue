@@ -1,5 +1,5 @@
 <template>
-  <BasicModal v-bind="$attrs" @register="register" title="定时模式" width="716px">
+  <BasicModal v-bind="$attrs" @register="register" title="定时模式" width="716px" @ok="handleOK">
     <!-- 模式 -->
     <div class="flex justify-start model-li">
       <div class="li-title mg-right">模式</div>
@@ -356,6 +356,10 @@
         console.log(temT);
       }
 
+      function handleOK() {
+        closeModal();
+      }
+
       async function confirmDelete(id) {
         try {
           const res = await deleteScene(id);
@@ -438,6 +442,7 @@
         confirmDelete,
         trunBtn,
         handleAdd,
+        handleOK,
         closeModal,
         dealPattern,
         dealDay2,
