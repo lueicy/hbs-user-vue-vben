@@ -11,7 +11,7 @@
 
     <div class="md:flex enter-y">
       <VisitRadar
-        class="md:w-1/3 w-full"
+        class="w-full md:w-1/3"
         :loading="loading"
       />
 
@@ -20,7 +20,7 @@
         :loading="loading"
       />
       <SalesProductPie
-        class="md:w-1/3 w-full"
+        class="w-full md:w-1/3"
         :loading="loading"
       />
     </div>

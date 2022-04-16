@@ -46,6 +46,7 @@
     UpdatelistUserGroupApi,
     RemovelistUserGroupApi,
   } from '/@/api/sys/groupAndDevice';
+  import { useRouter } from 'vue-router';
   const tableColums: BasicColumn[] = [
     {
       title: '群组名称',
@@ -106,8 +107,16 @@
         pagination: true,
       });
 
+      const { push } = useRouter();
       function toDetail(event) {
         console.log('点击查看群组', event);
+        push({
+          name: 'GroupDetail',
+          params: {
+            id: event.groupId,
+            groupName: event.groupName,
+          },
+        });
       }
 
       async function handleSave(record: EditRecordRow) {
@@ -147,13 +156,17 @@
         if (!record.editable) {
           return [
             {
-              label: '修改名称',
+              label: '修改',
               disabled: currentEditKeyRef.value ? currentEditKeyRef.value !== record.key : false,
               onClick: handleEdit.bind(null, record),
             },
             {
+              label: '查看',
+              disabled: currentEditKeyRef.value ? currentEditKeyRef.value !== record.key : false,
+              onClick: toDetail.bind(null, record),
+            },
+            {
               label: '删除',
-              // onClick: handleDelete.bind(null, record, column),
               popConfirm: {
                 title: '是否删除该数据',
                 confirm: handleDelete.bind(null, record, column),

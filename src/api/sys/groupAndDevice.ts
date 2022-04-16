@@ -37,7 +37,7 @@ enum Api {
   addSceneApi = 'sceneClock/addSceneClock',
   getListSceneApi = 'sceneClock/listSceneClock/',
   deleteSceneApi = 'sceneClock/deleteSceneClock/',
-  sendCommandApi = 'device/sendCommand/',
+  sendCommandApi = 'device/sendCommand2/',
 }
 
 /**

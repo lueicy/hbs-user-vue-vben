@@ -9,7 +9,7 @@
           :class="item.pattern == doPattern ? 'model-selected' : ''"
           @click="selectPattern('model', item.pattern)"
         >
-          <span class="iconf-class"><icon-font type="icon-greenpery" class="icon-g" /></span>
+          <span class="iconf-class"><icon-font type="icon-test" class="icon-g" /></span>
           <span>{{ item.name }}</span>
         </div>
       </div>
@@ -77,7 +77,7 @@
               <span>{{ item.name }}</span>
             </div>
             <div class="top-mag" v-show="item.pattern">
-              <span class="ting-iconf"><icon-font type="icon-greenpery" class="icon-g" /></span>
+              <span class="ting-iconf"><icon-font type="icon-test" class="icon-g" /></span>
               <span>{{ dealPattern(item.pattern) }}</span>
             </div>
             <!-- 01-低速 02-中速 03-高速 -->
@@ -86,7 +86,7 @@
                 <icon-font
                   :type="
                     item.wind == '01'
-                      ? 'icon-wind'
+                      ? 'icon-xiaofeng'
                       : item.wind == '02'
                       ? 'icon-wind1'
                       : 'icon-wind2'

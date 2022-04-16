@@ -115,7 +115,7 @@
           switch (event) {
             case '01':
               patternText = '智能模式';
-              icon = 'icon-energy';
+              icon = 'icon-test';
               break;
             case '02':
               patternText = '新风模式';
@@ -139,7 +139,7 @@
               break;
             case '07':
               patternText = '节能模式';
-              icon = 'icon-energy';
+              icon = 'icon-test';
               break;
             default:
               patternText = '智能';
@@ -247,7 +247,7 @@
       padding: 16px 24px;
       background: rgba(245, 252, 254, 0.39);
       box-shadow: 0px 3px 6px #dbdbdb;
-      min-height: 575px;
+      min-height: 537px;
       .over-title {
         width: 100%;
         height: 21px;

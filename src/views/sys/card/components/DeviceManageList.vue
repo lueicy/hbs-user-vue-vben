@@ -3,6 +3,7 @@
     <div class="title_Contr">
       <div class="title_Contr_name fl"> {{ groupId == 'total' ? '设备概况' : groupName }} </div>
       <a-button
+        v-show="showSetting"
         class="title_Contr_btm fr"
         style="background-color: #00b9d7; color: #ffffff"
         @click="switchBtn('1')"
@@ -10,13 +11,16 @@
         全开
       </a-button>
       <a-button
+        v-show="showSetting"
         class="title_Contr_btm fr"
         style="background-color: #00b9d7; color: #ffffff"
         @click="switchBtn('0')"
       >
         全关
       </a-button>
-      <a-button class="title_Contr_btm fr" @click="addDevice"> 添加设备 </a-button>
+      <a-button class="title_Contr_btm fr" v-show="showSetting" @click="addDevice">
+        添加设备
+      </a-button>
       <template v-if="valueList.length">
         <div v-for="(item, index) in selectTitle" :key="index">
           <a-button class="title_Contr_btm fr" @click="selectAll(item.num)">
@@ -25,11 +29,16 @@
         </div>
       </template>
       <template v-else>
-        <div>
+        <div v-show="showSetting">
           <a-button class="title_Contr_btm fr" @click="chegnSelect" v-if="!actionSelect">
             编辑
           </a-button>
-          <a-button v-else class="title_Contr_btm fr" @click="chegnSelect"> 取消 </a-button>
+          <a-button v-if="actionSelect" class="title_Contr_btm fr" @click="chegnSelect">
+            取消
+          </a-button>
+          <a-button v-if="actionSelect" class="title_Contr_btm fr" @click="selectAll(0)">
+            全选
+          </a-button>
         </div>
       </template>
     </div>
@@ -270,10 +279,10 @@
   }
 
   const selectTitle: selectTitleType[] = [
-    {
-      name: '全选',
-      num: 0,
-    },
+    // {
+    //   name: '全选',
+    //   num: 0,
+    // },
     {
       name: '取消选中',
       num: 1,
@@ -312,6 +321,10 @@
       groupName: {
         type: String,
         default: '',
+      },
+      showSetting: {
+        type: Boolean,
+        default: true,
       },
     },
     setup(props) {

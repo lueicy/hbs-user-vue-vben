@@ -1,4 +1,4 @@
 // 在iconfont里面增加图标之后，需更换为最新的链接
 export function iconfontJS() {
-  return '//at.alicdn.com/t/font_3321773_rc54pqru72n.js';
+  return '//at.alicdn.com/t/font_3321773_y77lqv30v4d.js';
 }

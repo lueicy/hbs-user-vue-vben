@@ -33,6 +33,18 @@ const groupManag: AppRouteModule = {
         realPath: '/groupManag',
       },
     },
+    {
+      path: 'groupDetail/:id',
+      name: 'GroupDetail',
+      // component: getParentLayout('ListPage'),
+      component: () => import('/@/views/sys/groupManagment/groupItem/index.vue'),
+      meta: {
+        title: '群组详情',
+        hideMenu: true,
+        dynamicLevel: 3,
+        realPath: '/groupItem/index',
+      },
+    },
     // =============================list end=============================
   ],
 };

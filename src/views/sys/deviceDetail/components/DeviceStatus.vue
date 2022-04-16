@@ -17,7 +17,7 @@
             {{ statusData.deviceName }}
             <Icon icon="ant-design:edit-filled" style="font-size: 22px; padding-left: 8px" />
           </span>
-          <span class="l-space">{{ statusData.groupList }}</span>
+          <span class="l-space">{{ statusData.groupList ? statusData.groupList : '' }}</span>
         </div>
         <div
           class="flex flex-col items-center justify-center sta-title-m"
@@ -92,17 +92,28 @@
         <div class="flex flex-col sta-footer-r">
           <div>
             <span class="sta-footer-r-mod-t">模式：</span>
-            <span :style="{ color: dealAqires('style', statusData.tvoc) }">
-              <icon-font type="icon-energy" class="icon-g" />
+            <span class="model-icon">
+              <icon-font type="icon-test" class="icon-g" />
+            </span>
+            <span class="model-span">
               {{ dealPattern(statusData.pattem) }}
             </span>
           </div>
           <div>
             <span class="sta-footer-r-mod-t">风速：</span>
-            <span :style="{ color: dealAqires('style', statusData.tvoc) }">
-              <icon-font v-if="statusData.wind == '01'" type="icon-wind" class="icon-g" />
-              <icon-font v-if="statusData.wind == '02'" type="icon-wind1" class="icon-g" />
-              <icon-font v-if="statusData.wind == '03'" type="icon-wind2" class="icon-g" />
+            <span class="model-icon">
+              <icon-font
+                :type="
+                  statusData.wind == '01'
+                    ? 'icon-wind'
+                    : statusData.wind == '02'
+                    ? 'icon-wind1'
+                    : 'icon-wind2'
+                "
+                class="icon-g"
+              />
+            </span>
+            <span class="model-span">
               {{ dealWind(statusData.wind) }}
             </span>
           </div>
@@ -209,6 +220,7 @@
         nextTick(() => {
           // userData.value = state.valueList;
           modalVisible.value = true;
+          state.selectValue = '更多';
         });
       }
 
@@ -481,11 +493,11 @@
           width: 70px;
           height: 19px;
           font-size: 14px;
-          font-family: Microsoft YaHei;
           font-weight: 400;
           line-height: 19px;
           color: #3e4159;
           opacity: 1;
+          margin-top: 14px;
         }
         .sta-footer-r-mod-d {
           padding-left: 10px;
@@ -516,13 +528,30 @@
     }
   }
   .icon-g {
-    font-size: 22px !important;
+    font-size: 27px !important;
     padding-left: 8px;
   }
   .icon-big {
     font-size: 27px !important;
     padding-left: 8px;
     color: #999999;
+  }
+  .model-icon {
+    color: #999999;
+    position: relative;
+    top: 5px;
+  }
+  .model-icon2 {
+    width: 27px;
+    height: 27px;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: '/@/assets/images/homePage/newwind.png';
+  }
+  .model-span {
+    color: #999999;
+    font-size: 18px;
+    padding-left: 10px;
   }
 
   /deep/ .ant-select-selection-item,

@@ -122,14 +122,11 @@
         console.log('命令下发');
         // 开关机指令
         let param1 = {
-          byte0: '01',
-          byte1: state.open,
+          command: '01' + state.open,
         };
         // 风速+模式指令
         let param2 = {
-          byte0: '02',
-          byte1: state.doPattern, // 模式
-          byte2: state.doWind, // 风速
+          command: '02' + state.doPattern + state.doWind,
         };
         try {
           const res1 = await sendCommand(props.deviceData.deviceId, param1);

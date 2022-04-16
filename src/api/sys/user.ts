@@ -17,7 +17,8 @@ import { ErrorMessageMode } from '/#/axios';
 enum Api {
   Loginm = 'manage/admin/login',
   Login = 'enterprise/user/login',
-  Logout = 'manage/admin/logout',
+  Logout = 'user/loginout',
+  // Logout = 'manage/admin/logout',
   GetUserInfo = 'user/getUserById',
   GetUserInfoByM = 'manage/admin/listAdminByPage',
   GetPermCode = 'manage/getPermCode',
