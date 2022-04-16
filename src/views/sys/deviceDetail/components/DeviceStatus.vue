@@ -93,7 +93,7 @@
           <div>
             <span class="sta-footer-r-mod-t">模式：</span>
             <span class="model-icon">
-              <icon-font type="icon-test" class="icon-g" />
+              <icon-font :type="dealPattern(statusData.pattem, 'icon')" class="icon-g" />
             </span>
             <span class="model-span">
               {{ dealPattern(statusData.pattem) }}
@@ -319,49 +319,43 @@
       // 计算运行模式
       // 模式 01:智能模式 02新风模式 03:净化模式 04:送风模式 05:排风模式 06:除味模式 07:节能模式 08:除湿模式 09:新风+除湿模式 8~:除霜模式（自动）4~:辅热模式（自动）2~:除湿模式（自动）
       const dealPattern = computed(() => {
-        return function (event) {
+        return function (event, type) {
           let patternText = '';
+          let icon = '';
           switch (event) {
             case '01':
               patternText = '智能';
+              icon = 'icon-auto';
               break;
             case '02':
               patternText = '新风';
+              icon = 'icon-newwind';
               break;
             case '03':
               patternText = '净化';
+              icon = 'icon-newwind';
               break;
             case '04':
               patternText = '送风';
+              icon = 'icon-biowing';
               break;
             case '05':
               patternText = '排风';
+              icon = 'icon-deodorize';
               break;
             case '06':
               patternText = '除味';
+              icon = 'icon-deodorize';
               break;
             case '07':
               patternText = '节能';
-              break;
-            case '08':
-              patternText = '除湿';
-              break;
-            case '09':
-              patternText = '新风+除湿';
-              break;
-            case '8~':
-              patternText = '除霜(自动)';
-              break;
-            case '4~':
-              patternText = '辅热(自动)';
-              break;
-            case '8~':
-              patternText = '除湿(自动)';
+              icon = 'icon-energy';
               break;
             default:
               patternText = '智能';
+              icon = 'icon-auto';
           }
-          return patternText;
+          return type == 'icon' ? icon : patternText;
         };
       });
 

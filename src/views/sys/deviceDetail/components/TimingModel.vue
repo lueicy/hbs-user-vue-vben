@@ -9,7 +9,9 @@
           :class="item.pattern == doPattern ? 'model-selected' : ''"
           @click="selectPattern('model', item.pattern)"
         >
-          <span class="iconf-class"><icon-font type="icon-test" class="icon-g" /></span>
+          <span class="iconf-class"
+            ><icon-font :type="dealPattern(item.pattern, 'icon')" class="icon-g"
+          /></span>
           <span>{{ item.name }}</span>
         </div>
       </div>
@@ -30,7 +32,13 @@
           :class="item.speed == doWind ? 'model-selected' : ''"
           @click="selectPattern('wind', item.speed)"
         >
-          <span class="iconf-class"><icon-font type="icon-greenpery" class="icon-g" /></span>
+          <span class="iconf-class"
+            ><icon-font
+              :type="
+                item.speed == '01' ? 'icon-wind' : item.speed == '02' ? 'icon-wind1' : 'icon-wind2'
+              "
+              class="icon-g"
+          /></span>
           <span>{{ item.name }}</span>
         </div>
       </div>
@@ -77,8 +85,10 @@
               <span>{{ item.name }}</span>
             </div>
             <div class="top-mag" v-show="item.pattern">
-              <span class="ting-iconf"><icon-font type="icon-test" class="icon-g" /></span>
-              <span>{{ dealPattern(item.pattern) }}</span>
+              <span class="ting-iconf"
+                ><icon-font :type="dealPattern(item.pattern, 'icon')" class="icon-g"
+              /></span>
+              <span>{{ dealPattern(item.pattern, '') }}</span>
             </div>
             <!-- 01-低速 02-中速 03-高速 -->
             <div class="top-mag" v-show="item.wind">
@@ -101,7 +111,9 @@
               <span>{{ item.triggerTime }}</span>
             </div>
             <div class="top-mag">
-              <span class="ting-iconf"><icon-font type="icon-greenpery" class="icon-g" /></span>
+              <span class="ting-iconf"
+                ><icon-font :type="item.open == '01' ? 'icon-open' : 'icon-turnoff'" class="icon-g"
+              /></span>
               <span>{{ item.open == '00' ? '关机' : '开机' }}</span>
             </div>
           </div>
@@ -226,37 +238,43 @@
         return JSON.parse(item);
       };
       const dealPattern = computed(() => {
-        return function (event) {
+        return function (event, type?) {
           let patternText = '';
+          let icon = '';
           switch (event) {
             case '01':
               patternText = '智能';
+              icon = 'icon-auto';
               break;
             case '02':
               patternText = '新风';
+              icon = 'icon-newwind';
               break;
             case '03':
               patternText = '净化';
+              icon = 'icon-newwind';
               break;
             case '04':
               patternText = '送风';
+              icon = 'icon-biowing';
               break;
             case '05':
               patternText = '排风';
+              icon = 'icon-deodorize';
               break;
             case '06':
               patternText = '除味';
+              icon = 'icon-deodorize';
               break;
             case '07':
               patternText = '节能';
-              break;
-            case '08':
-              patternText = '除湿';
+              icon = 'icon-energy';
               break;
             default:
               patternText = '智能';
+              icon = 'icon-auto';
           }
-          return patternText;
+          return type == 'icon' ? icon : patternText;
         };
       });
       const dealDay = (arr: any): any => {

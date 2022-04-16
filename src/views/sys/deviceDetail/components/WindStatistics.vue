@@ -115,7 +115,7 @@
           switch (event) {
             case '01':
               patternText = '智能模式';
-              icon = 'icon-test';
+              icon = 'icon-auto';
               break;
             case '02':
               patternText = '新风模式';
@@ -123,11 +123,11 @@
               break;
             case '03':
               patternText = '净化模式';
-              icon = 'icon-blowing';
+              icon = 'icon-newwind';
               break;
             case '04':
               patternText = '送风模式';
-              icon = 'icon-energy';
+              icon = 'icon-biowing';
               break;
             case '05':
               patternText = '排风模式';
@@ -135,15 +135,15 @@
               break;
             case '06':
               patternText = '除味模式';
-              icon = 'icon-energy';
+              icon = 'icon-deodorize';
               break;
             case '07':
               patternText = '节能模式';
-              icon = 'icon-test';
+              icon = 'icon-energy';
               break;
             default:
               patternText = '智能';
-              icon = 'icon-energy';
+              icon = 'icon-auto';
           }
           return type == 'icon' ? icon : patternText;
         };

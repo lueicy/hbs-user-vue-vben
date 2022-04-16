@@ -9,7 +9,9 @@
           :class="item.pattern == doPattern ? 'model-selected' : ''"
           @click="selectPattern('model', item.pattern)"
         >
-          <span class="iconf-class"><icon-font type="icon-greenpery" class="icon-g" /></span>
+          <span class="iconf-class"
+            ><icon-font :type="dealPattern(item.pattern, 'icon')" class="icon-g"
+          /></span>
           <span>{{ item.name }}</span>
         </div>
       </div>
@@ -30,7 +32,13 @@
           :class="item.speed == doWind ? 'model-selected' : ''"
           @click="selectPattern('wind', item.speed)"
         >
-          <span class="iconf-class"><icon-font type="icon-greenpery" class="icon-g" /></span>
+          <span class="iconf-class"
+            ><icon-font
+              :type="
+                item.speed == '01' ? 'icon-wind' : item.speed == '02' ? 'icon-wind1' : 'icon-wind2'
+              "
+              class="icon-g"
+          /></span>
           <span>{{ item.name }}</span>
         </div>
       </div>
@@ -38,7 +46,7 @@
   </BasicModal>
 </template>
 <script lang="ts">
-  import { defineComponent, ref, toRefs, reactive, onMounted } from 'vue';
+  import { defineComponent, ref, toRefs, reactive, onMounted, computed } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { getBySubtype, sendCommand } from '/@/api/sys/groupAndDevice';
   import { useI18n } from '/@/hooks/web/useI18n';
@@ -74,6 +82,46 @@
       const { success } = createMessage;
       const modelRef = ref({});
       const [register, { closeModal }] = useModalInner();
+      const dealPattern = computed(() => {
+        return function (event, type) {
+          let patternText = '';
+          let icon = '';
+          switch (event) {
+            case '01':
+              patternText = '智能';
+              icon = 'icon-auto';
+              break;
+            case '02':
+              patternText = '新风';
+              icon = 'icon-newwind';
+              break;
+            case '03':
+              patternText = '净化';
+              icon = 'icon-newwind';
+              break;
+            case '04':
+              patternText = '送风';
+              icon = 'icon-biowing';
+              break;
+            case '05':
+              patternText = '排风';
+              icon = 'icon-deodorize';
+              break;
+            case '06':
+              patternText = '除味';
+              icon = 'icon-deodorize';
+              break;
+            case '07':
+              patternText = '节能';
+              icon = 'icon-energy';
+              break;
+            default:
+              patternText = '智能';
+              icon = 'icon-auto';
+          }
+          return type == 'icon' ? icon : patternText;
+        };
+      });
       const filtersMODE = (item: string): any => {
         let data: any = chagneJSONParse(item);
         let modeList: object[] = data.modeArray.map((e) => {
@@ -155,6 +203,7 @@
         getdeviceModel,
         closeModal,
         handleOK,
+        dealPattern,
       };
     },
   });
