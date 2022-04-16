@@ -41,7 +41,7 @@
   import { getSharingList, updateRemark, deleteSharingUser } from '/@/api/sys/groupAndDevice';
   const tableColums: BasicColumn[] = [
     {
-      title: '名称',
+      title: '备注名称',
       dataIndex: 'name',
       editRow: true,
       // 默认必填校验

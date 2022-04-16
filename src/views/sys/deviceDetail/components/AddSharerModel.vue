@@ -17,7 +17,7 @@
     {
       field: 'remark',
       component: 'Input',
-      label: '分享人名称',
+      label: '备注名称',
       colProps: {
         span: 24,
       },

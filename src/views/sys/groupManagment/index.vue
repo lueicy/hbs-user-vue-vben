@@ -3,7 +3,7 @@
     <div class="page-header">群组管理</div>
     <div class="page-content">
       <div class="flex w-full btn-m-r">
-        <a-button type="primary" class="add-btn" @click="addGroup"> 新增数组 </a-button>
+        <a-button type="primary" class="add-btn" @click="addGroup"> 新增群组 </a-button>
       </div>
       <div class="group-table">
         <BasicTable @register="groupTable" @edit-change="onEditChange" @click="toDetail">

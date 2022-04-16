@@ -100,13 +100,12 @@
         if (!form) return;
         if (formData.smsCode.length < 6 || formData.smsCode.length > 6)
           return error('验证码长度不能大于6位数或少于6位数');
-        console.log('formData', formData);
         const resetRes = await ResetPwd(formData);
         console.log('resetRes', resetRes);
-        if (resetRes.code === 200) {
+        if (resetRes.code == 200) {
+          success('重置密码成功,新密码已通过短信发送');
           await form.resetFields(); //清空表单输入框
           setTimeout(() => {
-            success('重置密码成功,请注意查收手机短信');
             handleBackLogin();
           }, 500);
         }

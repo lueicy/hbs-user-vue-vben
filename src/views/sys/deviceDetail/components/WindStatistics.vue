@@ -25,7 +25,7 @@
       <div class="flex over-content">
         <div class="step-side">
           <a-steps progress-dot :current="modelList.length" direction="vertical">
-            <template v-for="item in modelList" :key="item.pattern">
+            <template v-for="(item,i) in modelList" :key="i">
               <a-step title="Finished" :description="''" style="display: inline-block">
                 <!-- <template #icon>
                   <icon-font :type="dealPattern(item.pattern, 'icon')" class="icon-g" />
@@ -36,7 +36,7 @@
         </div>
 
         <div class="data-con">
-          <template v-for="item in modelList" :key="item.pattern">
+          <template v-for="(item, i) in modelList" :key="i">
             <div class="flex data-con">
               <div class="flex model-icon">
                 <icon-font :type="dealPattern(item.pattern, 'icon')" class="icon-g" />
