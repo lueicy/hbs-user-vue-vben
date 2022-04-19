@@ -50,15 +50,17 @@
       </div>
       <div class="flex content-center">
         <div class="item_title" style="margin-top: 20px">所在地区</div>
-        <div>
+        <div v-show="editStatus">
           <a-cascader
-            :disabled="!editStatus"
             :defaultValue="admLists"
             :options="cityOptions"
             change-on-select
             @change="handleChange"
             placeholder="请选择地区"
           />
+        </div>
+        <div v-show="!editStatus">
+          <Input class="input_show" v-model:value="showAdm" readonly />
         </div>
       </div>
 
@@ -144,6 +146,7 @@
   interface stateType {
     userInfo: any;
     editStatus: boolean; //是否编辑
+    showAdm: any;
   }
 
   export default defineComponent({
@@ -160,6 +163,7 @@
       const state: stateType = reactive({
         userInfo: {},
         editStatus: false,
+        showAdm: '',
       });
       const userStore = useUserStoreWithOut();
       const formData = reactive({
@@ -209,7 +213,7 @@
             admLists.push(res.adm1);
             admLists.push(res.adm2);
             admLists.push(res.adm3);
-            console.log('admList', admLists);
+            state.showAdm = res.adm1 + '/' + res.adm2 + '/' + res.adm3;
             dealImgUrl(state.userInfo.businessLicenseUrl, 'business');
             dealImgUrl(state.userInfo.legalIdCardBackUrl, 'cardBack');
             dealImgUrl(state.userInfo.legalIdCardFrontUrl, 'ardFront');
