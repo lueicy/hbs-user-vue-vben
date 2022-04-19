@@ -25,6 +25,9 @@ enum Api {
   listAllDeviceTypeByPage_List = 'manage/deviceType/listAllDeviceTypeByPage',
   RegisterApi = 'enterprise/user/register',
   GetSmsApi = '/enterprise/user/sendSms',
+  getInformation = '/enterprise/user/getInfo',
+  downLoadUrl = 'common/file/download',
+  updateUserApi = 'manage/enterprise/user/updateEnterpriseUser',
 }
 
 /**
@@ -82,13 +85,15 @@ export function GetSmsApi(params: GetSms, mode: ErrorMessageMode = 'modal') {
 }
 
 /**
- * @description: getUserInfo
+ * @description: getUserInfoByM
  */
 export function getUserInfoByM(params: GetStatisticsDataType) {
   // return defHttp.get<GetUserInfoModel>({ url: Api.GetUserInfo,params });
   return defHttp.get({ url: Api.GetUserInfoByM, params });
 }
 export const getUserInfo = () => defHttp.get({ url: Api.GetUserInfo });
+
+export const getInfoByUser = () => defHttp.get({ url: Api.getInformation });
 
 export function getPermCode() {
   return defHttp.get<string[]>({ url: Api.GetPermCode });
@@ -104,5 +109,29 @@ export function doLogout() {
 export const listAllDeviceTypeByPage = (params: listAllDeviceTypeByPageParams) =>
   defHttp.get<listAllDeviceTypeByPageItem>({
     url: Api.listAllDeviceTypeByPage_List,
+    params,
+  });
+
+export function getImageUrl(params: any) {
+  return defHttp.get({ url: Api.downLoadUrl + '?filePath=' + params });
+}
+
+/**
+ * @description: update用户信息
+ *"address": "",
+	"adm1": "",
+	"adm2": "",
+	"adm3": "",
+	"businessLicenseUrl": "",
+	"enterpriseCode": "",
+	"enterpriseName": "",
+	"legalIdCardBackUrl": "",
+	"legalIdCardFrontUrl": "",
+	"tel": "",
+	"userId": ""
+ */
+export const updateEnterpriseUser = (params: any) =>
+  defHttp.post({
+    url: Api.updateUserApi,
     params,
   });

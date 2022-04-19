@@ -55,11 +55,9 @@ const transform: AxiosTransform = {
 
     // 这里逻辑可以根据项目进行修改
     const hasSuccess = data && Reflect.has(data, 'code') && Number(code) === ResultEnum.SUCCESS;
-    // console.log('res---hasSuccess-', hasSuccess);
     if (hasSuccess) {
       // return getToken() ? res.data : res;
       // data有返回数据就直接返回数据，没有就直接返回请求结果
-      // console.log('resule', data);
       return data.data ? data.data : data;
       // return data.data;
     }

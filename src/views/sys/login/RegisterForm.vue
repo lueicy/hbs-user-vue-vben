@@ -182,7 +182,7 @@
       const { getFormRules } = useFormRules(formData);
       const { validForm } = useFormValid(formRef);
 
-      const { createMessage, notification, createErrorModal } = useMessage();
+      const { createMessage, createErrorModal } = useMessage();
 
       const getShow = computed(() => unref(getLoginState) === LoginStateEnum.REGISTER);
 
@@ -258,24 +258,24 @@
         let temp = toRaw(list)[0];
         if (!temp) return;
         formData.businessLicenseUrl = toRaw(list)[0];
-        createMessage.info('营业执照上传成功!');
+        createMessage.info('上传成功!');
       }
       function cardBackChange(list: string[]) {
         let temp = toRaw(list)[0];
         if (!temp) return;
         formData.legalIdCardBackUrl = toRaw(list)[0];
-        createMessage.info('营业执照上传成功!');
+        createMessage.info('上传成功!');
       }
       function cardFrontChange(list: string[]) {
         let temp = toRaw(list)[0];
         if (!temp) return;
         formData.legalIdCardFrontUrl = toRaw(list)[0];
-        createMessage.info('营业执照上传成功!');
+        createMessage.info('上传成功!');
       }
       watch(
         () => formData.tel,
         (newValue, oldValue) => {
-          console.log('tel', newValue);
+          console.log('tel', newValue, oldValue);
           // 因为watch被观察的对象只能是getter/effect函数、ref、热active对象或者这些类型是数组
           // 所以需要将state.count变成getter函数
           userStore.setRegisterCode(newValue);

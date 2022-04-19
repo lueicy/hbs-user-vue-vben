@@ -16,7 +16,7 @@
           :class="`${prefixCls}__name  `"
           class="truncate"
         >
-          {{ getUserInfo.username }}
+          {{ getUserInfo.nickname }}
           <!-- 呼小博 -->
         </span>
       </span>
@@ -95,8 +95,8 @@ export default defineComponent({
     const userStore = useUserStore();
 
     const getUserInfo = computed(() => {
-      const { username, realName = '', avatar, desc } = userStore.getUserInfo[0] || {};
-      return { username, realName, avatar: avatar || headerImg, desc };
+      const { username, nickname = '', avatar, desc } = userStore.getUserInfo || {};
+      return { username, nickname, avatar: avatar || headerImg, desc };
     });
 
     const [register, { openModal }] = useModal();

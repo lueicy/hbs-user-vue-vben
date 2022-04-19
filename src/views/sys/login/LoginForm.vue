@@ -113,14 +113,7 @@
 <script lang="ts">
   import { defineComponent, reactive, ref, toRaw, unref, computed } from 'vue';
 
-  import { Checkbox, Form, Input, Row, Col, Button, Divider } from 'ant-design-vue';
-  import {
-    GithubFilled,
-    WechatFilled,
-    AlipayCircleFilled,
-    GoogleCircleFilled,
-    TwitterCircleFilled,
-  } from '@ant-design/icons-vue';
+  import { Checkbox, Form, Input, Row, Col, Button } from 'ant-design-vue';
   import LoginFormTitle from './LoginFormTitle.vue';
   import HeardLogo from './HeardLogo.vue';
 
@@ -142,15 +135,9 @@
       Form,
       FormItem: Form.Item,
       Input,
-      Divider,
       LoginFormTitle,
       HeardLogo,
       InputPassword: Input.Password,
-      GithubFilled,
-      WechatFilled,
-      AlipayCircleFilled,
-      GoogleCircleFilled,
-      TwitterCircleFilled,
     },
     setup() {
       const { t } = useI18n();
@@ -194,7 +181,6 @@
               mode: 'none', //不要默认的错误提示
             })
           );
-          console.log('loginuserInfo', userInfo);
           if (userInfo) {
             notification.success({
               message: t('sys.login.loginSuccessTitle'),

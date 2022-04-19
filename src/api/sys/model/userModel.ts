@@ -61,7 +61,7 @@ export interface GetUserInfoModel {
   // avatar: string; // 头像
   // desc?: string; // 介绍
 
-  address: string; // 介绍
+  address?: string; // 介绍
   id: string | number; // 用户id
   nickname: string; // 昵称
   tel: string; // 电话

@@ -62,7 +62,6 @@ export const useUserStore = defineStore({
   }),
   getters: {
     getUserInfo(): UserInfo {
-      console.log('homePath', this.userInfo);
       return this.userInfo || getAuthCache<UserInfo>(USER_INFO_KEY) || {};
     },
     getToken(): string {
@@ -146,15 +145,15 @@ export const useUserStore = defineStore({
         // 新的login接口请求------
         const { goHome = true, mode, ...loginParams } = params;
         const RESdATA: any = await loginApi(loginParams, mode);
-
+        const userInfo = await this.getUserInfoAction();
         const sessionTimeout = this.sessionTimeout;
         sessionTimeout && this.setSessionTimeout(false);
-        !sessionTimeout && goHome && (await router.replace('/home/index' || PageEnum.BASE_HOME));
-        // !sessionTimeout &&
-        //   goHome &&
-        //   (await router.replace(userInfo.homePath || PageEnum.BASE_HOME));
+        // !sessionTimeout && goHome && (await router.replace('/home/index' || PageEnum.BASE_HOME));
+        !sessionTimeout &&
+          goHome &&
+          (await router.replace(userInfo.homePath || PageEnum.BASE_HOME));
         // console.log('RESdATA-123--', RESdATA);
-        return RESdATA;
+        return userInfo;
       } catch (error) {
         return Promise.reject(error);
       }
@@ -208,11 +207,9 @@ export const useUserStore = defineStore({
     async getUserInfoAction(): Promise<UserInfo> {
       //promise返回值
       const list = await getUserInfo();
-
-      console.log('UserInfoList', list);
       list.token = getToken();
       list.userId = list.userId;
-      list.desc = 'manager';
+      // list.desc = 'manager';
       list.homePath = '/home/index';
       list.avatar = 'https://q1.qlogo.cn/g?b=qq&nk=190848757&s=640';
       // const { roleList } = list[0];
@@ -223,6 +220,7 @@ export const useUserStore = defineStore({
       this.setUserInfo(list);
       // this.setRoleList(roleLi);
       // this.getListTypeAction();
+      console.log('UserInfoList', list);
       return list;
       // 旧的login接口请求---------
       // const { list } = await getUserInfoByM(data);
