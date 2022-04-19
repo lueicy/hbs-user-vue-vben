@@ -25,7 +25,7 @@ enum Api {
   listAllDeviceTypeByPage_List = 'manage/deviceType/listAllDeviceTypeByPage',
   RegisterApi = 'enterprise/user/register',
   GetSmsApi = '/enterprise/user/sendSms',
-  getInformation = '/enterprise/user/getInfo',
+  getInformation = 'enterprise/user/getInfo',
   downLoadUrl = 'common/file/download',
   updateUserApi = 'manage/enterprise/user/updateEnterpriseUser',
 }
