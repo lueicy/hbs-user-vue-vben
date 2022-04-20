@@ -147,6 +147,7 @@
     userInfo: any;
     editStatus: boolean; //是否编辑
     showAdm: any;
+    admLists: any;
   }
 
   export default defineComponent({
@@ -163,23 +164,10 @@
       const state: stateType = reactive({
         userInfo: {},
         editStatus: false,
+        admLists: [],
         showAdm: '',
       });
       const userStore = useUserStoreWithOut();
-      const formData = reactive({
-        address: '',
-        admList: '',
-        adm1: '',
-        adm2: '',
-        adm3: '',
-        businessLicenseUrl: '',
-        enterpriseCode: '',
-        enterpriseName: '',
-        legalIdCardBackUrl: '',
-        legalIdCardFrontUrl: '',
-        smsCode: '',
-        tel: '',
-      });
       const cardBack = ref();
       const business = ref();
       const ardFront = ref();
@@ -187,7 +175,6 @@
       const visible = ref<boolean>(false);
       const { t } = useI18n();
       const { createMessage, createErrorModal } = useMessage();
-      let admLists: any = [];
       const cityOptions = cityList;
       async function dealImgUrl(event, type?) {
         if (!event) return;
@@ -209,11 +196,11 @@
         let res = await getInfoByUser();
         if (res) {
           state.userInfo = res;
+          state.showAdm = res.adm1 + '/' + res.adm2 + '/' + res.adm3;
           nextTick(() => {
-            admLists.push(res.adm1);
-            admLists.push(res.adm2);
-            admLists.push(res.adm3);
-            state.showAdm = res.adm1 + '/' + res.adm2 + '/' + res.adm3;
+            state.admLists.push(res.adm1);
+            state.admLists.push(res.adm2);
+            state.admLists.push(res.adm3);
             dealImgUrl(state.userInfo.businessLicenseUrl, 'business');
             dealImgUrl(state.userInfo.legalIdCardBackUrl, 'cardBack');
             dealImgUrl(state.userInfo.legalIdCardFrontUrl, 'ardFront');
@@ -223,14 +210,14 @@
       async function handleSave() {
         let param = {
           address: state.userInfo.address,
-          adm1: formData.adm1,
-          adm2: formData.adm2,
-          adm3: formData.adm3,
-          businessLicenseUrl: formData.businessLicenseUrl,
+          adm1: state.userInfo.adm1,
+          adm2: state.userInfo.adm2,
+          adm3: state.userInfo.adm3,
+          businessLicenseUrl: state.userInfo.businessLicenseUrl,
           enterpriseCode: state.userInfo.enterpriseCode,
           enterpriseName: state.userInfo.enterpriseName,
-          legalIdCardBackUrl: formData.legalIdCardBackUrl,
-          legalIdCardFrontUrl: formData.legalIdCardFrontUrl,
+          legalIdCardBackUrl: state.userInfo.legalIdCardBackUrl,
+          legalIdCardFrontUrl: state.userInfo.legalIdCardFrontUrl,
           tel: state.userInfo.tel,
           userId: state.userInfo.userId,
         };
@@ -256,41 +243,41 @@
 
       function handleChange(value) {
         if (value.length == 0) {
-          formData.adm1 = '';
-          formData.adm2 = '';
-          formData.adm3 = '';
-          formData.admList = '';
-          console.log('admList', formData.admList);
+          state.userInfo.adm1 = '';
+          state.userInfo.adm2 = '';
+          state.userInfo.adm3 = '';
+          state.userInfo.admList = '';
+          console.log('admList', state.userInfo.admList);
         } else {
           if (value && value.length === 2) {
-            [formData.adm1, formData.adm2] = value;
-            formData.adm3 = value[1];
+            [state.userInfo.adm1, state.userInfo.adm2] = value;
+            state.userInfo.adm3 = value[1];
           }
           if (value && value.length === 3) {
-            formData.adm3 = value[2];
+            state.userInfo.adm3 = value[2];
           }
-          formData.admList = value.join('/');
+          state.userInfo.admList = value.join('/');
         }
       }
       function businessChange(list: string[]) {
         let temp = toRaw(list)[0];
         if (!temp) return;
-        formData.businessLicenseUrl = toRaw(list)[0];
-        dealImgUrl(formData.businessLicenseUrl, 'business');
+        state.userInfo.businessLicenseUrl = toRaw(list)[0];
+        dealImgUrl(state.userInfo.businessLicenseUrl, 'business');
         createMessage.info('上传成功!');
       }
       function cardBackChange(list: string[]) {
         let temp = toRaw(list)[0];
         if (!temp) return;
-        formData.legalIdCardBackUrl = toRaw(list)[0];
-        dealImgUrl(formData.legalIdCardBackUrl, 'cardBack');
+        state.userInfo.legalIdCardBackUrl = toRaw(list)[0];
+        dealImgUrl(state.userInfo.legalIdCardBackUrl, 'cardBack');
         createMessage.info('上传成功!');
       }
       function cardFrontChange(list: string[]) {
         let temp = toRaw(list)[0];
         if (!temp) return;
-        formData.legalIdCardFrontUrl = toRaw(list)[0];
-        dealImgUrl(formData.legalIdCardFrontUrl, 'ardFront');
+        state.userInfo.legalIdCardFrontUrl = toRaw(list)[0];
+        dealImgUrl(state.userInfo.legalIdCardFrontUrl, 'ardFront');
         createMessage.info('上传成功!');
       }
       function openEdit() {
@@ -313,14 +300,12 @@
         business,
         ardFront,
         handleSave,
-        formData,
         formRef,
         handleChange,
         businessChange,
         cardBackChange,
         cardFrontChange,
         cityOptions,
-        admLists,
         uploadApi,
         cancelEdit,
         visible,

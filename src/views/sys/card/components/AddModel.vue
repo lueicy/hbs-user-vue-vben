@@ -128,10 +128,9 @@
               mode: 'none', //不要默认的错误提示
             })
           );
-          console.log('loginAdminInfo', userInfo);
           if (userInfo) {
             state.adminLogin = true;
-            state.userId = userInfo.id;
+            state.userId = userStore.getUserInfo.id; // 企业用户Id,不是管理员id
             success('登录成功');
           }
         } catch (error: any) {
@@ -161,10 +160,10 @@
           );
           if (addRes) {
             success('添加设备成功');
+            userStore.setAdminLogStatus(false);
             closeModal();
           }
         } catch (error: any) {
-          userStore.setAdminLogStatus(false);
           createErrorModal({
             title: t('sys.api.errorTip'),
             content: error.message || t('sys.api.networkExceptionMsg'),
@@ -206,6 +205,7 @@
         appendField,
         handleAddDevice,
         cancelAdd,
+        closeModal,
       };
     },
   });

@@ -108,7 +108,7 @@
             </div>
             <div class="top-mag">
               <span class="ting-iconf"><icon-font type="icon-shizhong" class="icon-g" /></span>
-              <span>{{ item.triggerTime }}</span>
+              <span>{{ dealTime(item.triggerTime) }}</span>
             </div>
             <div class="top-mag">
               <span class="ting-iconf"
@@ -237,6 +237,13 @@
       const chagneJSONParse = (item: string): string => {
         return JSON.parse(item);
       };
+      const dealTime = computed(() => {
+        return function (event) {
+          let arr = event.split('');
+          let timeText = arr[0] + arr[1] + ':' + arr[2] + arr[3];
+          return timeText;
+        };
+      });
       const dealPattern = computed(() => {
         return function (event, type?) {
           let patternText = '';
@@ -410,6 +417,13 @@
         state.windList = newWindList;
       }
       async function handleAdd() {
+        if (!state.modelName) {
+          createErrorModal({
+            title: t('sys.api.errorTip'),
+            content: '模式名称不能为空',
+          });
+          return;
+        }
         let weekDay = dealDay(state.checkedList);
         let params = {
           name: state.modelName,
@@ -426,6 +440,7 @@
           const res = await addSceneClock(params);
           if (res) {
             success('添加成功');
+
             closeModal();
           }
         } catch (error: any) {
@@ -464,6 +479,7 @@
         closeModal,
         dealPattern,
         dealDay2,
+        dealTime,
       };
     },
   });
