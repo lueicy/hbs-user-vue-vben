@@ -85,7 +85,6 @@
         if (res) {
           state.historyInfo = res;
         }
-        console.log('获取历史记录', res);
       }
 
       onMounted(() => {

@@ -63,6 +63,7 @@
     windList?: any;
     doWind?: any;
     open?: any;
+    openLock: boolean;
   }
   export default defineComponent({
     components: { BasicModal, IconFont },
@@ -76,6 +77,7 @@
         windList: [],
         doWind: '',
         open: '',
+        openLock: false, // 开关指令有变化就下发开关机指令，没变化就不下发
       });
       const { t } = useI18n();
       const { createMessage, createErrorModal } = useMessage();
@@ -145,6 +147,7 @@
         return JSON.parse(item);
       };
       function trunBtn() {
+        state.openLock = !state.openLock;
         if (state.open == '01') {
           state.open = '00';
         } else {
@@ -159,15 +162,17 @@
         }
       }
       async function getdeviceModel() {
+        console.log('模式详情', props.deviceData)
         if (!props.deviceData) return;
         state.open = props.deviceData.open;
+        state.doWind = props.deviceData.wind;
+        state.doPattern = props.deviceData.pattern;
         let res = await getBySubtype(props.deviceData.model);
         let { modeList, newWindList } = filtersMODE(res.customData);
         state.modelList = modeList;
         state.windList = newWindList;
       }
       async function handleOK() {
-        console.log('命令下发');
         // 开关机指令
         let param1 = {
           command: '01' + state.open,
@@ -177,11 +182,18 @@
           command: '02' + state.doPattern + state.doWind,
         };
         try {
-          const res1 = await sendCommand(props.deviceData.deviceId, param1);
           const res2 = await sendCommand(props.deviceData.deviceId, param2);
-          if (res1 && res2) {
-            success('操作成功');
-            closeModal();
+          if (state.openLock) {
+            const res1 = await sendCommand(props.deviceData.deviceId, param1);
+            if (res1 && res2) {
+              success('操作成功');
+              closeModal();
+            }
+          } else {
+            if (res2) {
+              success('操作成功');
+              closeModal();
+            }
           }
         } catch (error: any) {
           createErrorModal({

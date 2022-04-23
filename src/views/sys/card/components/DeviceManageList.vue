@@ -156,15 +156,12 @@
                       <div style="width: 90px; height: 20px">
                         <div class="fl">模式</div>
                         <div class="online fr">
-                          <span
-                            :style="{ color: item.online == '10' ? '' : '#A6AAB8' }"
-                            class="dib iconify"
-                            :data-icon="
-                              item.online == '10'
-                                ? 'ic:outline-font-download'
-                                : 'ic:outline-font-download-off'
-                            "
-                          ></span>
+                          <span>
+                            <icon-font
+                              class="dib iconify"
+                              :type="dealPattern(item.pattern, 'icon')"
+                            />
+                          </span>
 
                           <span
                             :style="{
@@ -172,20 +169,25 @@
                               marginLeft: '5px',
                             }"
                           >
-                            {{ dealPattern(item.pattern) }}
+                            {{ dealPattern(item.pattern, 'text') }}
                           </span>
                         </div>
                       </div>
                       <div style="width: 80px; height: 20px">
                         <div class="fl">风速</div>
                         <div class="online fr">
-                          <span
-                            :style="{ color: item.online == '10' ? '' : '#A6AAB8' }"
-                            class="dib iconify"
-                            :data-icon="
-                              item.wind == '01' ? 'ic:sharp-wind-power' : 'ic:outline-wind-power'
-                            "
-                          ></span>
+                          <span>
+                            <icon-font
+                              :type="
+                                item.wind == '01'
+                                  ? 'icon-wind'
+                                  : item.wind == '02'
+                                  ? 'icon-wind1'
+                                  : 'icon-wind2'
+                              "
+                              class="dib iconify"
+                            />
+                          </span>
 
                           <span
                             :style="{
@@ -260,9 +262,15 @@
     GetDeviceByGroupIdApi,
     SwitchAllOnOffApi,
     SwitchByGroup,
+    getMqttConfig,
   } from '/@/api/sys/groupAndDevice';
   import RippleDirective from '/@/directives/ripple';
-
+  import { createFromIconfontCN } from '@ant-design/icons-vue';
+  import { iconfontJS } from '/@/utils/iconfont';
+  const IconFont = createFromIconfontCN({
+    scriptUrl: iconfontJS(),
+  });
+  declare let Paho: any;
   interface selectTitleType {
     name?: string;
     num?: Number;
@@ -276,13 +284,10 @@
     valueList: any[];
     loading: boolean;
     busy: boolean;
+    mqttOptions: any;
   }
 
   const selectTitle: selectTitleType[] = [
-    // {
-    //   name: '全选',
-    //   num: 0,
-    // },
     {
       name: '取消选中',
       num: 1,
@@ -298,7 +303,6 @@
       Drawer,
       RemoveModel, // 移动弹窗
       AddModel, // 添加设备弹窗
-      // SlideXReverseTransition,
       [Card.name]: Card,
       [List.name]: List,
       [List.Item.name]: List.Item,
@@ -308,10 +312,10 @@
       CheckboxGroup: Checkbox.Group,
       Checkbox,
       Empty,
+      IconFont,
     },
     directives: {
       Ripple: RippleDirective,
-      // Scroll: infiniteScroll,
     },
     props: {
       groupId: {
@@ -336,6 +340,7 @@
         valueList: [],
         loading: false,
         busy: false,
+        mqttOptions: {},
       });
       const { t } = useI18n();
       const { createMessage, createErrorModal } = useMessage();
@@ -345,6 +350,138 @@
       const [register4, { openModal: openModal4 }] = useModal();
       const modalVisible = ref<Boolean>(false);
       const userData = ref<any>(null);
+
+      // MQTT相关 ↓
+      let MQTT_CLIENT: any = {};
+      async function getConfig() {
+        const res = await getMqttConfig();
+        if (res) {
+          state.mqttOptions.clientId = res.clientId;
+          state.mqttOptions.keepAlive = res.keepAlive;
+          state.mqttOptions.port = Number(res.mqttPort);
+          state.mqttOptions.mqttHost = res.mqttHost;
+          state.mqttOptions.protocolVersion = res.mqttVersion;
+          state.mqttOptions.username = res.mqttUserName;
+          state.mqttOptions.password = res.mqttPassword;
+          state.mqttOptions.connectTimeout = 60000;
+          state.mqttOptions.pubTopic = res.pubTopic; // 发布主题
+          state.mqttOptions.subTopic = res.subTopic; // 订阅主题
+          connectMqtt();
+        }
+      }
+      function connectMqtt() {
+        MQTT_CLIENT = new Paho.MQTT.Client(
+          state.mqttOptions.mqttHost,
+          state.mqttOptions.port,
+          state.mqttOptions.clientId
+        );
+        //建立客户端实例
+        let options = {
+          invocationContext: {
+            host: state.mqttOptions.mqttHost,
+            port: state.mqttOptions.port,
+            path: MQTT_CLIENT.path,
+            clientId: state.mqttOptions.clientId,
+          },
+          timeout: 5,
+          keepAliveInterval: state.mqttOptions.keepAlive,
+          cleanSession: false,
+          mqttVersion: 4,
+          useSSL: false,
+          userName: state.mqttOptions.username,
+          password: state.mqttOptions.password,
+          onSuccess: onConnect,
+          onFailure: function (e) {
+            console.log(e);
+          },
+        };
+        MQTT_CLIENT.onConnectionLost = onConnectionLost; //注册连接断开处理事件
+        MQTT_CLIENT.onMessageArrived = onMessageArrived; //注册消息接收处理事件
+        MQTT_CLIENT.connect(options);
+      }
+      /**
+       * @Author: lgh
+       * @Date:
+       * @Descripttion: MQTT 连接成功回调
+       */
+      function onConnect() {
+        console.log('mqtt连接成功！');
+        sendMqttSubscribe();
+      }
+
+      /**
+       * @Author: lgh
+       * @Date:
+       * @Descripttion: MQTT 断开回调
+       * @param {*} responseObject
+       */
+      function onConnectionLost(responseObject) {
+        console.log('mqtt断开:' + responseObject.errorMessage + 'code' + responseObject.errorCode);
+      }
+
+      /**
+       * @Author: lgh
+       * @Date:
+       * @Descripttion: 发送订阅
+       */
+      function sendMqttSubscribe() {
+        if (MQTT_CLIENT !== undefined && MQTT_CLIENT.isConnected()) {
+          MQTT_CLIENT.subscribe(state.mqttOptions.subTopic, { qos: 0 });
+          console.log('订阅成功');
+        } else {
+          console.log('未连接MQTT');
+        }
+      }
+
+      /**
+       * @Author:
+       * @Date:
+       * @Descripttion: 取消订阅
+       */
+      function unMqttSubscribe() {
+        if (MQTT_CLIENT !== undefined && MQTT_CLIENT.isConnected()) {
+          MQTT_CLIENT.unsubscribe(state.mqttOptions.pubTopic);
+          console.log('取消订阅成功');
+        } else {
+          console.log('未连接MQTT');
+        }
+      }
+      /**
+       * @Author:
+       * @Date:
+       * @Descripttion: 接收信息
+       */
+      function onMessageArrived(msg) {
+        let data = JSON.parse(msg.payloadString);
+        console.log('payloadString', JSON.parse(msg.payloadString));
+        console.log('msgType', data.msgType);
+        if (!data || !state.devicesList) return;
+        state.devicesList.forEach((item) => {
+          if (item.deviceId === data.deviceId) {
+            if (data.msgType == 'deviceStatusData') {
+              item.childLock = data.childLock;
+              item.co2 = data.co2;
+              item.co2Real = data.co2Real;
+              item.deviceType = data.deviceType;
+              item.humidity = data.humidity;
+              item.meshCycle = data.meshCycle;
+              item.open = data.open;
+              item.pattern = data.pattern;
+              item.pm25 = data.pm25;
+              item.pm25Real = data.pm25Real;
+              item.temperature = data.temperature;
+              item.tvoc = data.tvoc;
+              item.useTime = data.useTime;
+              item.wind = data.wind;
+            }
+            if (data.msgType == 'deviceOnlineStatus') {
+              item.online = data.status;
+            }
+          }
+        });
+      }
+      // MQTT相关 ↑
+
       // 判断空气质量，根据结果显示样式
       // color: #52c41a; //清新  color: #A9A9AF; //离线 color: #FFC400; //良好 color: #FF4D4F; //污浊
       const dealAqires = computed(() => {
@@ -424,49 +561,43 @@
       // 计算运行模式
       // 模式 01:智能模式 02新风模式 03:净化模式 04:送风模式 05:排风模式 06:除味模式 07:节能模式 08:除湿模式 09:新风+除湿模式 8~:除霜模式（自动）4~:辅热模式（自动）2~:除湿模式（自动）
       const dealPattern = computed(() => {
-        return function (event) {
+        return function (event, type) {
           let patternText = '';
+          let icon = '';
           switch (event) {
             case '01':
               patternText = '智能';
+              icon = 'icon-auto';
               break;
             case '02':
               patternText = '新风';
+              icon = 'icon-newwind';
               break;
             case '03':
               patternText = '净化';
+              icon = 'icon-newwind';
               break;
             case '04':
               patternText = '送风';
+              icon = 'icon-biowing';
               break;
             case '05':
               patternText = '排风';
+              icon = 'icon-deodorize';
               break;
             case '06':
               patternText = '除味';
+              icon = 'icon-deodorize';
               break;
             case '07':
               patternText = '节能';
-              break;
-            case '08':
-              patternText = '除湿';
-              break;
-            case '09':
-              patternText = '新风+除湿';
-              break;
-            case '8~':
-              patternText = '除霜(自动)';
-              break;
-            case '4~':
-              patternText = '辅热(自动)';
-              break;
-            case '8~':
-              patternText = '除湿(自动)';
+              icon = 'icon-energy';
               break;
             default:
               patternText = '智能';
+              icon = 'icon-auto';
           }
-          return patternText;
+          return type == 'icon' ? icon : patternText;
         };
       });
       // const [register5, { openDrawer: openDrawer5, setDrawerProps }] = useDrawer();
@@ -641,9 +772,11 @@
       onMounted(() => {
         console.log('props.groupList', props.groupName);
         fetch(props.groupId, 1, 18);
+        getConfig();
       });
       onBeforeUnmount(() => {
         bus.off('searchByPid', searchByPid);
+        unMqttSubscribe();
       });
       return {
         register1,
@@ -672,6 +805,15 @@
         dealFixTime,
         dealPattern,
         dealWind,
+        //mqtt
+        MQTT_CLIENT,
+        getConfig,
+        connectMqtt,
+        onConnect,
+        onConnectionLost,
+        sendMqttSubscribe,
+        unMqttSubscribe,
+        onMessageArrived,
 
         // handleInfiniteOnLoad,
         fetch,

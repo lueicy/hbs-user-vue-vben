@@ -22,7 +22,7 @@
         <div
           class="flex flex-col items-center justify-center sta-title-m"
           :style="{
-            backgroundImage: 'url(' + dealAqires('url', statusData.tvoc) + ')',
+            backgroundImage: 'url(' + dealAqires('url', pageData.tvoc) + ')',
             backgroundSize: '100% 100%',
             backgroundRepeat: 'no-repeat',
             width: '313px',
@@ -30,19 +30,19 @@
           }"
         >
           <span class="mb-6 aqi-title">AQI</span>
-          <span class="air-status" :style="{ color: dealAqires('style', statusData.tvoc) }">{{
-            dealAqires('text', statusData.tvoc)
+          <span class="air-status" :style="{ color: dealAqires('style', pageData.tvoc) }">{{
+            dealAqires('text', pageData.tvoc)
           }}</span>
         </div>
         <div class="flex items-center sta-title-r">
           <span
-            :style="{ color: statusData.online == '10' ? '' : '#A6AAB8' }"
+            :style="{ color: online == '10' ? '' : '#A6AAB8' }"
             class="dib iconify"
-            :data-icon="statusData.online == '10' ? 'ic:baseline-wifi' : 'mdi:wifi-cancel'"
+            :data-icon="online == '10' ? 'ic:baseline-wifi' : 'mdi:wifi-cancel'"
           ></span>
 
-          <span :style="{ color: statusData.online == '10' ? '' : '#A6AAB8' }">
-            {{ statusData.online == '10' ? '在线' : '离线' }}
+          <span :style="{ color: online == '10' ? '' : '#A6AAB8' }">
+            {{ online == '10' ? '在线' : '离线' }}
           </span>
         </div>
       </div>
@@ -53,19 +53,19 @@
             <div class="flex justify-between">
               <span class="sta-footer-l-name">PM2.5</span>
               <div class="sta-footer-l-name">
-                <span>{{ statusData.pm25Real }}</span>
+                <span>{{ pageData.pm25Real }}</span>
                 <span class="sta-footer-l-name-u">ug/m³</span>
               </div>
             </div>
             <div class="flex">
               <a-progress
-                :percent="statusData.pm25Real"
+                :percent="pageData.pm25Real"
                 :show-info="false"
-                :strokeColor="dealAqires('style', statusData.tvoc)"
+                :strokeColor="dealAqires('style', pageData.tvoc)"
                 class="progress-border"
               />
-              <span class="flex" :style="{ color: dealAqires('style', statusData.tvoc) }">
-                <icon-font type="icon-greenpery" class="icon-g" />{{ dealText(statusData.tvoc) }}
+              <span class="flex" :style="{ color: dealAqires('style', pageData.tvoc) }">
+                <icon-font type="icon-greenpery" class="icon-g" />{{ dealText(pageData.tvoc) }}
               </span>
             </div>
           </div>
@@ -73,18 +73,18 @@
             <div class="flex justify-between">
               <span class="sta-footer-l-name">CO2</span>
               <div class="sta-footer-l-name">
-                <span>{{ statusData.co2Real }}</span>
+                <span>{{ pageData.co2Real }}</span>
                 <span class="sta-footer-l-name-u">ppm</span>
               </div>
             </div>
             <div class="flex">
               <a-progress
-                :percent="dealAirQuality(statusData.co2Real)"
+                :percent="dealAirQuality(pageData.co2Real)"
                 :show-info="false"
-                :strokeColor="dealAqires('style', statusData.tvoc)"
+                :strokeColor="dealAqires('style', pageData.tvoc)"
               />
-              <span class="flex" :style="{ color: dealAqires('style', statusData.tvoc) }">
-                <icon-font type="icon-greenpery" class="icon-g" />{{ dealText(statusData.tvoc) }}
+              <span class="flex" :style="{ color: dealAqires('style', pageData.tvoc) }">
+                <icon-font type="icon-greenpery" class="icon-g" />{{ dealText(pageData.tvoc) }}
               </span>
             </div>
           </div>
@@ -93,10 +93,10 @@
           <div>
             <span class="sta-footer-r-mod-t">模式：</span>
             <span class="model-icon">
-              <icon-font :type="dealPattern(statusData.pattem, 'icon')" class="icon-g" />
+              <icon-font :type="dealPattern(pageData.pattern, 'icon')" class="icon-g" />
             </span>
             <span class="model-span">
-              {{ dealPattern(statusData.pattem) }}
+              {{ dealPattern(pageData.pattern, 'text') }}
             </span>
           </div>
           <div>
@@ -104,9 +104,9 @@
             <span class="model-icon">
               <icon-font
                 :type="
-                  statusData.wind == '01'
+                  pageData.wind == '01'
                     ? 'icon-wind'
-                    : statusData.wind == '02'
+                    : pageData.wind == '02'
                     ? 'icon-wind1'
                     : 'icon-wind2'
                 "
@@ -114,23 +114,23 @@
               />
             </span>
             <span class="model-span">
-              {{ dealWind(statusData.wind) }}
+              {{ dealWind(pageData.wind) }}
             </span>
           </div>
           <div>
             <span class="sta-footer-r-mod-t">童锁：</span>
             <span class="sta-footer-r-mod-d">{{
-              statusData.childLock == '00' ? '关锁' : '开锁'
+              pageData.childLock == '00' ? '关锁' : '开锁'
             }}</span>
           </div>
           <div>
             <span class="sta-footer-r-mod-t">滤网维护：</span>
-            <span class="sta-footer-r-mod-d">{{ dealFixTime(statusData.meshCycle) }}个月</span>
+            <span class="sta-footer-r-mod-d">{{ dealFixTime(pageData.meshCycle) }}个月</span>
           </div>
           <div>
             <span class="sta-footer-r-mod-t">定时模式：</span>
             <span class="sta-footer-r-mod-d" style="color: rgba(0, 185, 215, 0.5)">
-              {{ clockStatus == '00' ? '未设置' : '已设置' }}
+              {{ pageData.clockStatus == '00' ? '未设置' : '已设置' }}
             </span>
           </div>
         </div>
@@ -155,6 +155,7 @@
     shallowRef,
     ComponentOptions,
     nextTick,
+    onUnmounted,
   } from 'vue';
   import { Select, Progress } from 'ant-design-vue';
   import { Icon } from '/@/components/Icon';
@@ -169,9 +170,19 @@
   import ControlModel from './ControlModel.vue';
   import TimingModel from './TimingModel.vue';
   import { useModal } from '/@/components/Modal';
+  import { getMqttConfig } from '/@/api/sys/groupAndDevice';
   const IconFont = createFromIconfontCN({
     scriptUrl: iconfontJS(),
   });
+  interface stateType {
+    selectValue: string;
+    imageUrl: string;
+    pageData: any;
+    configRes: any;
+    mqttOptions: any;
+    online: any;
+  }
+  declare let Paho: any;
   export default defineComponent({
     components: {
       ControlModel,
@@ -190,11 +201,127 @@
       },
     },
     setup(props) {
-      const state = reactive({
+      const state: stateType = reactive({
         selectValue: '更多',
         imageUrl: deviceImg_green,
-        clockStatus: props.statusData.clockStatus, // 设备定时，00-未设置，01-已设置
+        pageData: props.statusData, // 设备定时，00-未设置，01-已设置
+        online: props.statusData.online, //在线离线状态
+        configRes: {},
+        mqttOptions: {},
       });
+      // MQTT相关 ↓
+      let MQTT_CLIENT: any = {};
+      async function getConfig() {
+        const res = await getMqttConfig();
+        if (res) {
+          state.mqttOptions.clientId = res.clientId;
+          state.mqttOptions.keepAlive = res.keepAlive;
+          state.mqttOptions.port = Number(res.mqttPort);
+          state.mqttOptions.mqttHost = res.mqttHost;
+          state.mqttOptions.protocolVersion = res.mqttVersion;
+          state.mqttOptions.username = res.mqttUserName;
+          state.mqttOptions.password = res.mqttPassword;
+          state.mqttOptions.connectTimeout = 60000;
+          state.mqttOptions.pubTopic = res.pubTopic; // 发布主题
+          state.mqttOptions.subTopic = res.subTopic; // 订阅主题
+          connectMqtt();
+        }
+      }
+      function connectMqtt() {
+        MQTT_CLIENT = new Paho.MQTT.Client(
+          state.mqttOptions.mqttHost,
+          state.mqttOptions.port,
+          state.mqttOptions.clientId
+        );
+        //建立客户端实例
+        let options = {
+          invocationContext: {
+            host: state.mqttOptions.mqttHost,
+            port: state.mqttOptions.port,
+            path: MQTT_CLIENT.path,
+            clientId: state.mqttOptions.clientId,
+          },
+          timeout: 5,
+          keepAliveInterval: state.mqttOptions.keepAlive,
+          cleanSession: false,
+          mqttVersion: 4,
+          useSSL: false,
+          userName: state.mqttOptions.username,
+          password: state.mqttOptions.password,
+          onSuccess: onConnect,
+          onFailure: function (e) {
+            console.log(e);
+          },
+        };
+        MQTT_CLIENT.onConnectionLost = onConnectionLost; //注册连接断开处理事件
+        MQTT_CLIENT.onMessageArrived = onMessageArrived; //注册消息接收处理事件
+        MQTT_CLIENT.connect(options);
+      }
+      /**
+       * @Author: lgh
+       * @Date:
+       * @Descripttion: MQTT 连接成功回调
+       */
+      function onConnect() {
+        console.log('mqtt连接成功！');
+        sendMqttSubscribe();
+      }
+
+      /**
+       * @Author: lgh
+       * @Date:
+       * @Descripttion: MQTT 断开回调
+       * @param {*} responseObject
+       */
+      function onConnectionLost(responseObject) {
+        console.log('mqtt断开:' + responseObject.errorMessage + 'code' + responseObject.errorCode);
+      }
+
+      /**
+       * @Author: lgh
+       * @Date:
+       * @Descripttion: 发送订阅
+       */
+      function sendMqttSubscribe() {
+        if (MQTT_CLIENT !== undefined && MQTT_CLIENT.isConnected()) {
+          MQTT_CLIENT.subscribe(state.mqttOptions.subTopic, { qos: 0 });
+          console.log('订阅成功');
+        } else {
+          console.log('未连接MQTT');
+        }
+      }
+
+      /**
+       * @Author:
+       * @Date:
+       * @Descripttion: 取消订阅
+       */
+      function unMqttSubscribe() {
+        if (MQTT_CLIENT !== undefined && MQTT_CLIENT.isConnected()) {
+          MQTT_CLIENT.unsubscribe(state.mqttOptions.pubTopic);
+          console.log('取消订阅成功');
+        } else {
+          console.log('未连接MQTT');
+        }
+      }
+      /**
+       * @Author:
+       * @Date:
+       * @Descripttion: 接收信息
+       */
+      function onMessageArrived(msg) {
+        let data = JSON.parse(msg.payloadString);
+        console.log('payloadString', JSON.parse(msg.payloadString));
+        console.log('msgType', data.msgType);
+        if (data.msgType == 'deviceStatusData' && data.deviceId === props.statusData.deviceId) {
+          state.pageData = JSON.parse(msg.payloadString);
+        }
+        if (data.msgType == 'deviceOnlineStatus' && data.deviceId === props.statusData.deviceId) {
+          state.online = data.status;
+        }
+      }
+      // MQTT相关 ↑
+
       // 弹窗相关 ↓
       const currentModal = shallowRef<Nullable<ComponentOptions>>(null);
       const [register1, { openModal: openModal1 }] = useModal();
@@ -360,7 +487,10 @@
       });
 
       onMounted(() => {
-        console.log('statusData', props.statusData);
+        getConfig();
+      });
+      onUnmounted(() => {
+        unMqttSubscribe();
       });
       return {
         handleChange,
@@ -376,6 +506,14 @@
         register1,
         register2,
         register3,
+        MQTT_CLIENT,
+        getConfig,
+        connectMqtt,
+        onConnect,
+        onConnectionLost,
+        sendMqttSubscribe,
+        unMqttSubscribe,
+        onMessageArrived,
       };
     },
   });
