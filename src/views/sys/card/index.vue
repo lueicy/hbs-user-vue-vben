@@ -79,6 +79,7 @@
       }
 
       bus.on('showDetail222', catchShow);
+      bus.on('fetchStatisticsData', getStatistics);
       onMounted(() => {
         console.log('state.isDetail', state.isDetail);
         getStatistics();
@@ -86,6 +87,7 @@
 
       onBeforeUnmount(() => {
         bus.off('showDetail222', catchShow);
+        bus.off('fetchStatisticsData', getStatistics);
       });
 
       return {

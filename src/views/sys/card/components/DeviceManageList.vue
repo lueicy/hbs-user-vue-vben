@@ -459,6 +459,10 @@
         state.devicesList.forEach((item) => {
           if (item.deviceId === data.deviceId) {
             if (data.msgType == 'deviceStatusData') {
+              if (item.open !== data.open) {
+                // 设备状态变化时刷新设备统计数据
+                bus.emit('fetchStatisticsData');
+              }
               item.childLock = data.childLock;
               item.co2 = data.co2;
               item.co2Real = data.co2Real;
@@ -475,6 +479,9 @@
               item.wind = data.wind;
             }
             if (data.msgType == 'deviceOnlineStatus') {
+              if (item.online !== data.status) {
+                bus.emit('fetchStatisticsData');
+              }
               item.online = data.status;
             }
           }

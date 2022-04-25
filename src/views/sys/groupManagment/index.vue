@@ -6,7 +6,7 @@
         <a-button type="primary" class="add-btn" @click="addGroup"> 新增群组 </a-button>
       </div>
       <div class="group-table">
-        <BasicTable @register="groupTable" @edit-change="onEditChange" @click="toDetail">
+        <BasicTable @register="groupTable" @edit-change="onEditChange">
           <template #operation="{ record, column }">
             <TableAction :actions="createActions(record, column)" />
           </template>

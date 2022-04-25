@@ -180,7 +180,6 @@
         console.log('time', state.dateWeek);
       }
       function searchById() {
-        console.log('搜索id', state.deviceId);
         if (!state.deviceId) {
           return error('请输入设备PID');
         }
