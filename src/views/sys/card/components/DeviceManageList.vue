@@ -157,10 +157,7 @@
                         <div class="fl">模式</div>
                         <div class="online fr">
                           <span>
-                            <icon-font
-                              class="dib iconify"
-                              :type="dealPattern(item.pattern, 'icon')"
-                            />
+                            <icon-font class="dib" :type="dealPattern(item.pattern, 'icon')" />
                           </span>
 
                           <span
@@ -185,7 +182,7 @@
                                   ? 'icon-wind1'
                                   : 'icon-wind2'
                               "
-                              class="dib iconify"
+                              class="dib"
                             />
                           </span>
 
@@ -885,9 +882,6 @@
     font-weight: 400;
     color: #ffffff;
     line-height: 20px;
-    border-radius: 8px !important;
-    line-height: 20px;
-    font-size: 14px;
     font-weight: 400;
   }
   .title_Contr {
@@ -904,8 +898,8 @@
     &_btm {
       .btmClass();
       line-height: 24px;
-      border-radius: 6px;
-      border: 1px solid rgba(217, 217, 217, 1);
+      border-radius: 4px;
+      // border: 1px solid rgba(217, 217, 217, 1);
       color: rgba(102, 102, 102, 1);
       margin-left: 12px;
     }
@@ -932,7 +926,7 @@
       width: 100%;
       margin-bottom: -8px;
       width: 250px;
-      border-radius: 16px;
+      border-radius: 8px;
       position: relative;
       overflow: hidden;
       /deep/.ant-card-body {
@@ -1052,7 +1046,7 @@
       }
       // 遮罩层
       &-bgColor {
-        background-color: rgba(0, 0, 0, 0.3);
+        background-color: rgba(0, 0, 0, 0.05);
         width: 100%;
         height: 100%;
         position: absolute;
@@ -1090,5 +1084,11 @@
   }
   /deep/ .ant-row {
     min-width: 1600px;
+  }
+  /deep/ .ant-spin-container {
+    min-height: 400px;
+  }
+  /deep/ .ant-card-bordered {
+    border: 1px solid #f0f0f0 !important;
   }
 </style>

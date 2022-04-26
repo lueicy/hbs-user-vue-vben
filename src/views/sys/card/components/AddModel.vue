@@ -28,7 +28,7 @@
       <div class="flex justify-between">
         <div class="admin-title">请输入设备id</div>
         <div>
-          <a-button @click="appendField" class="mr-2"> 添加 </a-button>
+          <a-button @click="appendField"> 添加 </a-button>
         </div>
       </div>
 
@@ -104,7 +104,7 @@
         },
       });
       const [addForm, { validateFields: addValidateFields, appendSchemaByField }] = useForm({
-        labelWidth: 120,
+        labelWidth: 80,
         schemas: addSchemas,
         showActionButtonGroup: false,
         actionColOptions: {
@@ -215,6 +215,13 @@
   });
 </script>
 <style lang="less" scoped>
+  .admin-title {
+    margin: 10px 0px 24px 0px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 400;
+    color: #3e4159;
+  }
   /deep/.ant-modal-body .scroll-container {
     border: none;
   }

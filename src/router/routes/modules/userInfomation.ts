@@ -9,7 +9,7 @@ const userInfomation: AppRouteModule = {
   redirect: '/userInfo/index',
   meta: {
     orderNo: 4,
-    icon: 'ion:aperture-outline',
+    icon: 'uiw:user',
     // title: t('routes.demo.page.page'),
     title: '用户信息',
     hideChildrenInMenu: true,

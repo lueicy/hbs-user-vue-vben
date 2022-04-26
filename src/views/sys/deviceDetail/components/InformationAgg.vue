@@ -1,5 +1,5 @@
 <template>
-  <div class="flex info-container">
+  <div class="flex justify-between info-container">
     <div class="info-basic">
       <div class="info-title">基本信息</div>
       <div class="info-content">
@@ -122,11 +122,12 @@
   .info-container {
     min-height: 310px;
     .info-basic {
-      min-width: 390px;
-      margin-right: 20px;
+      // min-width: 390px;
+      width: 49%;
+      // margin-right: 20px;
       padding: 10px 18px;
       height: 310px;
-      background: rgba(255, 255, 255, 0.39);
+      background: #ffffff;
       box-shadow: 0px 3px 6px #dbdbdb;
       opacity: 1;
       border-radius: 10px;

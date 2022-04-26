@@ -13,8 +13,8 @@ module.exports = {
       },
       colors: {
         primary: {
-          DEFAULT: '#0960bd',
-          // DEFAULT: '#ffffff',
+          // DEFAULT: '#0960bd',
+          DEFAULT: '#00b9d7',
           // dark: primaryColorDark,
         },
       },

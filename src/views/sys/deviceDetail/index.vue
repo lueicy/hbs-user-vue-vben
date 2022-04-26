@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <div class="flex">
+    <div class="flex justify-between">
       <div class="datav-top-l">
         <DeviceStatus :statusData="statusData" />
       </div>
@@ -118,7 +118,8 @@
   .page-container {
     min-height: 800px;
     .datav-top-l {
-      width: 800px;
+      // width: 800px;
+      width: 49%;
       height: 594px;
       background: rgba(255, 255, 255, 0.39);
       box-shadow: 0px 3px 6px #e8e8e8;
@@ -126,7 +127,8 @@
       border-radius: 10px;
     }
     .datav-top-r {
-      width: 800px;
+      // width: 800px;
+      width: 49%;
       height: 594px;
       margin-left: 31px;
       // background: rgba(0, 185, 215, 0.39);

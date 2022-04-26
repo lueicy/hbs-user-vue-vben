@@ -63,7 +63,8 @@
 
 <style lang="less" scoped>
   .air-container {
-    width: 775px;
+    // width: 775px;
+    width: 49%;
     .air-con-overview {
       padding: 16px 24px;
       background: rgba(245, 252, 254, 0.39);

@@ -106,7 +106,7 @@
   .his-container {
     margin-top: 20px;
     padding: 14px 32px;
-    background: rgba(255, 255, 255, 0.39);
+    background: #ffffff;
     box-shadow: 0px 3px 6px #dbdbdb;
     opacity: 1;
     border-radius: 10px;

@@ -13,11 +13,24 @@
       </div>
       <div class="flex justify-between sta-title">
         <div class="flex flex-col justify-between sta-title-l">
-          <span class="l-name">
-            {{ statusData.deviceName }}
-            <Icon icon="ant-design:edit-filled" style="font-size: 22px; padding-left: 8px" />
-          </span>
-          <span class="l-space">{{ statusData.groupList ? statusData.groupList : '' }}</span>
+          <div class="flex">
+            <div class="l-name" v-if="editStatus">
+              {{ statusData.deviceName }}
+              <Icon
+                icon="ant-design:edit-filled"
+                style="font-size: 22px; padding-left: 8px"
+                @click="editStatus = false"
+              />
+            </div>
+            <div class="l-name" v-if="!editStatus">
+              <Input v-model:value="pageData.deviceName" />
+              <button class="fecth-btn" @click="changeDeviceName">保存</button>
+              <button class="fecth-btn" @click="editStatus = true">取消</button>
+            </div>
+          </div>
+          <div>
+            <span class="l-space">{{ statusData.groupList ? statusData.groupList : '' }}</span>
+          </div>
         </div>
         <div
           class="flex flex-col items-center justify-center sta-title-m"
@@ -157,7 +170,7 @@
     nextTick,
     onUnmounted,
   } from 'vue';
-  import { Select, Progress } from 'ant-design-vue';
+  import { Select, Progress, Input } from 'ant-design-vue';
   import { Icon } from '/@/components/Icon';
   // import deviceImg_green from '/@/assets/images/device/device/detail_green.png';
   import deviceImg_green from '/@/assets/images/device/device/green.png';
@@ -170,7 +183,9 @@
   import ControlModel from './ControlModel.vue';
   import TimingModel from './TimingModel.vue';
   import { useModal } from '/@/components/Modal';
-  import { getMqttConfig } from '/@/api/sys/groupAndDevice';
+  import { getMqttConfig, updateDeviceName } from '/@/api/sys/groupAndDevice';
+  import { useI18n } from '/@/hooks/web/useI18n';
+  import { useMessage } from '/@/hooks/web/useMessage';
   const IconFont = createFromIconfontCN({
     scriptUrl: iconfontJS(),
   });
@@ -181,6 +196,7 @@
     configRes: any;
     mqttOptions: any;
     online: any;
+    editStatus: boolean;
   }
   declare let Paho: any;
   export default defineComponent({
@@ -193,6 +209,7 @@
       Icon,
       [Progress.name]: Progress,
       IconFont,
+      Input,
     },
     props: {
       statusData: {
@@ -208,7 +225,11 @@
         online: props.statusData.online, //在线离线状态
         configRes: {},
         mqttOptions: {},
+        editStatus: true, // 编辑设备名称
       });
+      const { t } = useI18n();
+      const { createMessage, createErrorModal } = useMessage();
+      const { success } = createMessage;
       // MQTT相关 ↓
       let MQTT_CLIENT: any = {};
       async function getConfig() {
@@ -352,6 +373,25 @@
       }
 
       // 弹窗相关 ↑
+      async function changeDeviceName() {
+        let params = {
+          deviceId: state.pageData.deviceId,
+          sort: 0,
+          userDeviceName: state.pageData.deviceName,
+        };
+        try {
+          let res = await updateDeviceName(params);
+          if (res) {
+            success('修改成功');
+            state.editStatus = true;
+          }
+        } catch (error: any) {
+          createErrorModal({
+            title: t('sys.api.errorTip'),
+            content: error.message || t('sys.api.networkExceptionMsg'),
+          });
+        }
+      }
 
       // 判断空气质量，根据结果显示样式
       // color: #52c41a; //清新  color: #A9A9AF; //离线 color: #FFC400; //良好 color: #FF4D4F; //污浊
@@ -514,6 +554,7 @@
         sendMqttSubscribe,
         unMqttSubscribe,
         onMessageArrived,
+        changeDeviceName,
       };
     },
   });
@@ -521,14 +562,16 @@
 
 <style lang="less" scoped>
   .sta-container {
+    background: #ffffff;
     padding: 10px 24px;
+    height: 594px;
+    border-radius: 8px;
     .sta-header {
       .sta-h-txt {
         box-sizing: content-box;
         padding-bottom: 10px;
         height: 24px;
         font-size: 18px;
-        font-family: Microsoft YaHei;
         font-weight: 600;
         line-height: 21px;
         color: #333333;
@@ -545,7 +588,7 @@
         width: 170px;
         .l-name {
           width: 213px;
-          overflow: hidden;
+          // overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
           font-size: 18px;
@@ -562,7 +605,6 @@
         .aqi-title {
           height: 52px;
           font-size: 26px;
-          font-family: Microsoft YaHei;
           font-weight: 600;
           line-height: 24px;
           color: #3e4159;
@@ -574,7 +616,6 @@
         .air-status {
           height: 72px;
           font-size: 54px;
-          font-family: Microsoft YaHei;
           font-weight: 600;
           line-height: 24px;
           color: #52c41a; //清新
@@ -583,8 +624,8 @@
       }
       .sta-title-r {
         position: relative;
-        bottom: 30px;
-        right: 30px;
+        bottom: 0px;
+        right: 70px;
         color: #00b9d7;
         height: 30px;
         width: 170px;
@@ -602,7 +643,6 @@
         .sta-footer-l-name {
           height: 29px;
           font-size: 22px;
-          font-family: Microsoft YaHei;
           font-weight: 400;
           line-height: 34px;
           color: #3e4159;
@@ -610,7 +650,6 @@
           .sta-footer-l-name-u {
             height: 21px;
             font-size: 16px;
-            font-family: Microsoft YaHei;
             font-weight: 400;
             line-height: 33px;
             color: #666666;
@@ -622,21 +661,20 @@
         .sta-footer-r-mod-t {
           display: inline-block;
           text-align: right;
-          width: 70px;
+          width: 90px;
           height: 19px;
-          font-size: 14px;
+          font-size: 16px;
           font-weight: 400;
           line-height: 19px;
           color: #3e4159;
           opacity: 1;
-          margin-top: 14px;
+          margin-top: 16px;
         }
         .sta-footer-r-mod-d {
           padding-left: 10px;
           width: 28px;
           height: 19px;
-          font-size: 14px;
-          font-family: Microsoft YaHei;
+          font-size: 16px;
           font-weight: 400;
           line-height: 19px;
           color: #999999;
@@ -645,19 +683,19 @@
       }
     }
 
-    .datav-top-l {
-      width: 800px;
-      height: 594px;
-      background: rgba(255, 255, 255, 0.39);
-      box-shadow: 0px 3px 6px #e8e8e8;
-      opacity: 1;
-      border-radius: 10px;
-    }
-    .datav-top-r {
-      width: 800px;
-      height: 594px;
-      background: rgba(0, 185, 215, 0.39);
-    }
+    // .datav-top-l {
+    //   width: 800px;
+    //   height: 594px;
+    //   background: rgba(255, 255, 255, 0.39);
+    //   box-shadow: 0px 3px 6px #e8e8e8;
+    //   opacity: 1;
+    //   border-radius: 10px;
+    // }
+    // .datav-top-r {
+    //   width: 800px;
+    //   height: 594px;
+    //   background: rgba(0, 185, 215, 0.39);
+    // }
   }
   .icon-g {
     font-size: 27px !important;
@@ -682,8 +720,14 @@
   }
   .model-span {
     color: #999999;
-    font-size: 18px;
+    font-size: 16px;
     padding-left: 10px;
+  }
+
+  .fecth-btn {
+    margin: 5px;
+    width: 50px;
+    color: #00b9d7;
   }
 
   /deep/ .ant-select-selection-item,

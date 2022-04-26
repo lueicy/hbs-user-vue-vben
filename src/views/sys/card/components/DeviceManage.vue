@@ -110,12 +110,18 @@
     background: #fff;
     font-weight: 600;
   }
+  /deep/ .ant-tabs-nav .ant-tabs-tab:hover {
+    color: #00b9d7;
+  }
   /deep/ .ant-tabs-ink-bar {
     visibility: hidden;
   }
   /deep/ .ant-tabs-tab {
     padding: 9px 20px;
     margin: 0px;
-    border-radius: 10px 10px 0 0;
+    border-radius: 8px 8px 0 0;
+  }
+  /deep/ .ant-card-bordered {
+    border: none;
   }
 </style>

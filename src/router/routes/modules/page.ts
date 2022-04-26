@@ -1,10 +1,6 @@
 import type { AppRouteModule } from '/@/router/types';
 
-import { getParentLayout, LAYOUT } from '/@/router/constant';
-// import { ExceptionEnum } from '/@/enums/exceptionEnum';
-import { t } from '/@/hooks/web/useI18n';
-
-// const ExceptionPage = () => import('/@/views/sys/exception/Exception.vue');
+import { LAYOUT } from '/@/router/constant';
 
 const page: AppRouteModule = {
   path: '/home',
@@ -13,7 +9,7 @@ const page: AppRouteModule = {
   redirect: '/home/index',
   meta: {
     orderNo: 2,
-    icon: 'ion:aperture-outline',
+    icon: 'icons8:home',
     // title: t('routes.demo.page.page'),
     title: '设备管理',
     hideChildrenInMenu: true,

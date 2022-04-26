@@ -39,6 +39,7 @@ enum Api {
   deleteSceneApi = 'sceneClock/deleteSceneClock/',
   sendCommandApi = 'device/sendCommand2/',
   mqttConfigApi = 'mqtt/getConfig',
+  updateDeviceNameApi = 'userDevice/updateUserDevice',
 }
 
 /**
@@ -312,5 +313,16 @@ export function sendCommand(deviceId: any, params: any) {
 export function getMqttConfig() {
   return defHttp.get({
     url: Api.mqttConfigApi,
+  });
+}
+
+/**
+ * @description: 用户更新设备
+ * params:appdeviceid：APP设备ID， appversion：APP版本号
+ */
+export function updateDeviceName(params: any) {
+  return defHttp.patch({
+    url: Api.updateDeviceNameApi,
+    params,
   });
 }

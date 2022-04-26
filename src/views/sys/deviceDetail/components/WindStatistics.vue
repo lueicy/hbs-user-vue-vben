@@ -231,7 +231,8 @@
 <style lang="less" scoped>
   .wind-container {
     height: 530px;
-    width: 775px;
+    // width: 775px;
+    width: 49%;
     .wind-con-title {
       width: 72px;
       box-sizing: content-box;

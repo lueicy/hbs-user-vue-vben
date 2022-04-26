@@ -225,12 +225,12 @@
 
 <style lang="less" scoped>
   .share-container {
-    min-width: 800px;
+    min-width: 50%;
     min-height: 264px;
     margin-top: 20px;
-    margin-right: 20px;
+    // margin-right: 20px;
     padding: 10px 18px;
-    background: rgba(255, 255, 255, 0.39);
+    background: #ffffff;
     box-shadow: 0px 3px 6px #dbdbdb;
     opacity: 1;
     border-radius: 10px;
@@ -280,6 +280,10 @@
   /deep/ .ant-table-body {
     max-height: 150px !important;
     // height: 150px !important;
+  }
+  /deep/ .ant-spin-container {
+    min-height: 150px !important;
+    max-height: 150px !important;
   }
   /deep/ .ant-table-title {
     display: none;

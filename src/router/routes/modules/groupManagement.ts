@@ -1,10 +1,6 @@
 import type { AppRouteModule } from '/@/router/types';
 
-import { getParentLayout, LAYOUT } from '/@/router/constant';
-// import { ExceptionEnum } from '/@/enums/exceptionEnum';
-import { t } from '/@/hooks/web/useI18n';
-
-// const ExceptionPage = () => import('/@/views/sys/exception/Exception.vue');
+import { LAYOUT } from '/@/router/constant';
 
 const groupManag: AppRouteModule = {
   path: '/groupManag',
@@ -13,8 +9,7 @@ const groupManag: AppRouteModule = {
   redirect: '/groupManag/index',
   meta: {
     orderNo: 3,
-    icon: 'ion:aperture-outline',
-    // title: t('routes.demo.page.page'),
+    icon: 'bi:people',
     title: '群组管理',
     hideChildrenInMenu: true,
   },
@@ -23,10 +18,8 @@ const groupManag: AppRouteModule = {
     {
       path: 'index',
       name: 'GroupManag',
-      // component: getParentLayout('ListPage'),
       component: () => import('/@/views/sys/groupManagment/index.vue'),
       meta: {
-        // title: t('routes.demo.page.list'),
         title: '群组管理',
         hideMenu: true,
         dynamicLevel: 3,
@@ -36,7 +29,6 @@ const groupManag: AppRouteModule = {
     {
       path: 'groupDetail/:id',
       name: 'GroupDetail',
-      // component: getParentLayout('ListPage'),
       component: () => import('/@/views/sys/groupManagment/groupItem/index.vue'),
       meta: {
         title: '群组详情',
