@@ -24,6 +24,7 @@
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { useRedo } from '/@/hooks/web/usePage';
+import { object } from 'vue-types';
   const logSchemas: FormSchema[] = [
     {
       field: 'userName',
@@ -51,9 +52,9 @@
   export default defineComponent({
     components: { BasicModal, BasicForm },
     props: {
-      deviceId: {
-        type: String,
-        default: '',
+      deviceData: {
+        type: Object,
+        default: () => {},
       },
     },
     setup(props) {
@@ -80,6 +81,7 @@
       async function handleLogin() {
         const values = (await validateFields()) as any;
         if (!values.userName || !values.password) return error('请输入账号密码');
+        state.selectList.push(props.deviceData.deviceId);
         userStore.setAdminLogStatus(true); //请求失败后改为false
         try {
           const userInfo = await userStore.loginAdmin(
@@ -90,9 +92,9 @@
             })
           );
           if (userInfo) {
-            state.userId = userInfo.id;
+            state.userId = userStore.getUserInfo.id;
             let param = {
-              deviceList: state.selectList.push(props.deviceId),
+              deviceList: state.selectList,
               userId: state.userId,
             };
             let deleteRes = await deleteByAdmin(param);

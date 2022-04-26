@@ -18,7 +18,7 @@
   <template v-if="adminLogin">
     <BasicModal
       v-bind="$attrs"
-      @register="register"
+      @register="registerModel"
       title="添加设备"
       @visible-change="handleVisibleChange"
       :maskClosable="false"
@@ -47,6 +47,7 @@
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { addDeviceByAdmin } from '/@/api/sys/groupAndDevice';
+  import bus from '/@/utils/bus';
   const logSchemas: FormSchema[] = [
     {
       field: 'userName',
@@ -112,6 +113,7 @@
       });
 
       const [register, { closeModal }] = useModalInner();
+      const [registerModel, { closeModal: closeModal2 }] = useModalInner();
       const { t } = useI18n();
       const { createMessage, createErrorModal } = useMessage();
       const { error, success } = createMessage;
@@ -160,8 +162,9 @@
           );
           if (addRes) {
             success('添加设备成功');
+            bus.emit('fetchPageData');
             userStore.setAdminLogStatus(false);
-            closeModal();
+            closeModal2();
           }
         } catch (error: any) {
           createErrorModal({
@@ -196,6 +199,7 @@
 
       return {
         register,
+        registerModel,
         registerForm,
         addForm,
         handleVisibleChange,

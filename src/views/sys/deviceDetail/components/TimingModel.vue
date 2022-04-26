@@ -18,9 +18,9 @@
       <!-- 00-关机，01-开机 -->
       <div class="flex flex-col align-center mg-right" @click="trunBtn">
         <span class="iconf-class">
-          <icon-font :type="open == '01' ? 'icon-open' : 'icon-turnoff'" class="icon-g" />
+          <icon-font :type="open == '00' ? 'icon-open' : 'icon-turnoff'" class="icon-g" />
         </span>
-        <span>{{ open == '01' ? '开机' : '关机' }}</span>
+        <span>关机</span>
       </div>
     </div>
     <!-- 风速 -->
@@ -53,6 +53,9 @@
           @change="onCheckAllChange"
         >
           全选
+        </Checkbox>
+        <Checkbox style="margin-left: 18px" v-model:checked="onlyOne" @change="checkedOnlyOne">
+          仅一次
         </Checkbox>
         <CheckboxGroup v-model:value="checkedList" :options="plainOptions" />
       </div>
@@ -96,7 +99,7 @@
                 <icon-font
                   :type="
                     item.wind == '01'
-                      ? 'icon-xiaofeng'
+                      ? 'icon-wind'
                       : item.wind == '02'
                       ? 'icon-wind1'
                       : 'icon-wind2'
@@ -168,6 +171,7 @@
     doWind?: any;
     indeterminate: boolean;
     checkAll: boolean;
+    onlyOne: boolean;
     checkedList: any;
     dateValue: any;
     open?: any;
@@ -195,10 +199,11 @@
         doWind: '01',
         indeterminate: true,
         checkAll: false,
+        onlyOne: false,
         checkedList: [],
         dateValue: '',
-        open: '',
-        modelName: '',
+        open: '01',
+        modelName: '工作日',
         sceneList: [],
       });
       const { t } = useI18n();
@@ -213,6 +218,9 @@
           indeterminate: false,
         });
       };
+      function checkedOnlyOne(e: any) {
+        state.onlyOne = e.target.checked;
+      }
       const filtersMODE = (item: string): any => {
         let data: any = chagneJSONParse(item);
         let modeList: object[] = data.modeArray.map((e) => {
@@ -227,8 +235,6 @@
               speed: item.speed,
             };
           });
-        console.log('modeList', modeList);
-        console.log('winList', winList);
         return {
           modeList: modeList,
           newWindList: winList,
@@ -309,6 +315,9 @@
             case '星期日':
               del = '7';
               break;
+            case 'onlyOne':
+              del = '*';
+              break;
           }
           return del;
         });
@@ -340,6 +349,9 @@
                 break;
               case '7':
                 dayText = '周日';
+                break;
+              case '*':
+                dayText = '仅一次';
                 break;
               default:
                 dayText = '';
@@ -401,16 +413,21 @@
           });
         }
       }
+      // 00关机
       function trunBtn() {
+        // state.open = '00';
+        // state.doWind = '';
+        // state.doPattern = '';
         if (state.open == '01') {
           state.open = '00';
+          state.doWind = '';
+          state.doPattern = '';
         } else {
           state.open = '01';
         }
       }
       async function getdeviceModel() {
         if (!props.deviceData) return;
-        state.open = props.deviceData.open;
         let res = await getBySubtype(props.deviceData.model);
         let { modeList, newWindList } = filtersMODE(res.customData);
         state.modelList = modeList;
@@ -423,6 +440,12 @@
             content: '模式名称不能为空',
           });
           return;
+        }
+        if (state.onlyOne) {
+          state.checkedList.push('onlyOne');
+        }
+        if (state.doPattern || state.doWind) {
+          state.open = '01';
         }
         let weekDay = dealDay(state.checkedList);
         let params = {
@@ -440,7 +463,19 @@
           const res = await addSceneClock(params);
           if (res) {
             success('添加成功');
-
+            state.modelList = [];
+            state.doPattern = '01';
+            state.windList = [];
+            state.doWind = '01';
+            state.indeterminate = true;
+            state.checkAll = false;
+            state.onlyOne = false;
+            state.checkedList = [];
+            state.dateValue = '';
+            state.open = '';
+            state.modelName = '工作日';
+            getdeviceModel();
+            getSceneList();
             closeModal();
           }
         } catch (error: any) {
@@ -466,6 +501,7 @@
         register,
         model: modelRef,
         onCheckAllChange,
+        checkedOnlyOne,
         plainOptions,
         dateOk,
         getdeviceModel,

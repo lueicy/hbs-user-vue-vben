@@ -453,8 +453,8 @@
        */
       function onMessageArrived(msg) {
         let data = JSON.parse(msg.payloadString);
-        console.log('payloadString', JSON.parse(msg.payloadString));
-        console.log('msgType', data.msgType);
+        // console.log('payloadString', JSON.parse(msg.payloadString));
+        // console.log('msgType', data.msgType);
         if (!data || !state.devicesList) return;
         state.devicesList.forEach((item) => {
           if (item.deviceId === data.deviceId) {
@@ -728,10 +728,33 @@
           total.value = res.total;
         }
       }
+      // 获取分页数据
+      async function fetch2() {
+        if (props.groupId == 'total') {
+          // 获取所有的设备信息
+          let res = await GetAllDeviceApi({
+            pageIndex: 1,
+            pageSize: 18,
+          });
+          state.devicesList = res.list;
+          total.value = res.total;
+        } else {
+          // 获取群组下的设备信息
+          let res = await GetDeviceByGroupIdApi({
+            pageIndex: 1,
+            pageSize: 18,
+            groupId: props.groupId,
+          });
+          // console.log('获取群组下的设备信息', res);
+          state.devicesList = res.list;
+          total.value = res.total;
+        }
+      }
       const searchByPid = (event) => {
         fetch('total', 1, 20, event);
       };
       bus.on('searchByPid', searchByPid);
+      bus.on('fetchPageData', fetch2);
 
       // 滚动加载
       // function handleInfiniteOnLoad() {
@@ -783,6 +806,7 @@
       });
       onBeforeUnmount(() => {
         bus.off('searchByPid', searchByPid);
+        bus.off('fetchPageData', fetch2);
         unMqttSubscribe();
       });
       return {
@@ -824,6 +848,7 @@
 
         // handleInfiniteOnLoad,
         fetch,
+        fetch2,
         page,
         pageSize,
         total,

@@ -97,7 +97,7 @@
             closeModal();
           }
           console.log('提交', params, toRaw(props.userData));
-        } catch (error) {
+        } catch (error: any) {
           createErrorModal({
             title: '错误提示',
             content: error.message,

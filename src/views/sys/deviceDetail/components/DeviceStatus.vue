@@ -311,8 +311,8 @@
        */
       function onMessageArrived(msg) {
         let data = JSON.parse(msg.payloadString);
-        console.log('payloadString', JSON.parse(msg.payloadString));
-        console.log('msgType', data.msgType);
+        // console.log('payloadString', JSON.parse(msg.payloadString));
+        // console.log('msgType', data.msgType);
         if (data.msgType == 'deviceStatusData' && data.deviceId === props.statusData.deviceId) {
           state.pageData = JSON.parse(msg.payloadString);
         }

@@ -2,8 +2,13 @@
   <div class="flex flex-col share-container">
     <div class="flex justify-between share-basic">
       <div class="share-title">分享人信息</div>
-      <div class="share-operation" @click="addSharer">
-        <Icon icon="ant-design:plus-outlined" class="icon-add" />
+      <div class="flex">
+        <div>
+          <button class="fecth-btn" @click="fetchSharer">刷新</button>
+        </div>
+        <div class="share-operation" @click="addSharer">
+          <Icon icon="ant-design:plus-outlined" class="icon-add" />
+        </div>
       </div>
     </div>
     <div class="share-table">
@@ -42,7 +47,7 @@
   const tableColums: BasicColumn[] = [
     {
       title: '备注名称',
-      dataIndex: 'name',
+      dataIndex: 'remark',
       editRow: true,
       // 默认必填校验
       editRule: true,
@@ -50,7 +55,7 @@
     },
     {
       title: '账号',
-      dataIndex: 'id',
+      dataIndex: 'tel',
       width: 250,
     },
     {
@@ -81,20 +86,27 @@
       const { createMessage: msg } = useMessage();
       const currentEditKeyRef = ref('');
       const [sharerTable, { reload }] = useTable({
-        // api: demoListApi,
+        api: getSharingList,
         columns: tableColums,
-        dataSource: listData,
         showIndexColumn: true,
-        showTableSetting: true,
         inset: true,
         canResize: true,
-        tableSetting: { redo: true, size: false, fullScreen: false, setting: true },
+        searchInfo: {
+          pageIndex: 1,
+          pageSize: 10,
+          deviceId: props.deviceId,
+          status: '1',
+        },
         pagination: false,
       });
       async function getSharingUserLiat() {
         const res = await getSharingList({ deviceId: props.deviceId });
+        console.log('分享人信息', res);
         if (res && res.length) {
-          listData = res;
+          nextTick(() => {
+            listData = res;
+            console.log('listData', listData);
+          });
         }
       }
       // 添加分享人
@@ -103,6 +115,9 @@
         nextTick(() => {
           modalVisible.value = true;
         });
+      }
+      function fetchSharer() {
+        reload();
       }
 
       async function handleSave(record: EditRecordRow) {
@@ -116,7 +131,7 @@
             // ...
             // 保存之后提交编辑状态
             let params = {
-              groupName: data.remark,
+              remark: data.remark,
               sharingId: record.sharingId, // 用户群组主键
             };
             const res = await updateRemark(params);
@@ -187,7 +202,7 @@
         }
       }
       onMounted(() => {
-        getSharingUserLiat();
+        // getSharingUserLiat();
       });
       return {
         getSharingUserLiat,
@@ -197,6 +212,7 @@
         createActions,
         onEditChange,
         addSharer,
+        fetchSharer,
         currentModal,
         modalVisible,
         userData,
@@ -243,6 +259,11 @@
     .share-table {
       height: 200px;
     }
+  }
+  .fecth-btn {
+    margin: 5px;
+    width: 50px;
+    color: #00b9d7;
   }
   .icon-add {
     font-size: 22px !important;

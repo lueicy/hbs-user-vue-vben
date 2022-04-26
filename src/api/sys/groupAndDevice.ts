@@ -26,13 +26,13 @@ enum Api {
   getNetwordApi = 'deviceNetwork/getNetworkDataInfo/',
   getSharingUserApi = 'userShareDevice/listSharingUser/',
   addSharingUser = 'userShareDevice/sendSharingDevice/',
-  updateRemark = '/userShareDevice/updateSharingDevice/',
-  deleteSharingUser = 'userShareDevice/cancelSharingDevice/',
+  updateRemark = 'userShareDevice/updateSharingDevice',
+  deleteSharingUser = 'userShareDevice/cancelSharingDevice',
   getHistoryApi = 'userDevice/history/',
   getWindInfoApi = 'airVolume/listAirVolumeByPage/',
   getModelTypeApi = 'airVolume/totalAirVolume',
   getDeviceStatusApi = 'deviceStatus/',
-  deleteDrviceApi = 'manage/enterprise/device/removeDevice/',
+  deleteDrviceApi = 'manage/enterprise/device/removeDevice',
   getSubtypeApi = 'deviceType/getBySubType/',
   addSceneApi = 'sceneClock/addSceneClock',
   getListSceneApi = 'sceneClock/listSceneClock/',
@@ -188,7 +188,7 @@ export function updateRemark(params: any) {
  * params:sharingId 分享id
  */
 export function deleteSharingUser(params: any) {
-  return defHttp.post({
+  return defHttp.get({
     url: Api.deleteSharingUser,
     params,
   });
