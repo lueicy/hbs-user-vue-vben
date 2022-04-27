@@ -7,7 +7,7 @@
         <div
           class="flex flex-col text-center align-center mg-right"
           :class="item.pattern == doPattern ? 'model-selected' : ''"
-          @click="selectPattern('model', item.pattern)"
+          @click="selectPattern(item.pattern)"
         >
           <span class="iconf-class"
             ><icon-font :type="dealPattern(item.pattern, 'icon')" class="icon-g"
@@ -30,7 +30,7 @@
         <div
           class="flex flex-col text-center li-block"
           :class="item.speed == doWind ? 'model-selected' : ''"
-          @click="selectPattern('wind', item.speed)"
+          @click="selectWind(item.speed)"
         >
           <span class="iconf-class"
             ><icon-font
@@ -47,17 +47,11 @@
     <div class="flex justify-start model-li">
       <div class="li-do-title">执行日期</div>
       <div>
-        <Checkbox
-          v-model:checked="checkAll"
-          :indeterminate="indeterminate"
-          @change="onCheckAllChange"
-        >
-          全选
-        </Checkbox>
+        <Checkbox v-model:checked="checkAll" @change="onCheckAllChange"> 全选 </Checkbox>
         <Checkbox style="margin-left: 18px" v-model:checked="onlyOne" @change="checkedOnlyOne">
           仅一次
         </Checkbox>
-        <CheckboxGroup v-model:value="checkedList" :options="plainOptions" />
+        <CheckboxGroup v-model:value="checkedList" :options="plainOptions" @change="checkedOne" />
       </div>
     </div>
     <!-- 执行时间 -->
@@ -107,7 +101,7 @@
                   class="icon-g"
                 />
               </span>
-              <span>{{ item.wind == '01' ? '低速' : item.wind == '02' ? '中速' : '高速' }}</span>
+              <span>{{ item.name }}</span>
             </div>
             <div class="top-mag">
               <span class="ting-iconf"><icon-font type="icon-shizhong" class="icon-g" /></span>
@@ -215,11 +209,16 @@
       const onCheckAllChange = (e: any) => {
         Object.assign(state, {
           checkedList: e.target.checked ? plainOptions : [],
+          onlyOne: false,
           indeterminate: false,
         });
       };
+      function checkedOne(e: any) {
+        if (e) state.onlyOne = false;
+      }
       function checkedOnlyOne(e: any) {
         state.onlyOne = e.target.checked;
+        if (state.onlyOne) state.checkedList = [];
       }
       const filtersMODE = (item: string): any => {
         let data: any = chagneJSONParse(item);
@@ -379,12 +378,51 @@
           return originAttrs;
         };
       });
+      // XS-D250A-XHK、XS-D350A、XS-D150A、XS-D500A 智能（弱-01）
+      // EH-Z-7G650、EH-Z-7G400A、EH-Z-7G750  智能,节能（弱-01）
+      // EH-Z-7B200F-HET、EH-Z-7B100A 智能(低-02)
+      function selectPattern(event) {
+        if (state.open == '00') return;
+        state.doPattern = event;
+        if (state.doPattern == '01') {
+          // 智能
+          if (
+            props.deviceData.model == 'EH-Z-7B200F-HET' ||
+            props.deviceData.model == 'EH-Z-7B100A'
+          ) {
+            state.doWind = '02';
+          } else {
+            state.doWind = '01';
+          }
+        }
+        if (state.doPattern == '07') {
+          // 节能
+          if (
+            props.deviceData.model == 'EH-Z-7G650' ||
+            props.deviceData.model == 'EH-Z-7G400A' ||
+            props.deviceData.model == 'EH-Z-7G750'
+          ) {
+            state.doWind = '01';
+          }
+        }
+      }
+      function selectWind(event) {
+        if (state.open == '00') return;
 
-      function selectPattern(type, event) {
-        if (type == 'wind') {
-          state.doWind = event;
+        if (state.doPattern == '01' || state.doPattern == '07') {
+          if (state.doPattern == '07' && event !== '01') return;
+          if (state.doPattern == '01') {
+            if (
+              props.deviceData.model == 'EH-Z-7B200F-HET' ||
+              props.deviceData.model == 'EH-Z-7B100A'
+            ) {
+              state.doWind = '02';
+            } else {
+              state.doWind = '01';
+            }
+          }
         } else {
-          state.doPattern = event;
+          state.doWind = event;
         }
       }
 
@@ -401,7 +439,6 @@
         try {
           const res = await deleteScene(id);
           if (res) {
-            console.log('confirmDelete', res);
             success('删除成功');
             getSceneList();
             // closeModal();
@@ -415,9 +452,6 @@
       }
       // 00关机
       function trunBtn() {
-        // state.open = '00';
-        // state.doWind = '';
-        // state.doPattern = '';
         if (state.open == '01') {
           state.open = '00';
           state.doWind = '';
@@ -476,7 +510,7 @@
             state.modelName = '工作日';
             getdeviceModel();
             getSceneList();
-            closeModal();
+            // closeModal();
           }
         } catch (error: any) {
           createErrorModal({
@@ -494,14 +528,17 @@
       onMounted(() => {
         getdeviceModel();
         getSceneList();
+        console.log('deviceData', props.deviceData);
       });
       return {
         ...toRefs(state),
         selectPattern,
+        selectWind,
         register,
         model: modelRef,
         onCheckAllChange,
         checkedOnlyOne,
+        checkedOne,
         plainOptions,
         dateOk,
         getdeviceModel,

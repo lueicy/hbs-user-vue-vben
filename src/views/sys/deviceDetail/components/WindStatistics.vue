@@ -51,7 +51,10 @@
                     >{{ fixTimeFormat(item.beginTime) }} - {{ fixTimeFormat(item.finishTime) }}</div
                   >
                 </div>
-                <div class="wind-item">风量： {{ item.volume }} m³ </div>
+                <div class="wind-item">
+                  <span>风量： </span>
+                  <span>{{ item.volume }} m³ </span>
+                </div>
               </div>
             </div>
           </template>

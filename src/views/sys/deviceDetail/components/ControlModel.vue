@@ -7,7 +7,7 @@
         <div
           class="flex flex-col text-center align-center mg-right"
           :class="item.pattern == doPattern ? 'model-selected' : ''"
-          @click="selectPattern('model', item.pattern)"
+          @click="selectPattern(item.pattern)"
         >
           <span class="iconf-class"
             ><icon-font :type="dealPattern(item.pattern, 'icon')" class="icon-g"
@@ -18,9 +18,9 @@
       <!-- 00-关机，01-开机 -->
       <div class="flex flex-col align-center mg-right" @click="trunBtn">
         <span class="iconf-class">
-          <icon-font :type="open == '01' ? 'icon-open' : 'icon-turnoff'" class="icon-g" />
+          <icon-font :type="open == '00' ? 'icon-open' : 'icon-turnoff'" class="icon-g" />
         </span>
-        <span>{{ open == '01' ? '开机' : '关机' }}</span>
+        <span>关机</span>
       </div>
     </div>
     <!-- 风速 -->
@@ -30,7 +30,7 @@
         <div
           class="flex flex-col text-center li-block"
           :class="item.speed == doWind ? 'model-selected' : ''"
-          @click="selectPattern('wind', item.speed)"
+          @click="selectWind(item.speed)"
         >
           <span class="iconf-class"
             ><icon-font
@@ -147,28 +147,60 @@
         return JSON.parse(item);
       };
       function trunBtn() {
-        state.openLock = !state.openLock;
+        console.log('state.open', state.open);
         if (state.open == '01') {
           state.open = '00';
+          state.doWind = '';
+          state.doPattern = '';
         } else {
           state.open = '01';
         }
       }
-      function selectPattern(type, event) {
-        console.log('模式event', event);
-        if (type == 'wind') {
-          if ((state.doPattern == '01' || state.doPattern == '07') && event !== '01') {
-            error('智能/节能模式下风速默认为弱');
-            state.doWind = '01';
+      // XS-D250A-XHK、XS-D350A、XS-D150A、XS-D500A 智能（弱-01）
+      // EH-Z-7G650、EH-Z-7G400A、EH-Z-7G750  智能,节能（弱-01）
+      // EH-Z-B200F-HET、EH-Z-7B100A 智能(低-02)
+      function selectPattern(event) {
+        if (state.open == '00') return;
+        state.doPattern = event;
+        if (state.doPattern == '01') {
+          // 智能
+          if (
+            props.deviceData.model == 'EH-Z-B200F-HET' ||
+            props.deviceData.model == 'EH-Z-7B100A'
+          ) {
+            state.doWind = '02';
           } else {
-            state.doWind = event;
+            state.doWind = '01';
+          }
+        }
+        if (state.doPattern == '07') {
+          // 节能
+          if (
+            props.deviceData.model == 'EH-Z-7G650' ||
+            props.deviceData.model == 'EH-Z-7G400A' ||
+            props.deviceData.model == 'EH-Z-7G750'
+          ) {
+            state.doWind = '01';
+          }
+        }
+      }
+      function selectWind(event) {
+        if (state.open == '00') return;
+
+        if (state.doPattern == '01' || state.doPattern == '07') {
+          if (state.doPattern == '07' && event !== '01') return;
+          if (state.doPattern == '01') {
+            if (
+              props.deviceData.model == 'EH-Z-B200F-HET' ||
+              props.deviceData.model == 'EH-Z-7B100A'
+            ) {
+              state.doWind = '02';
+            } else {
+              state.doWind = '01';
+            }
           }
         } else {
-          if (state.doPattern == '01' || state.doPattern == '07') {
-            state.doWind = '01';
-
-          }
-          state.doPattern = event;
+          state.doWind = event;
         }
       }
       async function getdeviceModel() {
@@ -182,9 +214,9 @@
         state.windList = newWindList;
       }
       async function handleOK() {
-        if (state.doPattern == '01' || state.doPattern == '07') {
-          state.doWind = '01';
-        }
+        // if (state.doPattern == '01' || state.doPattern == '07') {
+        //   state.doWind = '01';
+        // }
         // 开关机指令
         let param1 = {
           command: '01' + state.open,
@@ -193,25 +225,34 @@
         let param2 = {
           command: '02' + state.doPattern + state.doWind,
         };
-        try {
-          const res2 = await sendCommand(props.deviceData.deviceId, param2);
-          if (state.openLock) {
+        if (state.open == '00') {
+          try {
             const res1 = await sendCommand(props.deviceData.deviceId, param1);
-            if (res1 && res2) {
+            if (res1) {
               success('操作成功');
               closeModal();
             }
-          } else {
+          } catch (error: any) {
+            createErrorModal({
+              title: t('sys.api.errorTip'),
+              content: error.message || t('sys.api.networkExceptionMsg'),
+            });
+          }
+        } else {
+          try {
+            const open = await sendCommand(props.deviceData.deviceId, param1);
+            const res2 = await sendCommand(props.deviceData.deviceId, param2);
+            console.log('open', open);
             if (res2) {
               success('操作成功');
               closeModal();
             }
+          } catch (error: any) {
+            createErrorModal({
+              title: t('sys.api.errorTip'),
+              content: error.message || t('sys.api.networkExceptionMsg'),
+            });
           }
-        } catch (error: any) {
-          createErrorModal({
-            title: t('sys.api.errorTip'),
-            content: error.message || t('sys.api.networkExceptionMsg'),
-          });
         }
       }
 
@@ -221,6 +262,7 @@
       return {
         ...toRefs(state),
         selectPattern,
+        selectWind,
         register,
         model: modelRef,
         trunBtn,

@@ -31,7 +31,7 @@ import { object } from 'vue-types';
       component: 'Input',
       label: '管理员账号',
       colProps: {
-        span: 24,
+        span: 20,
       },
       defaultValue: '',
     },
@@ -40,7 +40,7 @@ import { object } from 'vue-types';
       component: 'Input',
       label: '管理员密码',
       colProps: {
-        span: 24,
+        span: 20,
       },
     },
   ];
@@ -64,7 +64,7 @@ import { object } from 'vue-types';
       });
       const userStore = useUserStoreWithOut();
       const [registerForm, { validateFields }] = useForm({
-        labelWidth: 120,
+        labelWidth: 150,
         schemas: logSchemas,
         showActionButtonGroup: false,
         actionColOptions: {
@@ -130,6 +130,13 @@ import { object } from 'vue-types';
   });
 </script>
 <style lang="less" scoped>
+  .admin-title {
+    margin: 10px 0px 24px 0px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 400;
+    color: #3e4159;
+  }
   /deep/.ant-modal-body .scroll-container {
     border: none;
   }

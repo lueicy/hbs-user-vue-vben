@@ -102,6 +102,7 @@
     setup() {
       const state = reactive({
         listData: [],
+        lockRowClick: false,
       });
       const currentModal = shallowRef<Nullable<ComponentOptions>>(null);
       const modalVisible = ref<Boolean>(false);
@@ -122,6 +123,7 @@
 
       const { push } = useRouter();
       function toDetail(event) {
+        if (state.lockRowClick) return;
         push({
           name: 'GroupDetail',
           params: {
@@ -150,10 +152,10 @@
             const res = await UpdatelistUserGroupApi(params);
 
             const pass = await record.onEdit?.(false, true);
-            console.log('pass', pass);
             if (res.code == 200 && pass) {
               currentEditKeyRef.value = '';
             }
+            state.lockRowClick = false;
             msg.success({ content: '数据已保存', key: 'saving' });
             reload();
           } catch (error) {
@@ -179,9 +181,11 @@
             {
               label: '删除',
               color: 'error',
+              onClick: deleteLock.bind(null, record),
               popConfirm: {
                 title: '是否删除该数据',
                 confirm: handleDelete.bind(null, record, column),
+                cancel: openLock.bind(null, record),
               },
             },
           ];
@@ -203,19 +207,29 @@
       function handleEdit(record: EditRecordRow) {
         currentEditKeyRef.value = record.key;
         record.onEdit?.(true);
-        console.log('点击了编辑', record);
+        state.lockRowClick = true;
       }
       function handleCancel(record: EditRecordRow) {
+        state.lockRowClick = false;
         currentEditKeyRef.value = '';
         record.onEdit?.(false, false);
+      }
+      function deleteLock() {
+        if (state.lockRowClick) return;
+        state.lockRowClick = true;
+      }
+      function openLock() {
+        state.lockRowClick = false;
       }
       async function handleDelete(record: EditRecordRow) {
         const res = await RemovelistUserGroupApi({
           userGroupId: record.groupId,
         });
+        state.lockRowClick = false;
         reload();
       }
       function onEditChange({ column, value, record }) {
+        console.log('onEditChange', record);
         // 本例
         if (column.dataIndex === 'id') {
           record.editValueRefs.name4.value = `${value}`;

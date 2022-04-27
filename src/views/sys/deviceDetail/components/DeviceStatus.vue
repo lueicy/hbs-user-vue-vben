@@ -33,6 +33,7 @@
           </div>
         </div>
         <div
+          v-if="online == '10'"
           class="flex flex-col items-center justify-center sta-title-m"
           :style="{
             backgroundImage: 'url(' + dealAqires('url', pageData.tvoc) + ')',
@@ -47,6 +48,20 @@
             dealAqires('text', pageData.tvoc)
           }}</span>
         </div>
+        <div
+          v-else
+          class="flex flex-col items-center justify-center sta-title-m"
+          :style="{
+            backgroundImage: 'url(' + deviceImg_off + ')',
+            backgroundSize: '100% 100%',
+            backgroundRepeat: 'no-repeat',
+            width: '313px',
+            height: '284px',
+          }"
+        >
+          <span class="mb-6 aqi-title">AQI</span>
+          <span class="air-status" :style="{ color: '#999999' }">离线</span>
+        </div>
         <div class="flex items-center sta-title-r">
           <span
             :style="{ color: online == '10' ? '' : '#A6AAB8' }"
@@ -59,7 +74,6 @@
           </span>
         </div>
       </div>
-      <!-- <div class="sta-content"> </div> -->
       <div class="flex items-end justify-between sta-footer">
         <div class="flex flex-col sta-footer-l">
           <div style="width: 300px">
@@ -130,7 +144,7 @@
               {{ dealWind(pageData.wind) }}
             </span>
           </div>
-          <div>
+          <div v-if="pDChildLock(pageData.model)">
             <span class="sta-footer-r-mod-t">童锁：</span>
             <span class="sta-footer-r-mod-d">{{
               pageData.childLock == '00' ? '关锁' : '开锁'
@@ -176,6 +190,7 @@
   import deviceImg_green from '/@/assets/images/device/device/green.png';
   import deviceImg_good from '/@/assets/images/device/device/good.png';
   import deviceImg_bad from '/@/assets/images/device/device/bad.png';
+  import deviceImg_off from '/@/assets/images/device/device/off.png';
   import { createFromIconfontCN } from '@ant-design/icons-vue';
   import { iconfontJS } from '/@/utils/iconfont';
 
@@ -183,9 +198,10 @@
   import ControlModel from './ControlModel.vue';
   import TimingModel from './TimingModel.vue';
   import { useModal } from '/@/components/Modal';
-  import { getMqttConfig, updateDeviceName } from '/@/api/sys/groupAndDevice';
+  import { updateDeviceName } from '/@/api/sys/groupAndDevice';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useMessage } from '/@/hooks/web/useMessage';
+  import bus from '/@/utils/bus';
   const IconFont = createFromIconfontCN({
     scriptUrl: iconfontJS(),
   });
@@ -198,7 +214,6 @@
     online: any;
     editStatus: boolean;
   }
-  declare let Paho: any;
   export default defineComponent({
     components: {
       ControlModel,
@@ -226,111 +241,20 @@
         configRes: {},
         mqttOptions: {},
         editStatus: true, // 编辑设备名称
+        checkChildLock: false, // 是否有童锁
       });
       const { t } = useI18n();
       const { createMessage, createErrorModal } = useMessage();
       const { success } = createMessage;
       // MQTT相关 ↓
-      let MQTT_CLIENT: any = {};
-      async function getConfig() {
-        const res = await getMqttConfig();
-        if (res) {
-          state.mqttOptions.clientId = res.clientId;
-          state.mqttOptions.keepAlive = res.keepAlive;
-          state.mqttOptions.port = Number(res.mqttPort);
-          state.mqttOptions.mqttHost = res.mqttHost;
-          state.mqttOptions.protocolVersion = res.mqttVersion;
-          state.mqttOptions.username = res.mqttUserName;
-          state.mqttOptions.password = res.mqttPassword;
-          state.mqttOptions.connectTimeout = 60000;
-          state.mqttOptions.pubTopic = res.pubTopic; // 发布主题
-          state.mqttOptions.subTopic = res.subTopic; // 订阅主题
-          connectMqtt();
-        }
-      }
-      function connectMqtt() {
-        MQTT_CLIENT = new Paho.MQTT.Client(
-          state.mqttOptions.mqttHost,
-          state.mqttOptions.port,
-          state.mqttOptions.clientId
-        );
-        //建立客户端实例
-        let options = {
-          invocationContext: {
-            host: state.mqttOptions.mqttHost,
-            port: state.mqttOptions.port,
-            path: MQTT_CLIENT.path,
-            clientId: state.mqttOptions.clientId,
-          },
-          timeout: 5,
-          keepAliveInterval: state.mqttOptions.keepAlive,
-          cleanSession: false,
-          mqttVersion: 4,
-          useSSL: false,
-          userName: state.mqttOptions.username,
-          password: state.mqttOptions.password,
-          onSuccess: onConnect,
-          onFailure: function (e) {
-            console.log(e);
-          },
-        };
-        MQTT_CLIENT.onConnectionLost = onConnectionLost; //注册连接断开处理事件
-        MQTT_CLIENT.onMessageArrived = onMessageArrived; //注册消息接收处理事件
-        MQTT_CLIENT.connect(options);
-      }
-      /**
-       * @Author: lgh
-       * @Date:
-       * @Descripttion: MQTT 连接成功回调
-       */
-      function onConnect() {
-        console.log('mqtt连接成功！');
-        sendMqttSubscribe();
-      }
 
-      /**
-       * @Author: lgh
-       * @Date:
-       * @Descripttion: MQTT 断开回调
-       * @param {*} responseObject
-       */
-      function onConnectionLost(responseObject) {
-        console.log('mqtt断开:' + responseObject.errorMessage + 'code' + responseObject.errorCode);
-      }
-
-      /**
-       * @Author: lgh
-       * @Date:
-       * @Descripttion: 发送订阅
-       */
-      function sendMqttSubscribe() {
-        if (MQTT_CLIENT !== undefined && MQTT_CLIENT.isConnected()) {
-          MQTT_CLIENT.subscribe(state.mqttOptions.subTopic, { qos: 0 });
-          console.log('订阅成功');
-        } else {
-          console.log('未连接MQTT');
-        }
-      }
-
-      /**
-       * @Author:
-       * @Date:
-       * @Descripttion: 取消订阅
-       */
-      function unMqttSubscribe() {
-        if (MQTT_CLIENT !== undefined && MQTT_CLIENT.isConnected()) {
-          MQTT_CLIENT.unsubscribe(state.mqttOptions.pubTopic);
-          console.log('取消订阅成功');
-        } else {
-          console.log('未连接MQTT');
-        }
-      }
       /**
        * @Author:
        * @Date:
        * @Descripttion: 接收信息
        */
       function onMessageArrived(msg) {
+        // console.log('busemitc传过来的数据', msg);
         let data = JSON.parse(msg.payloadString);
         // console.log('payloadString', JSON.parse(msg.payloadString));
         // console.log('msgType', data.msgType);
@@ -341,6 +265,7 @@
           state.online = data.status;
         }
       }
+      bus.on('mqttAllData', onMessageArrived);
       // MQTT相关 ↑
 
       // 弹窗相关 ↓
@@ -418,8 +343,8 @@
               break;
             default:
               colStyle = '#A9A9AF';
-              aqiText = '清新';
-              imageUrl = deviceImg_green;
+              aqiText = '';
+              imageUrl = deviceImg_off;
           }
           return type === 'style' ? colStyle : type === 'text' ? aqiText : imageUrl;
         };
@@ -469,15 +394,21 @@
       const dealWind = computed(() => {
         return function (event) {
           let wind = '';
+          let arr: any = [];
+          if (state.pageData.model == 'EH-Z-7B200F-HET' || state.pageData.model == 'EH-Z-7B100A') {
+            arr = ['静音', '低', '高'];
+          } else {
+            arr = ['弱', '中', '强'];
+          }
           switch (event) {
             case '01':
-              wind = '弱';
+              wind = arr[0];
               break;
             case '02':
-              wind = '中';
+              wind = arr[1];
               break;
             case '03':
-              wind = '强';
+              wind = arr[2];
               break;
           }
           return wind;
@@ -525,12 +456,19 @@
           return type == 'icon' ? icon : patternText;
         };
       });
-
-      onMounted(() => {
-        getConfig();
+      const pDChildLock = computed(() => {
+        return function (event) {
+          if (event == 'EH-Z-7G650' || event == 'EH-Z-7G400A' || event == 'EH-Z-7G750') {
+            return true;
+          } else {
+            return false;
+          }
+        };
       });
+
+      onMounted(() => {});
       onUnmounted(() => {
-        unMqttSubscribe();
+        bus.off('mqttAllData', onMessageArrived);
       });
       return {
         handleChange,
@@ -541,20 +479,15 @@
         dealFixTime,
         dealPattern,
         dealWind,
+        pDChildLock,
         currentModal,
         modalVisible,
         register1,
         register2,
         register3,
-        MQTT_CLIENT,
-        getConfig,
-        connectMqtt,
-        onConnect,
-        onConnectionLost,
-        sendMqttSubscribe,
-        unMqttSubscribe,
         onMessageArrived,
         changeDeviceName,
+        deviceImg_off,
       };
     },
   });

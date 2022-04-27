@@ -424,6 +424,10 @@
        */
       function onConnectionLost(responseObject) {
         console.log('mqtt断开:' + responseObject.errorMessage + 'code' + responseObject.errorCode);
+        setTimeout(() => {
+          console.log('chonglian');
+          connectMqtt();
+        }, 5000);
       }
 
       /**
@@ -459,6 +463,7 @@
        * @Descripttion: 接收信息
        */
       function onMessageArrived(msg) {
+        bus.emit('mqttAllData', msg);
         let data = JSON.parse(msg.payloadString);
         // console.log('payloadString', JSON.parse(msg.payloadString));
         // console.log('msgType', data.msgType);
@@ -814,7 +819,7 @@
       onBeforeUnmount(() => {
         bus.off('searchByPid', searchByPid);
         bus.off('fetchPageData', fetch2);
-        unMqttSubscribe();
+        // unMqttSubscribe();
       });
       return {
         register1,
@@ -868,7 +873,6 @@
   .group-name {
     height: 16px;
     font-size: 12px;
-    font-family: Microsoft YaHei;
     font-weight: 600;
     line-height: 24px;
     color: #999999;
@@ -891,7 +895,7 @@
     font-family: PingFangSC-Regular, PingFang SC;
     font-weight: 400;
     color: #ffffff;
-    line-height: 20px;
+    line-height: 22px;
     font-weight: 400;
   }
   .title_Contr {
@@ -994,7 +998,6 @@
             width: 112px;
             height: 19px;
             font-size: 14px;
-            font-family: Microsoft YaHei;
             font-weight: 400;
             line-height: 24px;
             color: #3e4159;
@@ -1090,13 +1093,13 @@
     }
   }
   /deep/ .ant-empty {
-    min-height: 400px;
+    min-height: 600px;
   }
   /deep/ .ant-row {
     min-width: 1600px;
   }
   /deep/ .ant-spin-container {
-    min-height: 400px;
+    min-height: 600px;
   }
   /deep/ .ant-card-bordered {
     border: 1px solid #f0f0f0 !important;

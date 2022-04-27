@@ -32,6 +32,6 @@
     border-color: #00b9d7 !important;
   }
   body {
-    font-family: Microsoft YaHei !important;
+    font-family: PingFangSC-Regular, PingFang SC !important;
   }
 </style>

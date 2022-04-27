@@ -19,7 +19,7 @@
       component: 'Input',
       label: '备注名称',
       colProps: {
-        span: 24,
+        span: 20,
       },
       defaultValue: '',
     },
@@ -28,7 +28,7 @@
       component: 'Input',
       label: '分享人账号',
       colProps: {
-        span: 24,
+        span: 20,
       },
     },
   ];
@@ -41,11 +41,11 @@
     setup(props) {
       const modelRef = ref({});
       const [addShareForm, { validateFields }] = useForm({
-        labelWidth: 120,
+        labelWidth: 150,
         schemas,
         showActionButtonGroup: false,
         actionColOptions: {
-          span: 24,
+          span: 16,
         },
       });
       const { t } = useI18n();
