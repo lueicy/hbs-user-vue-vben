@@ -46,7 +46,7 @@
   </BasicModal>
 </template>
 <script lang="ts">
-  import { defineComponent, ref, toRefs, reactive, onMounted, computed } from 'vue';
+  import { defineComponent, ref, toRefs, reactive, onMounted, computed, nextTick } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { getBySubtype, sendCommand } from '/@/api/sys/groupAndDevice';
   import { useI18n } from '/@/hooks/web/useI18n';
@@ -81,7 +81,7 @@
       });
       const { t } = useI18n();
       const { createMessage, createErrorModal } = useMessage();
-      const { success } = createMessage;
+      const { error, success } = createMessage;
       const modelRef = ref({});
       const [register, { closeModal }] = useModalInner();
       const dealPattern = computed(() => {
@@ -155,14 +155,23 @@
         }
       }
       function selectPattern(type, event) {
+        console.log('模式event', event);
         if (type == 'wind') {
-          state.doWind = event;
+          if ((state.doPattern == '01' || state.doPattern == '07') && event !== '01') {
+            error('智能/节能模式下风速默认为弱');
+            state.doWind = '01';
+          } else {
+            state.doWind = event;
+          }
         } else {
+          if (state.doPattern == '01' || state.doPattern == '07') {
+            state.doWind = '01';
+
+          }
           state.doPattern = event;
         }
       }
       async function getdeviceModel() {
-        console.log('模式详情', props.deviceData)
         if (!props.deviceData) return;
         state.open = props.deviceData.open;
         state.doWind = props.deviceData.wind;
@@ -173,6 +182,9 @@
         state.windList = newWindList;
       }
       async function handleOK() {
+        if (state.doPattern == '01' || state.doPattern == '07') {
+          state.doWind = '01';
+        }
         // 开关机指令
         let param1 = {
           command: '01' + state.open,
