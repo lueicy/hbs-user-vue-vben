@@ -134,4 +134,7 @@
       // background: rgba(0, 185, 215, 0.39);
     }
   }
+  /deep/ .ant-layout-footer {
+    background-color: #f6f7fb !important;
+  }
 </style>

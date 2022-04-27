@@ -31,4 +31,7 @@
     background: #00b9d7 !important;
     border-color: #00b9d7 !important;
   }
+  body {
+    font-family: Microsoft YaHei !important;
+  }
 </style>

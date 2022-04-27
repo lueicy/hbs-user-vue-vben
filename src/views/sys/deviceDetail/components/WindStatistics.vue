@@ -249,6 +249,7 @@
       background: rgba(245, 252, 254, 0.39);
       box-shadow: 0px 3px 6px #dbdbdb;
       min-height: 537px;
+      border-radius: 8px;
       .over-title {
         width: 100%;
         height: 21px;

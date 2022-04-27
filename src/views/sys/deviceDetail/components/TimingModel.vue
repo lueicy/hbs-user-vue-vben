@@ -61,14 +61,14 @@
       </div>
     </div>
     <!-- 执行时间 -->
-    <div class="flex justify-start model-li">
+    <div class="flex justify-start model-time">
       <div class="li-do-title">执行时间</div>
       <div>
         <TimePicker v-model:value="dateValue" format="HH:mm" @change="dateOk" />
       </div>
     </div>
     <!-- 模式名称 -->
-    <div class="flex justify-start model-li">
+    <div class="flex justify-start model-name">
       <div class="li-do-title">模式名称</div>
       <div>
         <a-input placeholder="默认工作日" v-model:value="modelName" />
@@ -542,6 +542,24 @@
       margin-right: 45px;
     }
   }
+  .model-time {
+    padding: 30px 10px;
+    border-bottom: 1px solid #d9d9d9;
+    .li-do-title {
+      font-size: 16px;
+      color: #3e4159;
+      min-width: 77px;
+    }
+  }
+  .model-name {
+    padding: 30px 10px;
+    border-bottom: 1px solid #d9d9d9;
+    .li-do-title {
+      font-size: 16px;
+      color: #3e4159;
+      min-width: 77px;
+    }
+  }
   .model-selected {
     color: #09b9dc;
   }
@@ -578,7 +596,7 @@
   }
   .add-class {
     margin-left: 340px;
-    padding-top: 25px;
+    // padding-top: 25px;
   }
   .weekday-class {
     width: 24px;

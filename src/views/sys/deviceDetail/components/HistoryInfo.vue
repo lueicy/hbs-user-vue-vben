@@ -107,11 +107,11 @@
     margin-top: 20px;
     padding: 14px 32px;
     background: #ffffff;
-    box-shadow: 0px 3px 6px #dbdbdb;
+    // box-shadow: 0px 3px 6px #dbdbdb;
     opacity: 1;
     border-radius: 10px;
     .his-con-title {
-      width: 72px;
+      width: 75px;
       box-sizing: content-box;
       padding-bottom: 10px;
       height: 24px;
@@ -126,6 +126,7 @@
       background: rgba(245, 252, 254, 0.39);
       box-shadow: 0px 3px 6px #dbdbdb;
       margin: 20px 0px;
+      border-radius: 8px;
       .over-title {
         width: 100%;
         height: 21px;

@@ -6,7 +6,17 @@
         <a-button type="primary" class="add-btn" @click="addGroup"> 新增群组 </a-button>
       </div>
       <div class="group-table">
-        <BasicTable @register="groupTable" @edit-change="onEditChange">
+        <BasicTable @register="groupTable" @edit-change="onEditChange" @row-click="toDetail">
+          <template #deviceCount="{ text }">
+            <span>{{ text }} 台</span>
+          </template>
+          <template #onlineCount="{ text }">
+            <span>{{ text }} 台</span>
+          </template>
+          <template #errorCount="{ text }">
+            <span v-if="text == 0" class="noError">无异常</span>
+            <span v-else class="error">{{ text }}台</span>
+          </template>
           <template #operation="{ record, column }">
             <TableAction :actions="createActions(record, column)" />
           </template>
@@ -60,16 +70,19 @@
       title: '设备数量',
       dataIndex: 'deviceCount',
       width: 250,
+      slots: { customRender: 'deviceCount' },
     },
     {
       title: '在线数量',
       dataIndex: 'onlineCount',
       width: 250,
+      slots: { customRender: 'onlineCount' },
     },
     {
       title: '异常数量',
       dataIndex: 'errorCount',
       width: 250,
+      slots: { customRender: 'errorCount' },
     },
     {
       title: '操作',
@@ -109,7 +122,6 @@
 
       const { push } = useRouter();
       function toDetail(event) {
-        console.log('点击查看群组', event);
         push({
           name: 'GroupDetail',
           params: {
@@ -127,7 +139,6 @@
         if (valid) {
           try {
             const data: any = cloneDeep(record.editValueRefs);
-            console.log('8899', data, record);
             //TODO 此处将数据提交给服务器保存
             // ...
             // 保存之后提交编辑状态
@@ -156,17 +167,18 @@
         if (!record.editable) {
           return [
             {
-              label: '修改',
+              label: '修改名称',
               disabled: currentEditKeyRef.value ? currentEditKeyRef.value !== record.key : false,
               onClick: handleEdit.bind(null, record),
             },
-            {
-              label: '查看',
-              disabled: currentEditKeyRef.value ? currentEditKeyRef.value !== record.key : false,
-              onClick: toDetail.bind(null, record),
-            },
+            // {
+            //   label: '查看',
+            //   disabled: currentEditKeyRef.value ? currentEditKeyRef.value !== record.key : false,
+            //   onClick: toDetail.bind(null, record),
+            // },
             {
               label: '删除',
+              color: 'error',
               popConfirm: {
                 title: '是否删除该数据',
                 confirm: handleDelete.bind(null, record, column),
@@ -202,7 +214,6 @@
           userGroupId: record.groupId,
         });
         reload();
-        console.log('点击了删除222', res);
       }
       function onEditChange({ column, value, record }) {
         // 本例
@@ -214,7 +225,6 @@
 
       // 新增数组
       function addGroup() {
-        console.log('新增数组');
         currentModal.value = AddGroupModel;
         nextTick(() => {
           modalVisible.value = true;
@@ -266,6 +276,12 @@
   .btn-m-r {
     padding: 24px 10px;
     flex-direction: row-reverse;
+  }
+  .noError {
+    color: #52c41a;
+  }
+  .error {
+    color: #ff5e58;
   }
   /deep/ .ant-btn-primary {
     background: rgba(9, 185, 220, 1);

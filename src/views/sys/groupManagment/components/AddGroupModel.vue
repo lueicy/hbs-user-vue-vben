@@ -17,7 +17,7 @@
       component: 'Input',
       label: '群组名称',
       colProps: {
-        span: 24,
+        span: 16,
       },
       defaultValue: '',
     },
@@ -29,11 +29,11 @@
       const modelRef = ref({});
       const [register] = useModalInner();
       const [registerForm, { validateFields }] = useForm({
-        labelWidth: 120,
+        labelWidth: 80,
         schemas,
         showActionButtonGroup: false,
         actionColOptions: {
-          span: 24,
+          span: 16,
         },
       });
 

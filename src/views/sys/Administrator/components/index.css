@@ -24,16 +24,16 @@
 }
 .SearBar-nav .restBtm {
   border-radius: 4px;
-  border: 1px solid #00B9DC;
+  border: 1px solid #00b9dc;
   font-family: PingFangSC-Semibold, PingFang SC;
   font-weight: 600;
-  color: #00B9DC;
+  color: #00b9dc;
 }
 .SearBar-nav .subBtm {
   border-radius: 4px;
   font-family: PingFangSC-Semibold, PingFang SC;
   font-weight: 600;
-  background-color: #00B9DC;
+  background-color: #00b9dc;
   border: 0;
 }
 .SearBar-nav .Title {

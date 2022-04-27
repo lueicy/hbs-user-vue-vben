@@ -213,7 +213,16 @@
       </a-list>
     </template>
     <template v-else>
-      <div class="p-5"> <Empty /></div>
+      <div class="p-5">
+        <Empty
+          :image="emptyImg"
+          :image-style="{
+            margin: '10px auto',
+            width: '190px',
+            height: '114px',
+          }"
+        />
+      </div>
     </template>
 
     <!-- </div> -->
@@ -254,6 +263,7 @@
   import deviceImg_good from '/@/assets/images/device/device/good.png';
   import deviceImg_bad from '/@/assets/images/device/device/bad.png';
   import deviceImg_off from '/@/assets/images/device/device/off.png';
+  import emptyImg from '/@/assets/images/empty.png';
   import {
     GetAllDeviceApi,
     GetDeviceByGroupIdApi,
@@ -842,7 +852,6 @@
         sendMqttSubscribe,
         unMqttSubscribe,
         onMessageArrived,
-
         // handleInfiniteOnLoad,
         fetch,
         fetch2,
@@ -850,6 +859,7 @@
         pageSize,
         total,
         paginationProp,
+        emptyImg,
       };
     },
   });

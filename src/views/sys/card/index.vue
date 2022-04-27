@@ -11,6 +11,7 @@
       </a-button>
       <DeviceDetail :deviceData="deviceData" />
     </template>
+    <LayoutFooter />
   </PageWrapper>
 </template>
 <script lang="ts">
@@ -26,6 +27,7 @@
   import { getDeviceDetail } from '/@/api/sys/groupAndDevice';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useMessage } from '/@/hooks/web/useMessage';
+  import LayoutFooter from '/@/components/layoutFooter/LayoutFooter.vue';
 
   interface stateType {
     isDetail: boolean; //是否开启选择
@@ -40,6 +42,7 @@
       DeviceManage,
       PageWrapper,
       Icon,
+      LayoutFooter,
     },
     directives: {
       Ripple: RippleDirective,
@@ -108,5 +111,8 @@
     background: none;
     margin: 8px 0px;
     padding-left: 0px;
+  }
+  /deep/ .ant-layout-footer {
+    background: #f6f7fb !important;
   }
 </style>

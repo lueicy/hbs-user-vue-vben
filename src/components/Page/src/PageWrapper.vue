@@ -173,6 +173,7 @@ export default defineComponent({
 .@{prefix-cls} {
   position: relative;
   background-color: rgba(246, 247, 251, 1);
+  height: 100%;
   .@{prefix-cls}-content {
     margin: 0px 32px 32px 32px;
     border-radius: 10px 10px 0 0;

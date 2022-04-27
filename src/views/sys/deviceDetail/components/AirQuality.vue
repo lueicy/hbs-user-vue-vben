@@ -69,6 +69,7 @@
       padding: 16px 24px;
       background: rgba(245, 252, 254, 0.39);
       box-shadow: 0px 3px 6px #dbdbdb;
+      border-radius: 8px;
       .over-title {
         width: 100%;
         height: 21px;
