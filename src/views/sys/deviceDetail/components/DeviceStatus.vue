@@ -23,9 +23,9 @@
               />
             </div>
             <div class="l-name" v-if="!editStatus">
-              <Input v-model:value="pageData.deviceName" />
+              <Input v-model:value="tmpDeviceName" />
               <button class="fecth-btn" @click="changeDeviceName">保存</button>
-              <button class="fecth-btn" @click="editStatus = true">取消</button>
+              <button class="fecth-btn" @click="cancelChange">取消</button>
             </div>
           </div>
           <div>
@@ -213,6 +213,7 @@
     mqttOptions: any;
     online: any;
     editStatus: boolean;
+    tmpDeviceName: string;
   }
   export default defineComponent({
     components: {
@@ -242,10 +243,11 @@
         mqttOptions: {},
         editStatus: true, // 编辑设备名称
         checkChildLock: false, // 是否有童锁
+        tmpDeviceName: props.statusData.deviceName,
       });
       const { t } = useI18n();
       const { createMessage, createErrorModal } = useMessage();
-      const { success } = createMessage;
+      const { error, success } = createMessage;
       // MQTT相关 ↓
 
       /**
@@ -299,15 +301,21 @@
 
       // 弹窗相关 ↑
       async function changeDeviceName() {
+        console.log('tmpDeviceName', state.tmpDeviceName);
+        if (!state.tmpDeviceName) {
+          error('请输入正确的名称格式！');
+          return;
+        }
         let params = {
           deviceId: state.pageData.deviceId,
           sort: 0,
-          userDeviceName: state.pageData.deviceName,
+          userDeviceName: state.tmpDeviceName,
         };
         try {
           let res = await updateDeviceName(params);
           if (res) {
             success('修改成功');
+            state.pageData.deviceName = state.tmpDeviceName;
             state.editStatus = true;
           }
         } catch (error: any) {
@@ -316,6 +324,10 @@
             content: error.message || t('sys.api.networkExceptionMsg'),
           });
         }
+      }
+      function cancelChange(){
+        state.editStatus = true;
+        state.tmpDeviceName = state.pageData.deviceName;
       }
 
       // 判断空气质量，根据结果显示样式
@@ -487,6 +499,7 @@
         register3,
         onMessageArrived,
         changeDeviceName,
+        cancelChange,
         deviceImg_off,
       };
     },
