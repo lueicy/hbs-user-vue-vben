@@ -40,6 +40,7 @@ interface UserState {
   routerName?: string;
   routerNameList?: string[];
   appDeviceId?: string;
+  mqttConnectStatus?: boolean;
 }
 
 export const useUserStore = defineStore({
@@ -59,6 +60,7 @@ export const useUserStore = defineStore({
     routerName: '',
     routerNameList: [],
     appDeviceId: undefined,
+    mqttConnectStatus: false,
   }),
   getters: {
     getUserInfo(): UserInfo {
@@ -81,6 +83,9 @@ export const useUserStore = defineStore({
     },
     getAppDeviceId(): string {
       return this.appDeviceId || getAuthCache<string>(APP_DEVICE_ID_KEY);
+    },
+    getMqttConnectStatus() {
+      return this.mqttConnectStatus;
     },
   },
   actions: {
@@ -131,6 +136,9 @@ export const useUserStore = defineStore({
     setAppDeviceId(info: string | undefined) {
       this.appDeviceId = info;
       setAuthCache(APP_DEVICE_ID_KEY, info);
+    },
+    setMqttConnectStatus(flag: boolean) {
+      this.mqttConnectStatus = flag;
     },
     /**
      * @description: user login

@@ -264,6 +264,7 @@
   import deviceImg_bad from '/@/assets/images/device/device/bad.png';
   import deviceImg_off from '/@/assets/images/device/device/off.png';
   import emptyImg from '/@/assets/images/empty.png';
+  import { useUserStore } from '/@/store/modules/user';
   import {
     GetAllDeviceApi,
     GetDeviceByGroupIdApi,
@@ -349,6 +350,7 @@
         busy: false,
         mqttOptions: {},
       });
+      const userStore = useUserStore();
       const { t } = useI18n();
       const { createMessage, createErrorModal } = useMessage();
 
@@ -373,6 +375,7 @@
           state.mqttOptions.connectTimeout = 60000;
           state.mqttOptions.pubTopic = res.pubTopic; // 发布主题
           state.mqttOptions.subTopic = res.subTopic; // 订阅主题
+          if (userStore.getMqttConnectStatus) return; //在连接成功之后就不再发起连接请求了
           connectMqtt();
         }
       }
@@ -413,6 +416,7 @@
        */
       function onConnect() {
         console.log('mqtt连接成功！');
+        userStore.setMqttConnectStatus(true);
         sendMqttSubscribe();
       }
 
@@ -465,8 +469,8 @@
       function onMessageArrived(msg) {
         bus.emit('mqttAllData', msg);
         let data = JSON.parse(msg.payloadString);
-        // console.log('payloadString', JSON.parse(msg.payloadString));
-        // console.log('msgType', data.msgType);
+        console.log('payloadString', JSON.parse(msg.payloadString));
+        console.log('msgType', data.msgType);
         if (!data || !state.devicesList) return;
         state.devicesList.forEach((item) => {
           if (item.deviceId === data.deviceId) {
